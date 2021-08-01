@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+defaults:
+  run:
+    working-directory: ./website
+
 jobs:
   deploy:
     runs-on: ubuntu-20.04
@@ -13,7 +17,6 @@ jobs:
 
       - name: Setup Node
         uses: actions/setup-node@v2
-        working-directory: ./website
         with:
           node-version: '14'
           check-latest: true
