@@ -1,0 +1,24 @@
+<p-card header="Globals">
+    <div class="card">
+        <form [formGroup]="formGroup">
+            <div class="field grid">
+                <label for="g" class="col-12">Gravity of Eart</label>
+                <div class="col-12">
+                    <div class="p-inputgroup">
+                        <input id="g" type="number" formControlName="g" pInputText class="inputfield w-full">
+                        <span class="p-inputgroup-addon">m/s</span>
+                    </div>
+                </div>
+            </div>
+            <div class="field grid">
+                <label for="pamb" class="col-12">Atmosphere Pressure</label>
+                <div class="col-12">
+                    <div class="p-inputgroup">
+                        <input id="pamb" type="number" formControlName="p_amb" pInputText class="inputfield w-full">
+                        <span class="p-inputgroup-addon">pa</span>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</p-card>
