@@ -1,6 +1,7 @@
 import { NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
 import { RouterModule } from "@angular/router";
+import { MenuModule } from "./menu/menu.module";
 import { SettingsModule } from "./settings/settings.module";
 import { ViewsComponent } from "./views.component";
 
@@ -10,6 +11,7 @@ import { ViewsComponent } from "./views.component";
         RouterModule,
         BrowserModule,
         // Custom
+        MenuModule,
         SettingsModule
     ],
     declarations: [
