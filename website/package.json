@@ -7,10 +7,15 @@
         "url": "https://github.com/dayaftereh/rocket.git"
     },
     "license": "MIT",
+    "browserslist": [
+        "defaults",
+        "not IE 11",
+        "maintained node versions"
+    ],
     "scripts": {
         "ng": "ng",
         "start": "ng serve",
-        "build": "ng build"
+        "build": "ng build --baseHref=./ --aot=true --configuration production"
     },
     "dependencies": {
         "rxjs": "~6.5.3",
