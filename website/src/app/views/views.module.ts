@@ -3,6 +3,7 @@ import { BrowserModule } from "@angular/platform-browser";
 import { RouterModule } from "@angular/router";
 import { MenuModule } from "./menu/menu.module";
 import { SettingsModule } from "./settings/settings.module";
+import { UtilitiesModule } from "./utilities/utilities.module";
 import { ViewsComponent } from "./views.component";
 
 @NgModule({
@@ -12,7 +13,8 @@ import { ViewsComponent } from "./views.component";
         BrowserModule,
         // Custom
         MenuModule,
-        SettingsModule
+        SettingsModule,
+        UtilitiesModule
     ],
     declarations: [
         ViewsComponent

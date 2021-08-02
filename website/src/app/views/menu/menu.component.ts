@@ -37,7 +37,7 @@ export class MenuComponent implements OnInit {
                     {
                         label: "Simulation",
                         command: () => {
-                            this.navigate(['settings'])
+                            this.navigate(['utilities', 'simulation'])
                         },
                         icon: 'pi pi-desktop'
                     }

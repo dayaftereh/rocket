@@ -15,12 +15,14 @@ export class GlobalsService {
     private load(): Globals {
         return {
             g: 9.81,
-            p_amb: 101325
+            pAmb: 101325,
+            rhoAir: 1.225
         }
     }
 
     get(): Globals {
-        return this.subject.value
+        const globals: Globals = this.subject.value
+        return Object.assign({}, globals)
     }
 
     asObservable(): Observable<Globals> {

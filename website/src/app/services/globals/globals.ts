@@ -1,4 +1,5 @@
-export interface Globals { 
+export interface Globals {
     g: number // gravity of earth in m/s
-    p_amb: number // atmosphere pressure in pa
+    pAmb: number // atmosphere pressure in pa
+    rhoAir: number //  density of air in kg/m3
 }

@@ -22,7 +22,8 @@ export class GlobalsSettingsComponent implements OnInit, OnDestroy {
     private create(): FormGroup {
         return new FormGroup({
             g: new FormControl(),
-            p_amb: new FormControl(),
+            pAmb: new FormControl(),
+            rhoAir: new FormControl(),
         })
     }
 
@@ -46,11 +47,13 @@ export class GlobalsSettingsComponent implements OnInit, OnDestroy {
 
     private onFormChanged(): void {
         const g: number = FormUtils.getValueOrDefault(this.formGroup, 'g', 9.81)
-        const p_amb: number = FormUtils.getValueOrDefault(this.formGroup, 'p_amb', 101325)
+        const pAmb: number = FormUtils.getValueOrDefault(this.formGroup, 'pAmb', 101325)
+        const rhoAir: number = FormUtils.getValueOrDefault(this.formGroup, 'rhoAir', 1.225)
 
         this.globalsService.update({
             g,
-            p_amb
+            pAmb,
+            rhoAir
         })
     }
 
