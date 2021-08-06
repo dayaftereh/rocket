@@ -40,6 +40,13 @@ export class MenuComponent implements OnInit {
                             this.navigate(['utilities', 'simulation'])
                         },
                         icon: 'pi pi-desktop'
+                    },
+                    {
+                        label: "Thrust-Test",
+                        command: () => {
+                            this.navigate(['utilities', 'thrust-test'])
+                        },
+                        icon: 'pi pi-ticket'
                     }
                 ]
             }

@@ -1,0 +1,32 @@
+<div class="grid">
+    <div class="col" [hidden]="!error">
+        <p-message severity="error" text="{{errorText}}"></p-message>
+    </div>
+</div>
+<div class="grid">
+    <div class="col">
+        <p-listbox [options]="baudRates" [(ngModel)]="baudRate"></p-listbox>
+    </div>
+</div>
+<div class="grid">
+    <div class="col">
+        <span class="p-buttonset">
+            <button pButton type="button" label="Open" class="p-button-secondary" [disabled]="port !== undefined"
+                (click)="open()"></button>
+            <button pButton type="button" label="Close" class="p-button-danger" [disabled]="port === undefined"
+                (click)="close()"></button>
+        </span>
+    </div>
+</div>
+
+<div class="grid">
+    <div class="col">
+        Pressure: {{pressure}}
+    </div>
+    <div class="col">
+        Force: {{force}}
+    </div>
+    <div class="col">
+        Time: {{time}}
+    </div>
+</div>
