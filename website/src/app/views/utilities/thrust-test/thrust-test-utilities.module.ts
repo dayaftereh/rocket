@@ -1,11 +1,8 @@
 import { NgModule } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
-import { ButtonModule } from "primeng/button";
-import { ChartModule } from "primeng/chart";
-import { ListboxModule } from 'primeng/listbox';
 import { MessageModule } from 'primeng/message';
-import { SerialServiceModule } from "../../../services/serial/serial-service.module";
+import { SerialThrustTestUtilitiesModule } from "./serial/serial-thrust-test-utilities.module";
 import { ThrustTestUtilitiesComponent } from "./thrust-test-utilities.component";
 
 @NgModule({
@@ -14,12 +11,9 @@ import { ThrustTestUtilitiesComponent } from "./thrust-test-utilities.component"
         FormsModule,
         BrowserModule,
         // PrimeNG
-        ChartModule,
-        ButtonModule,
-        ListboxModule,
         MessageModule,
         //Custom
-        SerialServiceModule
+        SerialThrustTestUtilitiesModule
     ],
     declarations: [
         ThrustTestUtilitiesComponent

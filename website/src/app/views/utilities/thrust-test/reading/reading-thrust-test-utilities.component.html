@@ -1,0 +1,38 @@
+<p-card header="Reading">
+    <div class="card">
+        <div class="formgrid grid">
+            <div class="field col">
+                <label for="pressure">Pressure</label>
+                <div class="p-inputgroup">
+                    <input id="pressure" type="number" [ngModel]="reading?.pressure" [disabled]="true" pInputText
+                        class="inputfield w-full">
+                    <span class="p-inputgroup-addon">bar</span>
+                </div>
+            </div>
+            <div class="field col">
+                <label for="force">Force</label>
+                <div class="p-inputgroup">
+                    <input id="force" type="number" pInputText [ngModel]="reading?.force" [disabled]="true"
+                        class="inputfield w-full">
+                    <span class="p-inputgroup-addon">N</span>
+                </div>
+            </div>
+            <div class="field col">
+                <label for="delta">Delta</label>
+                <div class="p-inputgroup">
+                    <input id="delta" type="number" pInputText [ngModel]="reading?.delta" [disabled]="true"
+                        class="inputfield w-full">
+                    <span class="p-inputgroup-addon">ms</span>
+                </div>
+            </div>
+            <div class="field col">
+                <label for="time">Time</label>
+                <div class="p-inputgroup">
+                    <input id="time" type="number" pInputText [ngModel]="reading?.time" [disabled]="true"
+                        class="inputfield w-full">
+                    <span class="p-inputgroup-addon">ms</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</p-card>
