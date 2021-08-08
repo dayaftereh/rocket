@@ -1,6 +1,6 @@
 import { Component, EventEmitter, OnInit, Output } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
-import { FormUtils } from "src/app/utils/form-utils";
+import { FormUtils } from "../../../../utils/form-utils";
 import { SerialReading } from "../serial/serial-reading";
 import { ThrustTestConfig } from "./thrust-test-config";
 
@@ -44,20 +44,24 @@ export class ControlThrustTestUtilitiesComponent implements OnInit {
 
     onReading(reading: SerialReading): void {
         this.reading = reading
+        const translate: SerialReading = this.translate(reading)
+        this.data.next(translate)
+    }
 
+    translate(reading: SerialReading): SerialReading {
         if (!this.config) {
-            return
+            this.config = this.getConfig()
         }
 
         const thrust: number = reading.thrust * this.config.pressureFactor + this.config.thrustOffset
         const pressure: number = reading.pressure * this.config.pressureFactor + this.config.pressureOffset
 
-        this.data.next({
+        return {
             thrust,
             pressure,
             time: reading.time,
             delta: reading.delta,
-        })
+        }
     }
 
     private getConfig(): ThrustTestConfig {

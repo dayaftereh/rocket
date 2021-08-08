@@ -1,6 +1,6 @@
 <div class="grid">
-    <div class="col" [hidden]="!error">
-        <p-message severity="error" text="{{errorText}}"></p-message>
+    <div class="col" [hidden]="false">
+        <p-message severity="error" text="Hello"></p-message>
     </div>
 </div>
 
@@ -20,5 +20,17 @@
 <div class="grid">
     <div class="col">
         <app-reading-thrust-test-utilities #reading></app-reading-thrust-test-utilities>
+    </div>
+</div>
+
+<div class="grid">
+    <div class="col">
+        <app-runner-thrust-test-utilities (start)="onStart()" (stop)="onStop()"></app-runner-thrust-test-utilities>
+    </div>
+</div>
+
+<div class="grid">
+    <div class="col">
+        <app-charts-thrust-test-utilities #charts></app-charts-thrust-test-utilities>
     </div>
 </div>

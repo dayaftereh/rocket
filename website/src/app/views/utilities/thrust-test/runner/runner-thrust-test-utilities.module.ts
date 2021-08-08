@@ -4,7 +4,8 @@ import { BrowserModule } from "@angular/platform-browser";
 import { ButtonModule } from "primeng/button";
 import { CardModule } from "primeng/card";
 import { InputTextModule } from "primeng/inputtext";
-import { ReadingThrustTestUtilitiesComponent } from "./reading-thrust-test-utilities.component";
+import { ProgressBarModule } from 'primeng/progressbar';
+import { RunnerThrustTestUtilitiesComponent } from "./runner-thrust-test-utilities.component";
 
 @NgModule({
     imports: [
@@ -15,14 +16,15 @@ import { ReadingThrustTestUtilitiesComponent } from "./reading-thrust-test-utili
         CardModule,
         ButtonModule,
         InputTextModule,
+        ProgressBarModule,
     ],
     declarations: [
-        ReadingThrustTestUtilitiesComponent
+        RunnerThrustTestUtilitiesComponent
     ],
     exports: [
-        ReadingThrustTestUtilitiesComponent
+        RunnerThrustTestUtilitiesComponent
     ]
 })
-export class ReadingThrustTestUtilitiesModule {
+export class RunnerThrustTestUtilitiesModule {
 
 }
