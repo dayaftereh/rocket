@@ -33,6 +33,14 @@
                     <span class="p-inputgroup-addon">ms</span>
                 </div>
             </div>
+
+            <div class="field col">
+                <label for="valve">Valve</label>
+                <div class="p-inputgroup">
+                    <input id="valve" type="text" pInputText [ngModel]="reading?.valve" [disabled]="true"
+                        class="inputfield w-full">
+                </div>
+            </div>
         </div>
     </div>
 </p-card>

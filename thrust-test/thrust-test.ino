@@ -30,14 +30,33 @@ void setup() {
 }
 
 void readSerialIncome() {
-  int c;
+  while (Serial.available() > 0) {
+    int v = Serial.read();
+    valveOpen = v > 0;
+  }
+}
 
-  while(c != 10) {
-    c = Serial.read();
-  }  
+void writeLong(long n) {
+  byte buf[4];
+  buf[0] = n & 255;
+  buf[1] = (n >> 8)  & 255;
+  buf[2] = (n >> 16) & 255;
+  buf[3] = (n >> 24) & 255;
+  Serial.write(buf, 4);
+}
+
+void writeULong(unsigned long n) {
+  byte buf[4];
+  buf[0] = n & 255;
+  buf[1] = (n >> 8)  & 255;
+  buf[2] = (n >> 16) & 255;
+  buf[3] = (n >> 24) & 255;
+  Serial.write(buf, 4);
 }
 
 void loop() {
+  Serial.write(42);
+
   // read the pressure
   int pressure = analogRead(PRESSURE_PIN);
   // force
@@ -45,25 +64,31 @@ void loop() {
 
   // set the valve state
   if (valveOpen) {
+    Serial.write(1);
     digitalWrite(VALVE_PIN, HIGH);
   } else {
+    Serial.write(0);
     digitalWrite(VALVE_PIN, LOW);
   }
 
-  if (Serial.available() > 0) {
-    readSerialIncome();
-  }
+  readSerialIncome();
 
   unsigned long now = millis();
   unsigned long delta = now - timer;
   timer = now;
 
-  Serial.print(pressure);
-  Serial.print(" ");
-  Serial.print(force);
-  Serial.print(" ");
-  Serial.print(delta);
-  Serial.print(" ");
-  Serial.print(now);
-  Serial.println("");
+  writeLong(pressure);
+  writeLong(force);
+  writeULong(delta);
+  writeULong(now);
+  Serial.flush();
+
+  /*Serial.print(pressure);
+    Serial.print(" ");
+    Serial.print(force);
+    Serial.print(" ");
+    Serial.print(delta);
+    Serial.print(" ");
+    Serial.print(now);
+    Serial.println("");*/
 }

@@ -3,6 +3,7 @@ import { SelectItem } from "primeng/api";
 import { Subscription } from "rxjs";
 import { SerialService } from "../../../../services/serial/serial.service";
 import { SerialReading } from "./serial-reading";
+import { ThrustTestTransformer } from "./thrust-test-transformer"
 
 @Component({
     selector: 'app-serial-thrust-test-utilities',
@@ -19,6 +20,9 @@ export class SerialThrustTestUtilitiesComponent implements OnInit, OnDestroy {
     @Output()
     data: EventEmitter<SerialReading>
 
+    @Output()
+    error: EventEmitter<Error>
+
     private reading: boolean
 
     private readingDone: Promise<void> | undefined
@@ -30,6 +34,7 @@ export class SerialThrustTestUtilitiesComponent implements OnInit, OnDestroy {
         this.baudRate = 9600
         this.reading = false
         this.subscriptions = []
+        this.error = new EventEmitter<Error>(true)
         this.data = new EventEmitter<SerialReading>(true)
     }
 
@@ -59,7 +64,7 @@ export class SerialThrustTestUtilitiesComponent implements OnInit, OnDestroy {
 
         const portSubscription: Subscription = this.serialService.asObservable().subscribe((port: SerialPort | undefined) => {
             this.onPort(port).catch((e: Error) => {
-                this.data.error(e)
+                this.error.next(e)
             })
         })
 
@@ -81,7 +86,9 @@ export class SerialThrustTestUtilitiesComponent implements OnInit, OnDestroy {
             return
         }
 
-        const reader: ReadableStreamDefaultReader<Uint8Array> = port.readable.getReader()
+        const reader: ReadableStreamDefaultReader<SerialReading> = port.readable
+            .pipeThrough(new TransformStream(new ThrustTestTransformer()))
+            .getReader()
 
         this.readingDone = new Promise<void>(async (resolve) => {
             try {
@@ -98,7 +105,7 @@ export class SerialThrustTestUtilitiesComponent implements OnInit, OnDestroy {
                 }
                 //reader.cancel()
             } catch (e) {
-                this.data.error(e)
+                this.error.next(e)
             } finally {
                 this.reading = false
                 reader.releaseLock()
@@ -107,23 +114,38 @@ export class SerialThrustTestUtilitiesComponent implements OnInit, OnDestroy {
         })
     }
 
-    async openValve(): Promise<void> {
+    private async write(data: Uint8Array): Promise<void> {
+        if (!this.port || !this.port.writable) {
+            return
+        }
 
+        const writer: WritableStreamDefaultWriter<Uint8Array> = this.port.writable.getWriter()
+        try {
+            await writer.write(data)
+        } catch (e) {
+            this.error.next(e)
+        } finally {
+            writer.releaseLock()
+        }
+    }
+
+    async openValve(): Promise<void> {
+        await this.write(new Uint8Array([1]))
     }
 
     async closeValve(): Promise<void> {
-
+        await this.write(new Uint8Array([0]))
     }
 
-    private onValue(data: Uint8Array): void {
-
+    private onValue(data: SerialReading): void {
+        this.data.next(data)
     }
 
     async open(): Promise<void> {
         try {
             await this.serialService.open()
         } catch (e) {
-            this.data.error(e)
+            this.error.next(e)
         }
     }
 
@@ -140,7 +162,7 @@ export class SerialThrustTestUtilitiesComponent implements OnInit, OnDestroy {
         try {
             await this.closing()
         } catch (e) {
-            this.data.error(e)
+            this.error.next(e)
         }
     }
 

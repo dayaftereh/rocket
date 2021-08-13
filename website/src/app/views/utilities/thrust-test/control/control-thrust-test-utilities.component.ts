@@ -32,9 +32,9 @@ export class ControlThrustTestUtilitiesComponent implements OnInit {
     private create(): FormGroup {
         return new FormGroup({
             pressureFactor: new FormControl(1.0),
-            pressureOffset: new FormControl(0.0),
+            pressureOffset: new FormControl(-512),
             thrustFactor: new FormControl(1.0),
-            thrustOffset: new FormControl(0.0)
+            thrustOffset: new FormControl(-231751)
         })
     }
 
@@ -61,14 +61,15 @@ export class ControlThrustTestUtilitiesComponent implements OnInit {
             pressure,
             time: reading.time,
             delta: reading.delta,
+            valve: reading.valve
         }
     }
 
     private getConfig(): ThrustTestConfig {
         const pressureFactor: number = FormUtils.getValueOrDefault(this.formGroup, "pressureFactor", 1.0)
-        const pressureOffset: number = FormUtils.getValueOrDefault(this.formGroup, "pressureOffset", 0.0)
+        const pressureOffset: number = FormUtils.getValueOrDefault(this.formGroup, "pressureOffset", -512)
         const thrustFactor: number = FormUtils.getValueOrDefault(this.formGroup, "thrustFactor", 1.0)
-        const thrustOffset: number = FormUtils.getValueOrDefault(this.formGroup, "thrustOffset", 0.0)
+        const thrustOffset: number = FormUtils.getValueOrDefault(this.formGroup, "thrustOffset", -231751)
 
         return {
             pressureFactor,

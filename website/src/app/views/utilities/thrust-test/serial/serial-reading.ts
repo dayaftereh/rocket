@@ -3,4 +3,5 @@ export interface SerialReading {
     thrust: number
     delta: number
     time: number
+    valve: boolean
 }

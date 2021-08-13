@@ -32,6 +32,10 @@ export class ThrustTestUtilitiesComponent {
         this.started = false
     }
 
+    onError(e: Error): void {
+        console.error(e)
+    }
+
     onData(reading: SerialReading): void {
         if (this.control) {
             this.control.onReading(reading)
