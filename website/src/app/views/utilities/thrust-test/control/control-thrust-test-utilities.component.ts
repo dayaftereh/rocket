@@ -33,26 +33,31 @@ export class ControlThrustTestUtilitiesComponent implements OnInit {
 
     private create(): FormGroup {
         return new FormGroup({
-            pressureFactor: new FormControl(1.0),
-            pressureOffset: new FormControl(-512),
-            thrustFactor: new FormControl(1.0),
-            thrustOffset: new FormControl(-231751)
+            pressureAFactor: new FormControl(),
+            pressureBFactor: new FormControl(),
+            pressureOffset: new FormControl(),
+            thrustFactor: new FormControl(),
+            thrustOffset: new FormControl()
         })
     }
 
-    ngOnInit(): void {
-        this.config = this.localStorageService.getObjectOrDefault(this.localStorageName, {
-            pressureFactor: 1.0,
-            pressureOffset: -512,
-            thrustFactor: 1.0,
-            thrustOffset: -231751
-        })
+    private defaultConfig(): ThrustTestConfig {
+        return {
+            pressureAFactor: 1.212,
+            pressureBFactor: 0.0032,
+            pressureOffset: -102,
+            thrustFactor: 0.00002116,
+            thrustOffset: -233348
+        }
+    }
 
+    ngOnInit(): void {
+        const defaultConfig: ThrustTestConfig = this.defaultConfig()
+        this.config = this.localStorageService.getObjectOrDefault(this.localStorageName, defaultConfig)
         this.formGroup.patchValue(
-            this.config,
-            {
-                emitEvent: false
-            }
+            this.config, {
+            emitEvent: false
+        }
         )
 
         this.formGroup.valueChanges.subscribe(() => {
@@ -72,8 +77,8 @@ export class ControlThrustTestUtilitiesComponent implements OnInit {
             this.config = this.getConfig()
         }
 
-        const thrust: number = reading.thrust * this.config.pressureFactor + this.config.thrustOffset
-        const pressure: number = reading.pressure * this.config.pressureFactor + this.config.pressureOffset
+        const thrust: number = (reading.thrust + this.config.thrustOffset) * this.config.thrustFactor
+        const pressure: number = Math.pow(reading.pressure + this.config.pressureOffset, this.config.pressureAFactor) * this.config.pressureBFactor
 
         return {
             thrust,
@@ -85,13 +90,16 @@ export class ControlThrustTestUtilitiesComponent implements OnInit {
     }
 
     private getConfig(): ThrustTestConfig {
-        const pressureFactor: number = FormUtils.getValueOrDefault(this.formGroup, "pressureFactor", 1.0)
-        const pressureOffset: number = FormUtils.getValueOrDefault(this.formGroup, "pressureOffset", -512)
-        const thrustFactor: number = FormUtils.getValueOrDefault(this.formGroup, "thrustFactor", 1.0)
-        const thrustOffset: number = FormUtils.getValueOrDefault(this.formGroup, "thrustOffset", -231751)
+        const defaultConfig: ThrustTestConfig = this.defaultConfig()
+        const pressureAFactor: number = FormUtils.getValueOrDefault(this.formGroup, "pressureAFactor", defaultConfig.pressureAFactor)
+        const pressureBFactor: number = FormUtils.getValueOrDefault(this.formGroup, "pressureBFactor", defaultConfig.pressureBFactor)
+        const pressureOffset: number = FormUtils.getValueOrDefault(this.formGroup, "pressureOffset", defaultConfig.pressureOffset)
+        const thrustFactor: number = FormUtils.getValueOrDefault(this.formGroup, "thrustFactor", defaultConfig.thrustFactor)
+        const thrustOffset: number = FormUtils.getValueOrDefault(this.formGroup, "thrustOffset", defaultConfig.thrustOffset)
 
         return {
-            pressureFactor,
+            pressureAFactor,
+            pressureBFactor,
             pressureOffset,
             thrustFactor,
             thrustOffset
@@ -107,6 +115,11 @@ export class ControlThrustTestUtilitiesComponent implements OnInit {
             pressureOffset: -pressure
         })
         this.onSubmit()
+    }
+
+    reset(): void {
+        const defaultConfig: ThrustTestConfig = this.defaultConfig()
+        this.formGroup.patchValue(defaultConfig)
     }
 
     onSubmit(): void {

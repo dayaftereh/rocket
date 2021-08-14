@@ -3,10 +3,20 @@
         <form [formGroup]="formGroup" (ngSubmit)="onSubmit()">
 
             <div class="field grid">
-                <label for="pressureFactor" class="col-12">Pressure Factor</label>
+                <label for="pressureAFactor" class="col-12">Pressure Factor A</label>
                 <div class="col-12">
                     <div class="p-inputgroup">
-                        <input id="pressureFactor" type="number" formControlName="pressureFactor" pInputText
+                        <input id="pressureAFactor" type="number" formControlName="pressureAFactor" pInputText
+                            class="inputfield w-full">
+                    </div>
+                </div>
+            </div>
+
+            <div class="field grid">
+                <label for="pressureBFactor" class="col-12">Pressure Factor B</label>
+                <div class="col-12">
+                    <div class="p-inputgroup">
+                        <input id="pressureBFactor" type="number" formControlName="pressureBFactor" pInputText
                             class="inputfield w-full">
                     </div>
                 </div>
@@ -48,6 +58,7 @@
                         <button pButton type="button" (click)="tara()" label="Tara" icon="pi pi-sign-out"
                             class="p-button-secondary"></button>
                         <button pButton type="submit" label="Save" icon="pi pi-save" class="p-button-success"></button>
+                        <button pButton type="button" (click)="reset()" label="Reset" class="p-button-warning"></button>
                     </span>
                 </div>
             </div>
