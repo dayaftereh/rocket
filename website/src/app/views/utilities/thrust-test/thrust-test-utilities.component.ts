@@ -1,10 +1,12 @@
 import { Component, ViewChild } from "@angular/core";
+import * as FileSaver from "file-saver";
 import { ChartsThrustTestUtilitiesComponent } from "./charts/charts-thrust-test-utilities.component";
 import { ControlThrustTestUtilitiesComponent } from "./control/control-thrust-test-utilities.component";
 import { ThrustTestConfig } from "./control/thrust-test-config";
 import { ReadingThrustTestUtilitiesComponent } from "./reading/reading-thrust-test-utilities.component";
 import { SerialReading } from "./serial/serial-reading";
 import { SerialThrustTestUtilitiesComponent } from "./serial/serial-thrust-test-utilities.component";
+
 
 @Component({
     templateUrl: './thrust-test-utilities.component.html'
@@ -85,6 +87,36 @@ export class ThrustTestUtilitiesComponent {
         })
 
         this.charts.readings(data)
+    }
+
+    async export(): Promise<void> {
+        const separator: string = ';'
+        const lineFeet: string = '\n'
+
+        const toNumber = (x: number) => {
+            const n: string = `${x}`.replace('.', ',')
+            return n
+        }
+
+        const lines: string[] = this.data.map((reading: SerialReading) => {
+            const line: string[] = [
+                reading.time,
+                reading.pressure,
+                reading.thrust,
+                reading.valve ? 1 : 0
+            ].map((x: number) => {
+                return toNumber(x)
+            })
+
+            return line.join(separator)
+        })
+
+        lines.unshift([`Time(s)`, `Pressure(bar)`, `Thrust(n)`, `Valve`].join(separator))
+
+        const content: string = lines.join(lineFeet)
+        const blob: Blob = new Blob([content])
+        
+        FileSaver.saveAs(blob, 'thrust-test-data.csv')
     }
 
 }

@@ -1,5 +1,6 @@
 import { Component, EventEmitter, OnInit, Output } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
+import { LocalStorageService } from "../../../../services/local-storage/local-storage.service";
 import { FormUtils } from "../../../../utils/form-utils";
 import { SerialReading } from "../serial/serial-reading";
 import { ThrustTestConfig } from "./thrust-test-config";
@@ -12,7 +13,6 @@ export class ControlThrustTestUtilitiesComponent implements OnInit {
 
     formGroup: FormGroup
 
-
     @Output()
     data: EventEmitter<SerialReading>
 
@@ -23,7 +23,9 @@ export class ControlThrustTestUtilitiesComponent implements OnInit {
 
     private reading: SerialReading | undefined
 
-    constructor() {
+    private localStorageName: string = "thrust-test-utilities"
+
+    constructor(private readonly localStorageService: LocalStorageService) {
         this.formGroup = this.create()
         this.data = new EventEmitter<SerialReading>(true)
         this.control = new EventEmitter<ThrustTestConfig>(true)
@@ -39,7 +41,24 @@ export class ControlThrustTestUtilitiesComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.config = this.getConfig()
+        this.config = this.localStorageService.getObjectOrDefault(this.localStorageName, {
+            pressureFactor: 1.0,
+            pressureOffset: -512,
+            thrustFactor: 1.0,
+            thrustOffset: -231751
+        })
+
+        this.formGroup.patchValue(
+            this.config,
+            {
+                emitEvent: false
+            }
+        )
+
+        this.formGroup.valueChanges.subscribe(() => {
+            this.config = this.getConfig()
+            this.localStorageService.updateObject(this.localStorageName, this.config)
+        })
     }
 
     onReading(reading: SerialReading): void {
@@ -92,6 +111,7 @@ export class ControlThrustTestUtilitiesComponent implements OnInit {
 
     onSubmit(): void {
         this.config = this.getConfig()
+        this.localStorageService.updateObject(this.localStorageName, this.config)
         this.control.next(this.config)
     }
 

@@ -4,6 +4,7 @@ import { BrowserModule } from "@angular/platform-browser";
 import { ButtonModule } from "primeng/button";
 import { CardModule } from "primeng/card";
 import { InputTextModule } from "primeng/inputtext";
+import { LocalStorageServiceModule } from "../../../../services/local-storage/local-storage-service.module";
 import { ControlThrustTestUtilitiesComponent } from "./control-thrust-test-utilities.component";
 
 @NgModule({
@@ -15,6 +16,8 @@ import { ControlThrustTestUtilitiesComponent } from "./control-thrust-test-utili
         CardModule,
         ButtonModule,
         InputTextModule,
+        // Custom
+        LocalStorageServiceModule
     ],
     declarations: [
         ControlThrustTestUtilitiesComponent
