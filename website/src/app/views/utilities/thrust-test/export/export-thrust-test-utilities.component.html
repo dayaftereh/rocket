@@ -1,0 +1,47 @@
+<p-card header="Export">
+    <div class="card">
+        <form [formGroup]="formGroup" (ngSubmit)="onSubmit()">
+
+            <div class="field grid">
+                <label for="separator" class="col-12">Separator</label>
+                <div class="col-12">
+                    <div class="p-inputgroup">
+                        <input id="separator" type="text" formControlName="separator" pInputText
+                            class="inputfield w-full">
+                    </div>
+                </div>
+            </div>
+
+            <div class="field grid">
+                <label for="newline" class="col-12">Newline</label>
+                <div class="col-12">
+                    <div class="p-inputgroup">
+                        <input id="newline" type="text" formControlName="newline" pInputText
+                            class="inputfield w-full">
+                    </div>
+                </div>
+            </div>
+
+            <div class="field grid">
+                <label for="filename" class="col-12">Filename</label>
+                <div class="col-12">
+                    <div class="p-inputgroup">
+                        <input id="filename" type="text" formControlName="filename" pInputText
+                            class="inputfield w-full">
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid">
+                <div class="col">
+                    <span class="p-buttonset">
+                        <button pButton type="submit" label="Export" icon="pi pi-save"
+                            class="p-button-success"></button>
+                    </span>
+                </div>
+            </div>
+
+        </form>
+    </div>
+
+</p-card>

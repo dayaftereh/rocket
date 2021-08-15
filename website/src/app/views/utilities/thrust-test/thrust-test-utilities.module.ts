@@ -1,11 +1,10 @@
 import { NgModule } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
-import { ButtonModule } from "primeng/button";
-import { CardModule } from "primeng/card";
 import { MessageModule } from 'primeng/message';
 import { ChartsThrustTestUtilitiesModule } from "./charts/charts-thrust-test-utilities.module";
 import { ControlThrustTestUtilitiesModule } from "./control/control-thrust-test-utilities.module";
+import { ExportThrustTestUtilitiesModule } from "./export/export-thrust-test-utilities.module";
 import { ReadingThrustTestUtilitiesModule } from "./reading/reading-thrust-test-utilities.module";
 import { RunnerThrustTestUtilitiesModule } from "./runner/runner-thrust-test-utilities.module";
 import { SerialThrustTestUtilitiesModule } from "./serial/serial-thrust-test-utilities.module";
@@ -17,10 +16,9 @@ import { ThrustTestUtilitiesComponent } from "./thrust-test-utilities.component"
         FormsModule,
         BrowserModule,
         //PrimeNG
-        CardModule,
-        ButtonModule,
         MessageModule,
         //Custom
+        ExportThrustTestUtilitiesModule,
         RunnerThrustTestUtilitiesModule,
         ChartsThrustTestUtilitiesModule,
         SerialThrustTestUtilitiesModule,

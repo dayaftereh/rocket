@@ -1,8 +1,8 @@
 import { Component, ViewChild } from "@angular/core";
-import * as FileSaver from "file-saver";
 import { ChartsThrustTestUtilitiesComponent } from "./charts/charts-thrust-test-utilities.component";
 import { ControlThrustTestUtilitiesComponent } from "./control/control-thrust-test-utilities.component";
 import { ThrustTestConfig } from "./control/thrust-test-config";
+import { ExportThrustTestUtilitiesComponent } from "./export/export-thrust-test-utilities.component";
 import { ReadingThrustTestUtilitiesComponent } from "./reading/reading-thrust-test-utilities.component";
 import { SerialReading } from "./serial/serial-reading";
 import { SerialThrustTestUtilitiesComponent } from "./serial/serial-thrust-test-utilities.component";
@@ -24,6 +24,9 @@ export class ThrustTestUtilitiesComponent {
 
     @ViewChild('charts')
     charts: ChartsThrustTestUtilitiesComponent | undefined
+
+    @ViewChild('export')
+    export: ExportThrustTestUtilitiesComponent | undefined
 
     private started: boolean
 
@@ -49,13 +52,14 @@ export class ThrustTestUtilitiesComponent {
     }
 
     onControl(config: ThrustTestConfig): void {
-        this.updateChart()
+        this.updateChartAndExport()
     }
 
     onReading(reading: SerialReading): void {
         if (this.reading) {
             this.reading.onReading(reading)
         }
+
     }
 
     onStart(): void {
@@ -74,11 +78,11 @@ export class ThrustTestUtilitiesComponent {
             this.serial.closeValve()
         }
 
-        this.updateChart()
+        this.updateChartAndExport()
     }
 
-    private updateChart(): void {
-        if (!this.control || !this.charts) {
+    private updateChartAndExport(): void {
+        if (!this.control) {
             return
         }
 
@@ -86,37 +90,15 @@ export class ThrustTestUtilitiesComponent {
             return this.control!.translate(reading)
         })
 
-        this.charts.readings(data)
-    }
-
-    async export(): Promise<void> {
-        const separator: string = ';'
-        const lineFeet: string = '\n'
-
-        const toNumber = (x: number) => {
-            const n: string = `${x}`.replace('.', ',')
-            return n
+        if (this.charts) {
+            this.charts.readings(data)
         }
 
-        const lines: string[] = this.data.map((reading: SerialReading) => {
-            const line: string[] = [
-                reading.time,
-                reading.pressure,
-                reading.thrust,
-                reading.valve ? 1 : 0
-            ].map((x: number) => {
-                return toNumber(x)
-            })
-
-            return line.join(separator)
-        })
-
-        lines.unshift([`Time(s)`, `Pressure(bar)`, `Thrust(n)`, `Valve`].join(separator))
-
-        const content: string = lines.join(lineFeet)
-        const blob: Blob = new Blob([content])
-        
-        FileSaver.saveAs(blob, 'thrust-test-data.csv')
+        if (this.export) {
+            this.export.readings(data)
+        }
     }
+
+
 
 }
