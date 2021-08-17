@@ -1,6 +1,5 @@
 export interface ThrustTestConfig {
-    pressureAFactor: number
-    pressureBFactor: number
+    pressureFactor: number
     pressureOffset: number
     thrustFactor: number
     thrustOffset: number

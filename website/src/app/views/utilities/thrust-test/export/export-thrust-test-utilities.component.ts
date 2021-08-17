@@ -1,75 +1,50 @@
-import { DecimalPipe } from "@angular/common";
-import { Component } from "@angular/core";
-import { FormControl, FormGroup } from "@angular/forms";
-import * as FileSaver from "file-saver";
-import { FormUtils } from "../../../../utils/form-utils";
+import { AfterViewInit, Component, ViewChild } from "@angular/core";
+import { CSVExporterUtilitiesComponent } from "../../csv-exporter/csv-exporter-utilities.component";
 import { SerialReading } from "../serial/serial-reading";
 
 @Component({
     selector: './app-export-thrust-test-utilities',
     templateUrl: './export-thrust-test-utilities.component.html'
 })
-export class ExportThrustTestUtilitiesComponent {
+export class ExportThrustTestUtilitiesComponent implements AfterViewInit {
 
-    formGroup: FormGroup
+    @ViewChild('exporter')
+    exporter: CSVExporterUtilitiesComponent | undefined
 
-    private data: SerialReading[]
+    constructor() {
 
-    constructor(private readonly decimalPipe: DecimalPipe) {
-        this.data = []
-        this.formGroup = this.create()
     }
 
-    private create(): FormGroup {
-        return new FormGroup({
-            separator: new FormControl(';'),
-            newline: new FormControl('\\n'),
-            filename: new FormControl('thrust-test-data.csv'),
-        })
-    }
-
-    readings(readings: SerialReading[]): void {
-        this.data = readings
-    }
-
-    private formatNumber(x: number): string {
-        const n: string | null = this.decimalPipe.transform(x)
-        if (n === null || n === undefined) {
-            return `${x}`
-        }
-        return n
-    }
-
-    async onSubmit(): Promise<void> {
-        const newline: string = FormUtils.getValueOrDefault(this.formGroup, 'newline', '\n')
-        const separator: string = FormUtils.getValueOrDefault(this.formGroup, 'separator', ';')
-
-        const lines: string[] = []
-
-        lines.push([
-            `Time(s)`, `Pressure(bar)`, `Thrust(n)`, `Valve`
-        ].join(separator))
-
-        this.data.map((reading: SerialReading) => {
-            const line: string[] = [
-                reading.time,
+    readings(data: SerialReading[]): void {
+        const exportData: any[][] = data.map((reading: SerialReading) => {
+            return [
+                reading.time / 1000.0,
+                reading.delta,
                 reading.pressure,
                 reading.thrust,
-                reading.valve ? 1 : 0
-            ].map((x: number) => {
-                return this.formatNumber(x)
-            })
-
-            return line.join(separator)
-        }).forEach((line: string) => {
-            lines.push(line)
+                reading.valve ? 1 : 0,
+            ]
         })
 
-        const content: string = lines.join(newline)
-        const blob: Blob = new Blob([content])
+        exportData.unshift([
+            'Time(s)',
+            'Delta(ms)',
+            'Pressure(bar)',
+            'Thrust(n)',
+            'Valve'
+        ])
 
-        const filename: string = FormUtils.getValueOrDefault(this.formGroup, 'filename', 'thrust-test-data.csv')
-        FileSaver.saveAs(blob, filename)
+        if (this.exporter) {
+            this.exporter.setData(exportData)
+        }
     }
+
+    ngAfterViewInit(): void {
+        if (this.exporter) {
+            this.exporter.setFilename('thrust-test-result.csv')
+        }
+    }
+
+
 
 }

@@ -1,10 +1,8 @@
-import { DecimalPipe } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
-import { ButtonModule } from "primeng/button";
 import { CardModule } from "primeng/card";
-import { InputTextModule } from "primeng/inputtext";
+import { CSVExporterUtilitiesModule } from "../../csv-exporter/csv-exporter-utilities.module";
 import { ExportThrustTestUtilitiesComponent } from "./export-thrust-test-utilities.component";
 
 @NgModule({
@@ -15,17 +13,14 @@ import { ExportThrustTestUtilitiesComponent } from "./export-thrust-test-utiliti
         ReactiveFormsModule,
         // PrimeNG
         CardModule,
-        ButtonModule,
-        InputTextModule,
+        // Custom
+        CSVExporterUtilitiesModule
     ],
     declarations: [
         ExportThrustTestUtilitiesComponent
     ],
     exports: [
         ExportThrustTestUtilitiesComponent
-    ],
-    providers: [
-        DecimalPipe
     ]
 })
 export class ExportThrustTestUtilitiesModule {

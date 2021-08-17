@@ -33,8 +33,7 @@ export class ControlThrustTestUtilitiesComponent implements OnInit {
 
     private create(): FormGroup {
         return new FormGroup({
-            pressureAFactor: new FormControl(),
-            pressureBFactor: new FormControl(),
+            pressureFactor: new FormControl(),
             pressureOffset: new FormControl(),
             thrustFactor: new FormControl(),
             thrustOffset: new FormControl()
@@ -43,9 +42,8 @@ export class ControlThrustTestUtilitiesComponent implements OnInit {
 
     private defaultConfig(): ThrustTestConfig {
         return {
-            pressureAFactor: 1.212,
-            pressureBFactor: 0.0032,
-            pressureOffset: -102,
+            pressureFactor: 0.01291,
+            pressureOffset: -1.30391,
             thrustFactor: 0.00002116,
             thrustOffset: -233348
         }
@@ -55,9 +53,10 @@ export class ControlThrustTestUtilitiesComponent implements OnInit {
         const defaultConfig: ThrustTestConfig = this.defaultConfig()
         this.config = this.localStorageService.getObjectOrDefault(this.localStorageName, defaultConfig)
         this.formGroup.patchValue(
-            this.config, {
-            emitEvent: false
-        }
+            this.config,
+            {
+                emitEvent: false
+            }
         )
 
         this.formGroup.valueChanges.subscribe(() => {
@@ -78,7 +77,7 @@ export class ControlThrustTestUtilitiesComponent implements OnInit {
         }
 
         const thrust: number = (reading.thrust + this.config.thrustOffset) * this.config.thrustFactor
-        const pressure: number = Math.pow(reading.pressure + this.config.pressureOffset, this.config.pressureAFactor) * this.config.pressureBFactor
+        const pressure: number = reading.pressure * this.config.pressureFactor + this.config.pressureOffset
 
         return {
             thrust,
@@ -91,15 +90,13 @@ export class ControlThrustTestUtilitiesComponent implements OnInit {
 
     private getConfig(): ThrustTestConfig {
         const defaultConfig: ThrustTestConfig = this.defaultConfig()
-        const pressureAFactor: number = FormUtils.getValueOrDefault(this.formGroup, "pressureAFactor", defaultConfig.pressureAFactor)
-        const pressureBFactor: number = FormUtils.getValueOrDefault(this.formGroup, "pressureBFactor", defaultConfig.pressureBFactor)
+        const pressureFactor: number = FormUtils.getValueOrDefault(this.formGroup, "pressureFactor", defaultConfig.pressureFactor)
         const pressureOffset: number = FormUtils.getValueOrDefault(this.formGroup, "pressureOffset", defaultConfig.pressureOffset)
         const thrustFactor: number = FormUtils.getValueOrDefault(this.formGroup, "thrustFactor", defaultConfig.thrustFactor)
         const thrustOffset: number = FormUtils.getValueOrDefault(this.formGroup, "thrustOffset", defaultConfig.thrustOffset)
 
         return {
-            pressureAFactor,
-            pressureBFactor,
+            pressureFactor,
             pressureOffset,
             thrustFactor,
             thrustOffset

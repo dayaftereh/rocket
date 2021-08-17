@@ -5,12 +5,18 @@ export class ThrustTestChart {
     data: any
     options: any
 
+    private readingsDatasets: any[]
+    private simulationModelDatasets: any[]
+
     constructor() {
         this.init()
+        this.readingsDatasets = []
+        this.simulationModelDatasets = []
     }
 
     update(readings: SerialReading[]): void {
 
+        const valve: any[] = []
         const thrust: any[] = []
         const pressure: any[] = []
 
@@ -26,37 +32,81 @@ export class ThrustTestChart {
                 x: time,
                 y: reading.pressure
             })
+
+            valve.push({
+                x: time,
+                y: reading.valve ? 1 : 0
+            })
         })
 
+        this.readingsDatasets = [
+            this.defaultDataset({
+                data: thrust,
+                label: 'Thrust',
+                yAxisID: 'thrust-y-axis'
+            }, 'rgb(255, 0, 0)'),
+            this.defaultDataset({
+                data: pressure,
+                label: 'Pressure',
+                yAxisID: 'pressure-y-axis'
+            }, 'rgb(0, 255, 0)'),
+            this.defaultDataset({
+                data: valve,
+                label: 'Valve',
+                yAxisID: 'valve-y-axis'
+            }, 'rgb(0, 0, 255)'),
+        ]
+
+        this.updateDatasets()
+    }
+
+    simulationModel(pressure: any[], thrust: any[]): void {
+        this.simulationModelDatasets = [
+            this.defaultDataset({
+                data: thrust,
+                label: 'SimThrust',
+                yAxisID: 'thrust-y-axis'
+            }, 'rgb(255, 0, 255)'),
+            this.defaultDataset({
+                data: pressure,
+                label: 'SimPressure',
+                yAxisID: 'pressure-y-axis'
+            }, 'rgb(0, 255, 255)'),
+        ]
+
+        this.updateDatasets()
+    }
+
+    private updateDatasets(): void {
         this.data = {
             datasets: [
-                {
-                    data: thrust,
-                    fill: false,
-                    borderColor: 'rgb(255,0,0)',
-                    backgroundColor: 'rgb(255,0,0)',
-                    label: 'Thrust',
-                    lineTension: 0,
-                    showLine: true,
-                    pointRadius: 0,
-                    xAxisID: 'default-x-axis',
-                    yAxisID: 'thrust-y-axis'
-                },
-                {
-                    data: pressure,
-                    fill: false,
-                    borderColor: 'rgb(0,255,0)',
-                    backgroundColor: 'rgb(0,255,0)',
-                    label: 'Pressure',
-                    lineTension: 0,
-                    showLine: true,
-                    pointRadius: 0,
-                    xAxisID: 'default-x-axis',
-                    yAxisID: 'pressure-y-axis'
-                }
+                ...this.readingsDatasets,
+                ...this.simulationModelDatasets
             ]
         }
+    }
 
+    private defaultDataset(parent: any, color: string): any {
+        return Object.assign({
+            fill: false,
+            borderColor: color,
+            backgroundColor: color,
+            lineTension: 0,
+            showLine: true,
+            pointRadius: 0,
+            xAxisID: 'default-x-axis',
+        }, parent)
+    }
+
+    private defaultAxis(parent: any): any {
+        return Object.assign({
+            ticks: {
+                fontColor: '#ebedef'
+            },
+            gridLines: {
+                color: 'rgba(255,255,255,0.2)'
+            }
+        }, parent)
     }
 
     private init(): void {
@@ -68,50 +118,34 @@ export class ThrustTestChart {
             },
             scales: {
                 xAxes: [
-                    {
+                    this.defaultAxis({
                         id: 'default-x-axis',
-                        ticks: {
-                            fontColor: '#ebedef'
-                        },
-                        gridLines: {
-                            color: 'rgba(255,255,255,0.2)'
-                        },
                         scaleLabel: {
                             display: true,
                             labelString: 'Time (s)'
                         }
-                    }
+                    }),
                 ],
                 yAxes: [
-                    {
+                    this.defaultAxis({
                         id: 'thrust-y-axis',
-                        ticks: {
-                            fontColor: '#ebedef'
-                        },
-                        gridLines: {
-                            color: 'rgba(255,255,255,0.2)'
-                        },
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'N'
-                        }
-
-                    },
-                    {
-                        id: 'pressure-y-axis',
                         position: 'right',
-                        ticks: {
-                            fontColor: '#ebedef'
-                        },
-                        gridLines: {
-                            color: 'rgba(255,255,255,0.2)'
-                        },
                         scaleLabel: {
                             display: true,
-                            labelString: 'bar'
+                            labelString: 'Newton'
                         }
-
-                    }
+                    }),
+                    this.defaultAxis({
+                        id: 'pressure-y-axis',
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Bar'
+                        }
+                    }),
+                    this.defaultAxis({
+                        position: 'right',
+                        id: 'valve-y-axis',
+                    }),
                 ]
             }
         }

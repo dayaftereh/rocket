@@ -1,22 +1,12 @@
-<p-card header="Control">
+<p-card header="Scaling">
     <div class="card">
         <form [formGroup]="formGroup" (ngSubmit)="onSubmit()">
 
             <div class="field grid">
-                <label for="pressureAFactor" class="col-12">Pressure Factor A</label>
+                <label for="pressureFactor" class="col-12">Pressure Factor </label>
                 <div class="col-12">
                     <div class="p-inputgroup">
-                        <input id="pressureAFactor" type="number" formControlName="pressureAFactor" pInputText
-                            class="inputfield w-full">
-                    </div>
-                </div>
-            </div>
-
-            <div class="field grid">
-                <label for="pressureBFactor" class="col-12">Pressure Factor B</label>
-                <div class="col-12">
-                    <div class="p-inputgroup">
-                        <input id="pressureBFactor" type="number" formControlName="pressureBFactor" pInputText
+                        <input id="pressureFactor" type="number" formControlName="pressureFactor" pInputText
                             class="inputfield w-full">
                     </div>
                 </div>

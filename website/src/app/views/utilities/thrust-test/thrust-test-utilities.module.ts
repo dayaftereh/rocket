@@ -8,6 +8,7 @@ import { ExportThrustTestUtilitiesModule } from "./export/export-thrust-test-uti
 import { ReadingThrustTestUtilitiesModule } from "./reading/reading-thrust-test-utilities.module";
 import { RunnerThrustTestUtilitiesModule } from "./runner/runner-thrust-test-utilities.module";
 import { SerialThrustTestUtilitiesModule } from "./serial/serial-thrust-test-utilities.module";
+import { SimulationModelThrustTestUtilitiesModule } from "./simulation-model/simulation-model-thrust-test-utilities.module";
 import { ThrustTestUtilitiesComponent } from "./thrust-test-utilities.component";
 
 @NgModule({
@@ -24,6 +25,7 @@ import { ThrustTestUtilitiesComponent } from "./thrust-test-utilities.component"
         SerialThrustTestUtilitiesModule,
         ControlThrustTestUtilitiesModule,
         ReadingThrustTestUtilitiesModule,
+        SimulationModelThrustTestUtilitiesModule,
     ],
     declarations: [
         ThrustTestUtilitiesComponent

@@ -1,22 +1,33 @@
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, Observable } from "rxjs";
 import { share } from "rxjs/operators";
+import { LocalStorageService } from "../local-storage/local-storage.service";
 import { Globals } from "./globals";
 
 @Injectable()
 export class GlobalsService {
 
+    private localStorageKey: string = 'globals'
+
     private subject: BehaviorSubject<Globals>
 
-    constructor() {
+    constructor(private readonly localStorageService: LocalStorageService) {
         this.subject = new BehaviorSubject<Globals>(this.load())
     }
 
     private load(): Globals {
+        return this.localStorageService.getObjectOrDefault(
+            this.localStorageKey,
+            this.defaultGlobals()
+        )
+    }
+
+    defaultGlobals(): Globals {
         return {
             g: 9.81,
             pAmb: 101325,
-            rhoAir: 1.225
+            rhoAir: 1.225,
+            rhoWater: 997.0
         }
     }
 
@@ -33,6 +44,7 @@ export class GlobalsService {
 
     update(globals: Globals): void {
         this.subject.next(globals)
+        this.localStorageService.updateObject(this.localStorageKey, globals)
     }
 
 }
