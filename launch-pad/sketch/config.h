@@ -29,6 +29,8 @@ typedef struct {
   // Voltage
   float voltageFactor;
   float voltageOffset;
+  // Valve
+  int16_t openTimeout;
   
 } Config;
 

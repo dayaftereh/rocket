@@ -1,7 +1,9 @@
+#include "valve.h"
 #include "http_server.h"
 #include "analog_reader.h"
 #include "config_manager.h"
 
+Valve valve;
 HTTPServer server;
 AnalogReader analogReader;
 ConfigManager configManager;
@@ -20,6 +22,7 @@ void setup() {
     Serial.println("fail to setup config manager");
   }
 
+  // get the loaded config
   Config *config = configManager.get_config();
 
   // setup the analog reader
@@ -28,8 +31,14 @@ void setup() {
     Serial.println("fail to setup analog reader");
   }
 
+  // setup the valve
+  success = valve.setup(config);
+  if (!success) {
+    Serial.println("fail to setup valve");
+  }
+
   // setup the server
-  success = server.setup(&configManager);
+  success = server.setup(&configManager, &valve);
   if (!success) {
     Serial.println("fail to setup server");
   }
@@ -39,6 +48,7 @@ void setup() {
 }
 
 void loop() {
+  valve.update();
   server.update();
   analogReader.update();
 }
