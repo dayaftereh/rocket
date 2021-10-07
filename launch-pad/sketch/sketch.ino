@@ -1,12 +1,14 @@
 #include "valve.h"
 #include "http_server.h"
+#include "broadcaster.h"
 #include "analog_reader.h"
 #include "config_manager.h"
 
 Valve valve;
 HTTPServer server;
-AnalogReader analogReader;
-ConfigManager configManager;
+Broadcaster broadcaster;
+AnalogReader analog_reader;
+ConfigManager config_manager;
 
 void setup() {
   Serial.begin(SERIAL_BAUD_RATE);
@@ -17,16 +19,16 @@ void setup() {
   Serial.println("starting launch pad...");
 
   // ConfigManager
-  bool success = configManager.setup();
+  bool success = config_manager.setup();
   if (!success) {
     Serial.println("fail to setup config manager");
   }
 
   // get the loaded config
-  Config *config = configManager.get_config();
+  Config *config = config_manager.get_config();
 
   // setup the analog reader
-  success = analogReader.setup(config);
+  success = analog_reader.setup(config);
   if (!success) {
     Serial.println("fail to setup analog reader");
   }
@@ -38,9 +40,15 @@ void setup() {
   }
 
   // setup the server
-  success = server.setup(&configManager, &valve);
+  success = server.setup(&config_manager, &valve);
   if (!success) {
     Serial.println("fail to setup server");
+  }
+
+  // setup the broadcaster
+  success = broadcaster.setup(&server, &valve, &analog_reader);
+  if (!success) {
+    Serial.println("fail to setup broadcaster");
   }
 
   Serial.println("successful started");
@@ -50,5 +58,6 @@ void setup() {
 void loop() {
   valve.update();
   server.update();
-  analogReader.update();
+  broadcaster.update();
+  analog_reader.update();
 }

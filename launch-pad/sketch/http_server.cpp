@@ -171,7 +171,11 @@ void HTTPServer::handlePOSTConfiguration() {
   }
 
   // write the new config to eeprom
-  this->_config_manager->write();
+  bool success = this->_config_manager->write();
+  if(!success) {
+    this->_web_server->send(400, "text/plain", "fail to commit config");
+    return;
+  }
 
   // send result back
   this->sendResult(t);

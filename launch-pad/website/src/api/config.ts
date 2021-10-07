@@ -4,4 +4,6 @@ export interface Config {
 
     voltageFactor: number
     voltageOffset: number
+
+    openTimeout: number
 }

@@ -16,7 +16,7 @@ export class API {
     }
 
     async init(): Promise<void> {
-        //await this.connect()
+        await this.connect()
     }
 
     private getRoot(): URL {

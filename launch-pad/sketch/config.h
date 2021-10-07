@@ -4,6 +4,9 @@
 // Serial -----------------------------------------------
 #define SERIAL_BAUD_RATE 9600
 
+// ConfigManager -----------------------------------------------
+#define EEPROM_CONFIG_SIZE 512
+
 // VALVE -----------------------------------------------
 #define VALVE_PIN D8
 
@@ -20,6 +23,8 @@
 #define ACCESS_POINT_SSID "LaunchPad"
 #define ACCESS_POINT_PASSWD "123456789"
 
+// Broadcaster -----------------------------------------------
+#define BORADCASTER_UPDATE_TIME 250
 
 // Config struct for the eeprom
 typedef struct {

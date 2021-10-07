@@ -12,7 +12,7 @@ export class Application {
 
     async start(): Promise<void> {
         this.api = new API()
-        //await this.api.init()
+        await this.api.init()
 
         this.ui = new UI(this.api)
         await this.ui.init()

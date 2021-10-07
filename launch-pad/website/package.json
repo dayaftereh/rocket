@@ -3,7 +3,7 @@
     "version": "0.0.1",
     "description": "website to control the launch-pad",
     "scripts": {
-        "build": "webpack && rimraf .../sketch/data/*",
+        "build": "webpack && rimraf ../sketch/data/bundle*",
         "webpack": "webpack",
         "start": "webpack serve"
     },

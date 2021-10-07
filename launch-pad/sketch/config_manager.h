@@ -15,7 +15,7 @@ class ConfigManager
 
     Config* get_config();
 
-    void write();
+    bool write();
 
   private:
 

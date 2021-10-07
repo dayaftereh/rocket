@@ -16,6 +16,8 @@ export class UI {
         const voltageFactor: HTMLInputElement = document.querySelector("#configVoltageFactor")
         const voltageOffset: HTMLInputElement = document.querySelector("#configVoltageOffset")
 
+        const openTimeout: HTMLInputElement = document.querySelector("#configOpenTimeout")
+
         const configForm: HTMLFormElement = document.querySelector("#configForm")
 
         configForm.addEventListener('submit', async (ev: Event) => {
@@ -25,7 +27,8 @@ export class UI {
                 pressureFactor: +(pressureFactor.value),
                 pressureOffset: +(pressureOffset.value),
                 voltageFactor: +(voltageFactor.value),
-                voltageOffset: +(voltageOffset.value)
+                voltageOffset: +(voltageOffset.value),
+                openTimeout: +(openTimeout.value)
             }
 
             await this.api.setConfig(config)
@@ -38,6 +41,17 @@ export class UI {
 
         voltageFactor.value = `${config.voltageFactor}`
         voltageOffset.value = `${config.voltageOffset}`
+
+        openTimeout.value = `${config.openTimeout}`
+    }
+
+    private liproS1VoltageLevelColor(voltage: number): string {
+        const full: number = 4.2
+        const empty: number = 3.27
+
+        const percentage: number = (voltage - empty) / (full - empty)
+        const hue: number = Math.min(1.0, Math.max(0.0, percentage)) * 120.0
+        return `hsl(${hue}, 100%, 50%)`
     }
 
     private initCurrentValues(): void {
@@ -45,10 +59,14 @@ export class UI {
         const currentVoltage: HTMLInputElement = document.querySelector("#currentVoltage")
         const currentPressure: HTMLInputElement = document.querySelector("#currentPressure")
 
+
+
         this.api.asObservable().subscribe((message: Message) => {
             valve.checked = message.valve
             currentVoltage.value = this.formatNumber(message.voltage)
             currentPressure.value = this.formatNumber(message.pressure)
+
+            currentVoltage.style.background = this.liproS1VoltageLevelColor(message.voltage)
         })
     }
 

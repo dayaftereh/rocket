@@ -62,22 +62,27 @@
 
                                     <div class="mb-3">
                                         <label for="configPressureFactor" class="form-label">Pressure Factor</label>
-                                        <input type="number" class="form-control" id="configPressureFactor">
+                                        <input type="number" class="form-control" step="0.01" id="configPressureFactor">
                                     </div>
 
                                     <div class="mb-3">
                                         <label for="configPressureOffset" class="form-label">Pressure Offset</label>
-                                        <input type="number" class="form-control" id="configPressureOffset">
+                                        <input type="number" class="form-control" min="-10000" step="0.01" id="configPressureOffset">
                                     </div>
 
                                     <div class="mb-3">
                                         <label for="configVoltageFactor" class="form-label">Voltage Factor</label>
-                                        <input type="number" class="form-control" id="configVoltageFactor">
+                                        <input type="number" class="form-control" step="0.01" id="configVoltageFactor">
                                     </div>
 
                                     <div class="mb-3">
                                         <label for="configVoltageOffset" class="form-label">Voltage Offset</label>
-                                        <input type="number" class="form-control" id="configVoltageOffset">
+                                        <input type="number" class="form-control" min="-10000" step="0.01" id="configVoltageOffset">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="configOpenTimeout" class="form-label">Open Timeout</label>
+                                        <input type="number" class="form-control" id="configOpenTimeout">
                                     </div>
 
                                     <button type="submit" class="btn btn-primary">Submit</button>
