@@ -1,0 +1,20 @@
+{
+    "extends": "../tsconfig.json",
+    "compilerOptions": {
+        "outDir": "./out-tsc/app",
+        "types": [
+            "node"
+        ],
+        "allowSyntheticDefaultImports": true,
+    },
+    "files": [
+        "main.ts",
+        "polyfills.ts"
+    ],
+    "include": [
+        "app/**/*.d.ts"
+    ],
+    "exclude": [
+        "assets"
+    ]
+}

@@ -1,0 +1,139 @@
+<div class="grid">
+    <div class="col">
+        <p-card header="Settings">
+            <div class="card">
+                <form [formGroup]="formGroup" (ngSubmit)="ngSubmit()">
+
+                    <div class="field grid">
+                        <label for="rocketWeight" class="col-12">Empty rocket weigth</label>
+                        <div class="col-12">
+                            <div class="p-inputgroup">
+                                <input id="rocketWeight" type="number" formControlName="rocketWeight" pInputText
+                                    class="inputfield w-full">
+                                <span class="p-inputgroup-addon">g</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field grid">
+                        <label for="waterAmount" class="col-12">Initial amount of water</label>
+                        <div class="col-12">
+                            <div class="p-inputgroup">
+                                <input id="waterAmount" type="number" formControlName="waterAmount" pInputText
+                                    class="inputfield w-full">
+                                <span class="p-inputgroup-addon">L</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field grid">
+                        <label for="bottleVolume" class="col-12">Bottle Volume</label>
+                        <div class="col-12">
+                            <div class="p-inputgroup">
+                                <input id="bottleVolume" type="number" formControlName="bottleVolume" pInputText
+                                    class="inputfield w-full">
+                                <span class="p-inputgroup-addon">L</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field grid">
+                        <label for="initialPressure" class="col-12">Initial pressure</label>
+                        <div class="col-12">
+                            <div class="p-inputgroup">
+                                <input id="initialPressure" type="number" formControlName="initialPressure" pInputText
+                                    class="inputfield w-full">
+                                <span class="p-inputgroup-addon">bar</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field grid">
+                        <label for="dragCoefficient" class="col-12">Drag Coefficient</label>
+                        <div class="col-12">
+                            <input id="dragCoefficient" type="number" formControlName="dragCoefficient" pInputText
+                                class="inputfield w-full">
+                        </div>
+                    </div>
+
+                    <div class="field grid">
+                        <label for="bottleDiameter" class="col-12">Bottle Diameter</label>
+                        <div class="col-12">
+                            <div class="p-inputgroup">
+                                <input id="bottleDiameter" type="number" formControlName="bottleDiameter" pInputText
+                                    class="inputfield w-full">
+                                <span class="p-inputgroup-addon">mm</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field grid">
+                        <label for="nozzleDiameter" class="col-12">Nozzle Diameter</label>
+                        <div class="col-12">
+                            <div class="p-inputgroup">
+                                <input id="nozzleDiameter" type="number" formControlName="nozzleDiameter" pInputText
+                                    class="inputfield w-full">
+                                <span class="p-inputgroup-addon">mm</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field grid">
+                        <label for="timeStep" class="col-12">Simulation time step</label>
+                        <div class="col-12">
+                            <div class="p-inputgroup">
+                                <input id="timeStep" type="number" formControlName="timeStep" pInputText
+                                    class="inputfield w-full">
+                                <span class="p-inputgroup-addon">s</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </p-card>
+    </div>
+</div>
+
+<div class="grid">
+    <div class="col">
+        <p-card header="Result">
+
+            <div class="card">
+
+                <div class="field grid">
+                    <label for="maxHeight" class="col-12"></label>
+                    <div class="col-12">
+                        <div class="p-inputgroup">
+                            <input id="maxHeight" [ngModel]="result?.maxHeight" type="number" pInputText
+                                class="inputfield w-full" [disabled]="true">
+                            <span class="p-inputgroup-addon">m</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="field grid">
+                    <label for="duration" class="col-12"></label>
+                    <div class="col-12">
+                        <div class="p-inputgroup">
+                            <input id="duration" [ngModel]="result?.duration" type="number" pInputText
+                                class="inputfield w-full" [disabled]="true">
+                            <span class="p-inputgroup-addon">s</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </p-card>
+    </div>
+</div>
+
+<div class="grid">
+    <div class="col">
+        <p-card header="Chart">
+            <p-chart #chart width="98%" height="45vh" type="line" [data]="simulationChart.data"
+                [plugins]="simulationChart.plugins" [options]="simulationChart.options"></p-chart>
+        </p-card>
+    </div>
+</div>
