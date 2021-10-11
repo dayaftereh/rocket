@@ -36,6 +36,9 @@ export class SingleSimulationChart extends Chart {
     }
 
     load(steps: SingleSimulationStep[]): void {
+        this.datasetHeight.data = []
+        this.datasetVelocity.data = []
+
         steps.forEach((step: SingleSimulationStep) => {
             this.datasetHeight.data.push({
                 x: step.time,

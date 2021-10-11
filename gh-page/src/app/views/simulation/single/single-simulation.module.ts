@@ -1,6 +1,7 @@
 import { NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
+import { ButtonModule } from "primeng/button";
 import { CardModule } from "primeng/card";
 import { ChartModule } from "primeng/chart";
 import { InputTextModule } from "primeng/inputtext";
@@ -17,6 +18,7 @@ import { SingleSimulationComponent } from "./single-simulation.component";
         // Primeng
         CardModule,
         ChartModule,
+        ButtonModule,
         InputTextModule,
         // ChartJS
         ChartJsModule,

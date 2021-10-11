@@ -3,6 +3,4 @@ export interface SingleSimulationStep {
     mass: number
     height: number
     velocity: number
-    pressure: number
-    waterAmount: number
 }

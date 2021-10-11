@@ -13,6 +13,13 @@
             </div>
 
             <div class="field grid">
+                <label for="k" class="col-12">Kappa Air</label>
+                <div class="col-12">
+                    <input id="k" type="number" formControlName="k" pInputText class="inputfield w-full">
+                </div>
+            </div>
+
+            <div class="field grid">
                 <label for="pamb" class="col-12">Atmosphere Pressure</label>
                 <div class="col-12">
                     <div class="p-inputgroup">
@@ -36,11 +43,13 @@
                 <label for="rhoWater" class="col-12">Density of Water</label>
                 <div class="col-12">
                     <div class="p-inputgroup">
-                        <input id="rhoWater" type="number" formControlName="rhoWater" pInputText class="inputfield w-full">
+                        <input id="rhoWater" type="number" formControlName="rhoWater" pInputText
+                            class="inputfield w-full">
                         <span class="p-inputgroup-addon">kg/m<sup>3</sup></span>
                     </div>
                 </div>
             </div>
+
         </form>
     </div>
 </p-card>

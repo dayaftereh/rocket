@@ -89,6 +89,10 @@
                         </div>
                     </div>
 
+                    <div class="field grid">
+                        <button pButton type="submit" label="Launch" class="p-button-success" icon="pi pi-play"></button>
+                    </div>
+
                 </form>
             </div>
         </p-card>
@@ -105,7 +109,7 @@
                     <label for="maxHeight" class="col-12"></label>
                     <div class="col-12">
                         <div class="p-inputgroup">
-                            <input id="maxHeight" [ngModel]="result?.maxHeight" type="number" pInputText
+                            <input id="maxHeight" [ngModel]="result?.maxHeight | number" type="number" pInputText
                                 class="inputfield w-full" [disabled]="true">
                             <span class="p-inputgroup-addon">m</span>
                         </div>
@@ -116,7 +120,7 @@
                     <label for="duration" class="col-12"></label>
                     <div class="col-12">
                         <div class="p-inputgroup">
-                            <input id="duration" [ngModel]="result?.duration" type="number" pInputText
+                            <input id="duration" [ngModel]="result?.duration | number" type="number" pInputText
                                 class="inputfield w-full" [disabled]="true">
                             <span class="p-inputgroup-addon">s</span>
                         </div>

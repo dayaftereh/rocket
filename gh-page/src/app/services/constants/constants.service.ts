@@ -27,7 +27,8 @@ export class ConstantsService {
             g: 9.81,
             pAmb: 101325,
             rhoAir: 1.225,
-            rhoWater: 997.0
+            rhoWater: 997.0,
+            k: 1.4
         }
     }
 
