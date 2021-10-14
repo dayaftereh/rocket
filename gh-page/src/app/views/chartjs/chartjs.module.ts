@@ -1,12 +1,13 @@
 import { NgModule } from "@angular/core";
-import "chart.js";
+import { Chart } from 'chart.js';
+import zoomPlugin from 'chartjs-plugin-zoom';
 
 @NgModule({
 })
 export class ChartJsModule {
 
     constructor() {
-
+        Chart.register(zoomPlugin)
     }
 
 }

@@ -4,7 +4,7 @@ export class Chart {
     public options: any
     public plugins: any
 
-    private fontSize: number = 12
+    protected fontSize: number = 12
 
     constructor() {
         this.data = {}
@@ -19,7 +19,7 @@ export class Chart {
             fill: false,
             showLine: true,
             lineTension: 0,
-            borderWidth: 3.0,
+            borderWidth: 2.0,
             pointRadius: 0,
             borderColor: color,
             xAxisID: xAxisId,
@@ -49,10 +49,14 @@ export class Chart {
         }
     }
 
-    protected createDefaultPlugins(): any {
-        return {
-            autocolors: false,
+    protected createDefaultPlugins(parent?: any): any {
+        if (!parent) {
+            parent = {}
         }
+        
+        return Object.assign({
+            autocolors: false,
+        }, parent)
     }
 
     protected createDefaultOptions(parent: any): any {

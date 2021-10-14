@@ -9,7 +9,7 @@ export class SingleSimulation {
     private time: number
     private height: number
     private velocity: number
-    private airMassOutputted: number
+    private expelledAirMass: number
 
     constructor(
         private readonly constants: Constants,
@@ -18,185 +18,205 @@ export class SingleSimulation {
 
     }
 
-    private get rocketEmptyMass(): number {
+    private get emptyRocketMass(): number {
+        // kg
         return this.config.rocketWeight / 1000.0
     }
 
-    private get waterVolume0(): number {
-        // liter to m3
+    private get initialWaterVolume0(): number {
+        // m3
         return this.config.waterAmount / 1000.0
     }
 
-    private get waterMass0(): number {
-        return this.waterVolume0 * this.constants.rhoWater
+    private get initialWaterMass0(): number {
+        // kg
+        return this.initialWaterVolume0 * this.constants.rhoWater
     }
 
-    private get bottleVolume0(): number {
-        // liter to m3
-        return this.config.bottleVolume / 1000.0
+    private get pressureTankVolume(): number {
+        // m3
+        return this.config.tankVolume / 1000.0
     }
 
-    private get pressure0(): number {
-        // bar to pascal
+    private get initialPressure0(): number {
+        // pa
         return this.config.initialPressure * 100000.0
     }
 
-    private get airMass0(): number {
-        const v1: number = (this.bottleVolume0 - this.waterVolume0) * Math.pow((this.pressure0 / this.constants.pAmb), 1.0 / this.constants.k)
-        return v1 * this.constants.rhoAir
+    private get initialAirVolume0(): number {
+        const vL0: number = Math.max(this.pressureTankVolume - this.initialWaterVolume0, 0.0)
+        // m3
+        return vL0 * Math.pow(this.initialPressure0 / this.constants.pAmb, 1.0 / this.constants.gammaAir)
     }
 
-    private get mass0(): number {
-        return this.rocketEmptyMass + this.waterMass0 + this.airMass0
+    private get initialAirMass0(): number {
+        // kg
+        return this.initialAirVolume0 * this.constants.rhoAir
     }
 
-    private get waterVolume(): number {
-        return (this.mass - this.rocketEmptyMass - this.airMass0) / this.constants.rhoWater
-    }
-
-    private get waterPressure(): number {
-        return this.pressure0 * Math.pow((this.bottleVolume0 - this.waterVolume0) / (this.bottleVolume0 - this.waterVolume), this.constants.k)
-    }
-
-    private get waterFlowVelocity(): number {
-        const p: number = this.waterPressure
-        if (p < this.constants.pAmb) {
-            return 0.0
-        }
-
-        return Math.sqrt(2.0 * (p - this.constants.pAmb) / this.constants.rhoWater)
-    }
-
-    private get airVolumeOutputted(): number {
-        return this.airMassOutputted / this.constants.rhoAir
-    }
-
-    private get airPressure(): number {
-        return this.pressure0 * Math.pow((this.bottleVolume0 - this.waterVolume0) / ((this.bottleVolume0 - this.waterVolume) + this.airVolumeOutputted), this.constants.k)
-    }
-
-    private get airFlowVelocity(): number {
-        const p: number = this.airPressure
-        if (p < this.constants.pAmb) {
-            return 0.0
-        }
-
-        return Math.sqrt(2.0 * (p - this.constants.pAmb) / this.constants.rhoAir)
+    private get totalMass0(): number {
+        // kg
+        return this.emptyRocketMass + this.initialWaterMass0 + this.initialAirMass0
     }
 
     private get nozzleArea(): number {
-        // mm to m
         const diameter: number = this.config.nozzleDiameter / 1000.0
-        const radius: number = (diameter / 2.0)
+        const radius: number = diameter / 2.0
+        // m2
         return Math.PI * Math.pow(radius, 2.0)
     }
 
     private get rocketArea(): number {
-        // mm to m
-        const diameter: number = this.config.bottleDiameter / 1000.0
-        const radius: number = (diameter / 2.0)
+        const diameter: number = this.config.rocketDiameter / 1000.0
+        const radius: number = diameter / 2.0
+        // m2
         return Math.PI * Math.pow(radius, 2.0)
     }
 
-    private get waterMassFlowRate(): number {
-        // check if still water left
-        if (this.mass <= (this.rocketEmptyMass + this.airMass0)) {
-            return 0.0
-        }
-        return this.nozzleArea * this.waterFlowVelocity * this.constants.rhoWater
+    private get currentWaterVolume(): number {
+        return Math.max((this.mass - this.emptyRocketMass - this.initialAirMass0) / this.constants.rhoWater, 0.0)
     }
 
-    private get airMassFlowRate(): number {
-        // check if still air left
-        if (this.mass > (this.rocketEmptyMass + this.airMass0)) {
+    private computeWaterThrust(t: number, step: SingleSimulationStep): number {
+        // current pressure pa
+        const p: number = this.initialPressure0 * Math.pow((this.pressureTankVolume - this.initialWaterVolume0) / (this.pressureTankVolume - this.currentWaterVolume), this.constants.gammaAir)
+        // check if still pressure in the tank
+        if (p <= this.constants.pAmb) {
             return 0.0
         }
-        if (this.mass < this.rocketEmptyMass) {
+        // water flow velocity m/s
+        const vW: number = Math.sqrt((2.0 * (p - this.constants.pAmb)) / this.constants.rhoWater)
+        // water mass flow rate kg/s
+        const iW: number = this.nozzleArea * vW * this.constants.rhoWater
+        // thrust force N
+        const force: number = iW * vW
+        // remove expelled water from mass
+        this.mass -= iW * t
+
+        step.pressure = p / 100000.0
+        step.flowVelocity = vW
+        step.massFlowRate = iW
+
+        return force
+    }
+
+    private computeAirThrust(t: number, step: SingleSimulationStep): number {
+        // expelled air volume m3
+        const vLa: number = this.expelledAirMass / this.constants.rhoAir
+        // current pressure pa
+        const p: number = this.initialPressure0 * Math.pow((this.pressureTankVolume - this.initialWaterVolume0) / ((this.pressureTankVolume - this.currentWaterVolume) + vLa), this.constants.gammaAir)
+        // check if still pressure in the tank
+        if (p <= this.constants.pAmb) {
             return 0.0
         }
 
-        return this.nozzleArea * this.airFlowVelocity * this.constants.rhoAir
+        // air flow velocity m/s
+        const vL: number = Math.sqrt((2.0 * (p - this.constants.pAmb)) / this.constants.rhoAir)
+        // air mass flow rate kg/s
+        const iL: number = this.nozzleArea * vL * this.constants.rhoAir //* (p / this.constants.pAmb)
+        // thrust force N
+        const force: number = iL * vL
+        // remove expelled air from mass
+        this.mass -= iL * t
+        // add to expelled air mass
+        this.expelledAirMass += iL * t
+
+        step.pressure = p / 100000.0
+        step.flowVelocity = vL
+        step.massFlowRate = iL
+
+        return force
     }
 
-    private get drag(): number {
-        return this.config.dragCoefficient * this.rocketArea * (1.0 / 2.0) * this.constants.rhoAir * Math.pow(this.velocity, 2.0)
-    }
-
-    private get gravity(): number {
-        // kg * m / s2 = N
+    private get gravityForce(): number {
         return this.mass * this.constants.g
     }
 
-    private next(tick: number): SingleSimulationStep {
-        const airFlowVelocity: number = this.airFlowVelocity // m/s       
-        const airMassFlowRate: number = this.airMassFlowRate  // kg/s
+    private get dragForce(): number {
+        return this.config.dragCoefficient * this.rocketArea * (1.0 / 2.0) * this.constants.rhoAir * Math.pow(this.velocity, 2.0)
+    }
 
-        console.log(airFlowVelocity, airMassFlowRate)
+    private init(): void {
+        this.time = 0.0
+        this.height = 0.0
+        this.velocity = 0.0
+        this.expelledAirMass = 0.0
 
-        const waterFlowVelocity: number = this.waterFlowVelocity // m/s
-        const waterMassFlowRate: number = this.waterMassFlowRate  // kg/s
+        this.mass = this.totalMass0
+    }
 
-        // update the masses
-        this.mass -= (airMassFlowRate + waterMassFlowRate) * tick
-        this.airMassOutputted += airMassFlowRate * tick
-
-        // m/s * kg/s = kg*m / s2 = N
-        const forceAir: number = airMassFlowRate * (airFlowVelocity - this.velocity)
-        const forceWater: number = waterMassFlowRate * (waterFlowVelocity - this.velocity)
-
-        const force: number = (forceAir + forceWater) - this.gravity - this.drag
-        const acceleration: number = force / this.mass
-
-        this.velocity += acceleration * tick
-        this.height += this.velocity * tick
-
+    private tick(t: number): SingleSimulationStep {
         const step: SingleSimulationStep = {
-            mass: this.mass,
             time: this.time,
-            height: this.height,
-            velocity: this.velocity
+            mass: 0.0,
+            height: 0.0,
+            thrust: 0.0,
+            pressure: 0.0,
+            velocity: 0.0,
+            acceleration: 0.0,
+            flowVelocity: 0.0,           
+            massFlowRate: 0.0,
+        } as SingleSimulationStep
+
+        // N
+        let thrust: number = 0.0
+        if (this.mass > (this.emptyRocketMass + this.initialAirMass0)) {
+            thrust = this.computeWaterThrust(t, step)
+        } else if (this.emptyRocketMass < this.mass && this.mass < (this.emptyRocketMass + this.initialAirMass0)) {
+            thrust = this.computeAirThrust(t, step)
         }
+
+        // N
+        const force: number = thrust - this.gravityForce - this.dragForce
+        // m/s2
+        step.acceleration = force / this.mass
+        // calculate current velocity m/s
+        this.velocity += step.acceleration * t
+        // calculate current height m/s
+        this.height += this.velocity * t
+
+        // update the step
+        step.mass = this.mass * 1000.0
+        step.thrust = thrust
+        step.height = this.height
+        step.velocity = this.velocity
 
         return step
     }
 
-    private compute(): SingleSimulationStep[] {
+    private computeSteps(): SingleSimulationStep[] {
         const steps: SingleSimulationStep[] = []
 
         for (let i = 0; i < 10000; i++) {
-            // compute the next step
-            const step: SingleSimulationStep = this.next(this.config.timeStep)
+            // calculate current step
+            const step: SingleSimulationStep = this.tick(this.config.timeStep)
+            // increment the time
+            this.time += this.config.timeStep
+            // add the step to list
             steps.push(step)
 
+            // check if the rocket under sea level
             if (step.height < 0.0) {
                 return steps
             }
-
-            this.time += this.config.timeStep
         }
 
         return steps
     }
 
-    private findMaxHeight(steps: SingleSimulationStep[]): number {
+    private searchMaxHeight(steps: SingleSimulationStep[]): number {
         let height: number = -Infinity
         steps.forEach((step: SingleSimulationStep) => {
-            height = Math.max(height, step.height)
+            height = Math.max(step.height, height)
         })
-
         return height
     }
 
     execute(): SingleSimulationResult {
-        this.time = 0.0
-        this.height = 0.0
-        this.velocity = 0.0
-        this.airMassOutputted = 0.0
+        this.init()
 
-        this.mass = this.mass0
-
-        const steps: SingleSimulationStep[] = this.compute()
-        const maxHeight: number = this.findMaxHeight(steps)
+        const steps: SingleSimulationStep[] = this.computeSteps()
+        const maxHeight: number = this.searchMaxHeight(steps)
 
         return {
             duration: this.time,

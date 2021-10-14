@@ -37,10 +37,10 @@ export class SingleSimulationComponent implements OnInit, OnDestroy {
             timeStep: new FormControl(0.0),
             waterAmount: new FormControl(0.0),
             rocketWeight: new FormControl(0.0),
-            bottleVolume: new FormControl(0.0),
+            tankVolume: new FormControl(0.0),
             initialPressure: new FormControl(0.0),
             dragCoefficient: new FormControl(0.0),
-            bottleDiameter: new FormControl(0.0),
+            rocketDiameter: new FormControl(0.0),
             nozzleDiameter: new FormControl(0.0),
         })
     }
@@ -75,22 +75,29 @@ export class SingleSimulationComponent implements OnInit, OnDestroy {
         const timeStep: number = FormUtils.getValueOrDefault(this.formGroup, 'timeStep', defaultConfig.timeStep)
         const waterAmount: number = FormUtils.getValueOrDefault(this.formGroup, 'waterAmount', defaultConfig.waterAmount)
         const rocketWeight: number = FormUtils.getValueOrDefault(this.formGroup, 'rocketWeight', defaultConfig.rocketWeight)
-        const bottleVolume: number = FormUtils.getValueOrDefault(this.formGroup, 'bottleVolume', defaultConfig.bottleVolume)
+        const tankVolume: number = FormUtils.getValueOrDefault(this.formGroup, 'tankVolume', defaultConfig.tankVolume)
         const initialPressure: number = FormUtils.getValueOrDefault(this.formGroup, 'initialPressure', defaultConfig.initialPressure)
         const dragCoefficient: number = FormUtils.getValueOrDefault(this.formGroup, 'dragCoefficient', defaultConfig.dragCoefficient)
-        const bottleDiameter: number = FormUtils.getValueOrDefault(this.formGroup, 'bottleDiameter', defaultConfig.bottleDiameter)
+        const rocketDiameter: number = FormUtils.getValueOrDefault(this.formGroup, 'rocketDiameter', defaultConfig.rocketDiameter)
         const nozzleDiameter: number = FormUtils.getValueOrDefault(this.formGroup, 'nozzleDiameter', defaultConfig.nozzleDiameter)
 
         return {
             timeStep,
             waterAmount,
             rocketWeight,
-            bottleVolume,
+            tankVolume,
             initialPressure,
             dragCoefficient,
-            bottleDiameter,
+            rocketDiameter,
             nozzleDiameter,
         }
+    }
+
+    onResetChart(): void {
+        if(!this.chart || !this.chart.chart){
+            return
+        }
+        this.chart.chart.resetZoom()
     }
 
     ngOnDestroy(): void {

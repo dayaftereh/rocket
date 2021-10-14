@@ -34,8 +34,8 @@ export class SimulationService {
             timeStep: 0.01,
             waterAmount: 0.66,
             rocketWeight: 100,
-            bottleVolume: 2,
-            bottleDiameter: 100,
+            tankVolume: 2,
+            rocketDiameter: 100,
             nozzleDiameter: 20,
             initialPressure: 2.5,
             dragCoefficient: 1.0

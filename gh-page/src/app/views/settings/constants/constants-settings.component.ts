@@ -22,10 +22,10 @@ export class ConstantsSettingsComponent implements OnInit, OnDestroy {
     private create(): FormGroup {
         return new FormGroup({
             g: new FormControl(),
-            k: new FormControl(),
             pAmb: new FormControl(),
             rhoAir: new FormControl(),
             rhoWater: new FormControl(),
+            gammaAir: new FormControl(),
         })
     }
 
@@ -51,17 +51,17 @@ export class ConstantsSettingsComponent implements OnInit, OnDestroy {
         const constants: Constants = this.constantsService.defaultConstants()
 
         const g: number = FormUtils.getValueOrDefault(this.formGroup, 'g', constants.g)
-        const k: number = FormUtils.getValueOrDefault(this.formGroup, 'k', constants.k)
+        const gammaAir: number = FormUtils.getValueOrDefault(this.formGroup, 'gammaAir', constants.gammaAir)
         const pAmb: number = FormUtils.getValueOrDefault(this.formGroup, 'pAmb', constants.pAmb)
         const rhoAir: number = FormUtils.getValueOrDefault(this.formGroup, 'rhoAir', constants.rhoAir)
         const rhoWater: number = FormUtils.getValueOrDefault(this.formGroup, 'rhoWater', constants.rhoWater)
 
         this.constantsService.update({
             g,
-            k,
             pAmb,
             rhoAir,
-            rhoWater
+            rhoWater,
+            gammaAir,
         })
     }
 

@@ -5,12 +5,12 @@
                 <form [formGroup]="formGroup" (ngSubmit)="ngSubmit()">
 
                     <div class="field grid">
-                        <label for="rocketWeight" class="col-12">Empty rocket weigth</label>
+                        <label for="rocketWeight" class="col-12">Empty rocket weight</label>
                         <div class="col-12">
                             <div class="p-inputgroup">
                                 <input id="rocketWeight" type="number" formControlName="rocketWeight" pInputText
                                     class="inputfield w-full">
-                                <span class="p-inputgroup-addon">g</span>
+                                <span class="p-inputgroup-addon">gram</span>
                             </div>
                         </div>
                     </div>
@@ -21,18 +21,18 @@
                             <div class="p-inputgroup">
                                 <input id="waterAmount" type="number" formControlName="waterAmount" pInputText
                                     class="inputfield w-full">
-                                <span class="p-inputgroup-addon">L</span>
+                                <span class="p-inputgroup-addon">Liter</span>
                             </div>
                         </div>
                     </div>
 
                     <div class="field grid">
-                        <label for="bottleVolume" class="col-12">Bottle Volume</label>
+                        <label for="tankVolume" class="col-12">Tank Volume</label>
                         <div class="col-12">
                             <div class="p-inputgroup">
-                                <input id="bottleVolume" type="number" formControlName="bottleVolume" pInputText
+                                <input id="tankVolume" type="number" formControlName="tankVolume" pInputText
                                     class="inputfield w-full">
-                                <span class="p-inputgroup-addon">L</span>
+                                <span class="p-inputgroup-addon">Liter</span>
                             </div>
                         </div>
                     </div>
@@ -57,10 +57,10 @@
                     </div>
 
                     <div class="field grid">
-                        <label for="bottleDiameter" class="col-12">Bottle Diameter</label>
+                        <label for="rocketDiameter" class="col-12">Rocket Diameter</label>
                         <div class="col-12">
                             <div class="p-inputgroup">
-                                <input id="bottleDiameter" type="number" formControlName="bottleDiameter" pInputText
+                                <input id="rocketDiameter" type="number" formControlName="rocketDiameter" pInputText
                                     class="inputfield w-full">
                                 <span class="p-inputgroup-addon">mm</span>
                             </div>
@@ -90,7 +90,8 @@
                     </div>
 
                     <div class="field grid">
-                        <button pButton type="submit" label="Launch" class="p-button-success" icon="pi pi-play"></button>
+                        <button pButton type="submit" label="Launch" class="p-button-success"
+                            icon="pi pi-play"></button>
                     </div>
 
                 </form>
@@ -136,8 +137,18 @@
 <div class="grid">
     <div class="col">
         <p-card header="Chart">
-            <p-chart #chart width="98%" height="45vh" type="line" [data]="simulationChart.data"
-                [plugins]="simulationChart.plugins" [options]="simulationChart.options"></p-chart>
+            <div class="grid">
+                <div class="col">
+                    <p-chart #chart width="98%" height="45vh" type="line" [data]="simulationChart.data"
+                        [plugins]="simulationChart.plugins" [options]="simulationChart.options"></p-chart>
+                </div>
+            </div>
+            <div class="grid text-right">
+                <div class="col">
+                    <button pButton type="button" label="Reset" class="p-button-info" icon="pi pi-times"
+                        (click)="onResetChart()"></button>
+                </div>
+            </div>
         </p-card>
     </div>
 </div>
