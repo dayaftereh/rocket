@@ -16,8 +16,13 @@ jobs:
         with:
           node-version: 14
 
-      - run: npm ci
-      - run: npm run build
+      - name: Install Dependencies
+        working-directory: ./gh-page
+        run: npm ci
+
+      - name: Build the Application
+        working-directory: ./gh-page
+        run: npm run build
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
