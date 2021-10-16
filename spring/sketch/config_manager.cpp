@@ -26,10 +26,10 @@ void ConfigManager::print_config() {
   Serial.print("config from eeprom");
 
   /*
-  Serial.print(" [ foo: ");
-  Serial.print(this->_config.foo);
-  Serial.print(", bar: ");
-  Serial.print(this->_config.bar);
+    Serial.print(" [ foo: ");
+    Serial.print(this->_config.foo);
+    Serial.print(", bar: ");
+    Serial.print(this->_config.bar);
   */
 
   Serial.println(" ]");

@@ -9,7 +9,7 @@
 
 // Config struct for the eeprom
 typedef struct {
-   
+
 } Config;
 
 #endif // _CONFIG_H

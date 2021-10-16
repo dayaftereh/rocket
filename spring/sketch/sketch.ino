@@ -1,13 +1,18 @@
-#include "config.h"
+#include "config_manager.h"
 
-void setup()
-{
-    Serial.begin(SERIAL_BAUD_RATE);
+ConfigManager configManager;
 
-    // delay the startup
-    delay(500);
+void setup() {
+  Serial.begin(SERIAL_BAUD_RATE);
+
+  // delay the startup
+  delay(500);
+
+  bool success = configManager.setup();
+  if (!success) {
+    Serial.println("fail to setup config manager");
+  }
 }
 
-void loop()
-{
+void loop() {
 }
