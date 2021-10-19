@@ -18,8 +18,10 @@ class AltitudeManager
     float get_altitude_delta();
 
   private:
+  
     float _altitude;
     float _zero_altitude;
+    
     Adafruit_BMP280 *_bmp280;
 };
 

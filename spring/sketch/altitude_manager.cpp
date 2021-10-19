@@ -7,7 +7,13 @@ AltitudeManager::AltitudeManager() {
 bool AltitudeManager::setup() {
   this->_bmp280 = new Adafruit_BMP280();
 
-  bool success = this->_bmp280->begin();
+  // try first address
+  bool success = this->_bmp280->begin(0x77);
+  if (!success) {
+    // try second address
+    success = this->_bmp280->begin(0x76);
+  }
+  
   if (!success) {
     Serial.println("Could not find a valid BMP280 sensor, check wiring or try a different address!");
     return false;
