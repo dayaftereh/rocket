@@ -23,5 +23,5 @@ void ErrorManager::flash_error(int count) {
 }
 
 void ErrorManager::flash_reset() {
-  this->_status_leds->flash(3, 250);
+  this->_status_leds->flash(3, 150);
 }

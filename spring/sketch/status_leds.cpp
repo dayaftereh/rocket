@@ -68,3 +68,20 @@ void StatusLeds::flash(int count, int timeout) {
 
   this->off();
 }
+
+void StatusLeds::finalize() {
+  if (this->_finalized) {
+    return;
+  }
+  
+  unsigned long now = millis();
+  unsigned long elapsed = now - this->_timer;
+  // check if timer reached
+  if (elapsed < STATUS_FINALIZE_LED_TIMEOUT) {
+    return;
+  }
+  // switch the led state
+  this->toggle();
+  // update the timer
+  this->_timer = now;
+}

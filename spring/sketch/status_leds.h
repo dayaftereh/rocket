@@ -16,6 +16,8 @@ class StatusLeds
 
     void progress();
 
+    void finalize();
+
     void flash(int count, int timeout);      
 
   private:
@@ -25,7 +27,8 @@ class StatusLeds
     void toggle();  
 
     bool _led1;
-    bool _ready;   
+    bool _ready;  
+    bool _finalized;
     unsigned long _timer;
 };
 

@@ -20,6 +20,7 @@ class ConfigManager
   private:
 
     void print_config();
+    bool write_default();
 
     int _eepromAddress;
 
