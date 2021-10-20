@@ -9,6 +9,7 @@
 // AccessPoint -----------------------------------------------
 #define ACCESS_POINT_SSID "Spring"
 #define ACCESS_POINT_PASSWD "123456789"
+#define ACCESS_POINT_CHANNEL 7
 
 // RemoteServer -----------------------------------------------
 #define REMOTE_SERVER_PORT 80

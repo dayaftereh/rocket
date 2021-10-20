@@ -6,8 +6,10 @@ RemoteServer::RemoteServer(): _web_server(REMOTE_SERVER_PORT) {
 
 bool RemoteServer::setup(ConfigManager *config_manager, DataLogger *data_logger) {
   Serial.println("starting remote server...");
-  
+
   this->_data_logger = data_logger;
+  this->_config_manager = config_manager;
+
   // set actibe for startup
   this->_active = true;
   this->_last_broadcast = millis();
@@ -43,24 +45,24 @@ bool RemoteServer::setup(ConfigManager *config_manager, DataLogger *data_logger)
     return false;
   }
 
-  // print the remote server address
-  Serial.print("remote server ip-address is [");
-  Serial.print(REMOTE_SERVER_ADDRESS);
-  Serial.println(" ]");
-
   // setup the access point
-  success = WiFi.softAP(ACCESS_POINT_SSID, ACCESS_POINT_PASSWD);
+  success = WiFi.softAP(ACCESS_POINT_SSID, ACCESS_POINT_PASSWD, ACCESS_POINT_CHANNEL);
   if (!success) {
     Serial.println("Fail to setup access point");
     return false;
   }
 
+  // print the remote server address
+  Serial.print("remote server ip-address is [ ");
+  Serial.print(WiFi.softAPIP());
+  Serial.println(" ]");
+
   // start spiffs for the file server
-  /*success = SPIFFS.begin();
+  success = SPIFFS.begin();
   if (!success) {
     Serial.println("Fail to setup spiffs");
     return false;
-  }*/
+  }
 
   // setup the web-server
   this->_web_server.onNotFound(std::bind(&RemoteServer::handle_not_found, this));
@@ -72,7 +74,7 @@ bool RemoteServer::setup(ConfigManager *config_manager, DataLogger *data_logger)
     this->handle_web_socket(num, type, payload, length);
   }));
 
-  //this->_web_server->serveStatic("/", SPIFFS, "/index.html");
+  this->_web_server.serveStatic("/", SPIFFS, "/index.html");
   this->_web_server.begin();
 
   return true;
@@ -86,9 +88,7 @@ void RemoteServer::update() {
   this->_web_socket.loop();
   this->_web_server.handleClient();
 
-  //Serial.println("loop");
-
-  //this->broadcast_update();
+  this->broadcast_update();
 }
 
 void RemoteServer::broadcast_update() {
@@ -101,17 +101,16 @@ void RemoteServer::broadcast_update() {
   // update last broadcast
   this->_last_broadcast = now;
 
-  // load the data logger entry
   DataLoggerEntry entry;
+  // load the data logger entry
   this->_data_logger->load_data_logger_entry(entry);
 
   // get the size of the struct
   size_t struct_size = sizeof(entry);
-  // get the struct as byte point
-  byte* data = (byte*)&entry;
-  
+  // get the struct as pointer
+  byte *pointer = (byte*)&entry;
   // broadcast the data logger entry
-  this->_web_socket.broadcastBIN(data, struct_size);
+  this->_web_socket.broadcastBIN(pointer, struct_size);
 }
 
 void RemoteServer::enable() {

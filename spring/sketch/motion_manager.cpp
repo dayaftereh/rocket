@@ -50,6 +50,8 @@ void MotionManager::update() {
   this->read();
   // update the world orientation
   this->update_world_orientation();
+
+  this->update_world_rotation();
 }
 
 void MotionManager::update_world_orientation() {

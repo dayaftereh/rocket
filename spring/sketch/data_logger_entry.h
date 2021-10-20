@@ -2,28 +2,29 @@
 #define _DATA_LOGGER_ENTRY_H
 
 // The struct for the data logger entry
-typedef struct {
+// 52
+typedef struct __attribute__((packed)) DataLoggerEntry {
 
-  uint16_t time;
+  uint16_t time; // 2
 
-  float voltage;
-  float altitude;
+  float voltage; // 4
+  float altitude; // 4
 
-  float gyroscopeX;
-  float gyroscopeY;
-  float gyroscopeZ;
+  float gyroscopeX; // 4
+  float gyroscopeY; // 4
+  float gyroscopeZ; // 4
 
-  float accelerationX;
-  float accelerationY;
-  float accelerationZ;
+  float accelerationX; // 4
+  float accelerationY; // 4
+  float accelerationZ; // 4
 
-  float rotationX;
-  float rotationY;
-  float rotationZ;
+  float rotationX; // 4
+  float rotationY; // 4
+  float rotationZ; // 4
 
-  bool parachuteAltitude;
-  bool parachuteOrientation;
-  
-} DataLoggerEntry;
+  bool parachuteAltitude; // 1
+  bool parachuteOrientation; // 1
+
+} ;
 
 #endif // _DATA_LOGGER_ENTRY_H

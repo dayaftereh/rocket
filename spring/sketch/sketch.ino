@@ -138,6 +138,4 @@ void loop() {
 
   // always update flight observer as last
   flightObserver.update();
-
-  //Serial.println(delta);
 }

@@ -6,13 +6,12 @@ AltitudeManager::AltitudeManager() {
 
 bool AltitudeManager::setup(StatusLeds *status_leds) {
   this->_status_leds = status_leds;
-  this->_bmp280 = new Adafruit_BMP280();
-
+  
   // try first address
-  bool success = this->_bmp280->begin(0x77);
+  bool success = this->_bmp280.begin(0x77);
   if (!success) {
     // try second address
-    success = this->_bmp280->begin(0x76);
+    success = this->_bmp280.begin(0x76);
   }
 
   if (!success) {
@@ -21,14 +20,14 @@ bool AltitudeManager::setup(StatusLeds *status_leds) {
   }
 
   /* Default settings from datasheet. */
-  this->_bmp280->setSampling(Adafruit_BMP280::MODE_NORMAL,     /* Operating Mode. */
+  this->_bmp280.setSampling(Adafruit_BMP280::MODE_NORMAL,     /* Operating Mode. */
                              Adafruit_BMP280::SAMPLING_X4,     /* Temp. oversampling */
                              Adafruit_BMP280::SAMPLING_X16,    /* Pressure oversampling */
                              Adafruit_BMP280::FILTER_X4,      /* Filtering. */
                              Adafruit_BMP280::STANDBY_MS_1); /* Standby time. */
 
-  uint8_t status = this->_bmp280->getStatus();
-  uint8_t sensorID = this->_bmp280->sensorID();
+  uint8_t status = this->_bmp280.getStatus();
+  uint8_t sensorID = this->_bmp280.sensorID();
 
   // output info about bmp280 sensor
   Serial.print("Connected with BMP280 [ status:");
@@ -61,7 +60,7 @@ float AltitudeManager::get_altitude_delta() {
 
 void AltitudeManager::update() {
   // read the altitude
-  this->_altitude = this->_bmp280->readAltitude();
+  this->_altitude = this->_bmp280.readAltitude();
 }
 
 bool AltitudeManager::zero_altitude() {
@@ -74,7 +73,7 @@ bool AltitudeManager::zero_altitude() {
     elapsed = millis() - start;
     this->_status_leds->progress();
     // read the altitude
-    this->_bmp280->readAltitude();
+    this->_bmp280.readAltitude();
 
     // delay for the next reading
     delay(2);
@@ -85,7 +84,7 @@ bool AltitudeManager::zero_altitude() {
   float sum = 0.0;
   for (int i = 0; i < ALTITUDE_MANAGER_ZERO_READINGS; i++) {
     this->_status_leds->progress();
-    sum += this->_bmp280->readAltitude();
+    sum += this->_bmp280.readAltitude();
 
     // delay for the next reading
     delay(2);

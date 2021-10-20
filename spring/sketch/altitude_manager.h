@@ -25,7 +25,7 @@ class AltitudeManager
     float _altitude;
     float _zero_altitude;
 
-    Adafruit_BMP280 *_bmp280;
+    Adafruit_BMP280 _bmp280;
     StatusLeds *_status_leds;
 };
 

@@ -12,13 +12,18 @@ class Stats
 
     bool setup();
     float update();
+    float get_fps();
     float get_delta();
 
   private:
 
+    float _fps;
+
+    int _counter;
+    float _sum_delta;
+
     float _delta;
     unsigned long _last;
-
 };
 
 #endif // _STATS_H

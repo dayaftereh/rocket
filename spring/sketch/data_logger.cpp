@@ -203,7 +203,7 @@ void DataLogger::load_data_logger_entry(DataLoggerEntry &entry) {
   entry.accelerationY = acceleration->y;
   entry.accelerationZ = acceleration->z;
 
-  VectorFloat *rotation = this->_motion_manager->get_acceleration();
+  VectorFloat *rotation = this->_motion_manager->get_world_rotaion();
   entry.rotationX = rotation->x;
   entry.rotationY = rotation->y;
   entry.rotationZ = rotation->z;
@@ -217,6 +217,8 @@ void DataLogger::update() {
   if (!this->_started) {
     return;
   }
+
+  Serial.println("ff");
 
   // load the data logger entry
   DataLoggerEntry entry;

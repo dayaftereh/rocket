@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>
+        <%= name %> - <%= version %>
+    </title>
+    <meta charset=utf-8 />
+    <meta name="viewport"
+        content="user-scalable=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, minimal-ui">
+</head>
+
+<body>
+    <div class="container mt-3 mb-5">
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <div class="card-body">
+
+                        <ul class="nav nav-tabs" id="menuTab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="rocket-tab" data-bs-toggle="tab"
+                                    data-bs-target="#rocket" type="button" role="tab" aria-controls="rocket"
+                                    aria-selected="true">Rocket-Monitor</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="config-tab" data-bs-toggle="tab" data-bs-target="#config"
+                                    type="button" role="tab" aria-controls="config"
+                                    aria-selected="false">Configuration</button>
+                            </li>
+                        </ul>
+                        <div class="tab-content" id="menuTabContent">
+                            <div class="tab-pane fade show active" id="rocket" role="tabpanel"
+                                aria-labelledby="rocket-tab">
+
+                                <div class="row">
+                                    <div class="col">
+                                        <label for="currentTime" class="form-label">Time</label>
+                                        <input type="text" class="form-control" id="currentTime" disabled>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col">
+                                        <label for="currentVoltage" class="form-label">Voltage</label>
+                                        <input type="text" class="form-control" id="currentVoltage" disabled>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col">
+                                        <label for="currentAltitude" class="form-label">Altitude</label>
+                                        <input type="text" class="form-control" id="currentAltitude" disabled>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col">
+                                        <label for="currentGyroscopeX" class="form-label">GyroscopeX</label>
+                                        <input type="text" class="form-control" id="currentGyroscopeX" disabled>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col">
+                                        <label for="currentGyroscopeY" class="form-label">GyroscopeY</label>
+                                        <input type="text" class="form-control" id="currentGyroscopeY" disabled>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col">
+                                        <label for="currentGyroscopeZ" class="form-label">GyroscopeZ</label>
+                                        <input type="text" class="form-control" id="currentGyroscopeZ" disabled>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col">
+                                        <label for="currentAccelerationX" class="form-label">AccelerationX</label>
+                                        <input type="text" class="form-control" id="currentAccelerationX" disabled>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col">
+                                        <label for="currentAccelerationY" class="form-label">AccelerationY</label>
+                                        <input type="text" class="form-control" id="currentAccelerationY" disabled>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col">
+                                        <label for="currentAccelerationZ" class="form-label">AccelerationZ</label>
+                                        <input type="text" class="form-control" id="currentAccelerationZ" disabled>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col">
+                                        <label for="currentRotationX" class="form-label">RotationX</label>
+                                        <input type="text" class="form-control" id="currentRotationX" disabled>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col">
+                                        <label for="currentRotationY" class="form-label">RotationY</label>
+                                        <input type="text" class="form-control" id="currentRotationY" disabled>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col">
+                                        <label for="currentRotationZ" class="form-label">RotationZ</label>
+                                        <input type="text" class="form-control" id="currentRotationZ" disabled>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col">
+                                        <input class="form-check-input" type="checkbox" id="parachuteAltitude" disabled>
+                                        <label for="valve" class="form-label">ParachuteAltitude</label>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col">
+                                        <input class="form-check-input" type="checkbox" id="parachuteOrientation" disabled>
+                                        <label for="valve" class="form-label">ParachuteOrientation</label>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="tab-pane fade" id="config" role="tabpanel" aria-labelledby="config-tab">
+                                <form id="configForm">
+
+                                    <div class="mb-3">
+                                        <label for="configAccelerationXOffset"
+                                            class="form-label">AccelerationXOffset</label>
+                                        <input type="number" class="form-control" min="-10000" step="0.001"
+                                            id="configAccelerationXOffset">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="configAccelerationYOffset"
+                                            class="form-label">AccelerationYOffset</label>
+                                        <input type="number" class="form-control" min="-10000" step="0.001"
+                                            id="configAccelerationYOffset">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="configAccelerationZOffset"
+                                            class="form-label">AccelerationZOffset</label>
+                                        <input type="number" class="form-control" min="-10000" step="0.001"
+                                            id="configAccelerationZOffset">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="configGyroscopeXOffset" class="form-label">GyroscopeXOffset</label>
+                                        <input type="number" class="form-control" min="-10000" step="0.001"
+                                            id="configGyroscopeXOffset">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="configGyroscopeYOffset" class="form-label">GyroscopeYOffset</label>
+                                        <input type="number" class="form-control" min="-10000" step="0.001"
+                                            id="configGyroscopeYOffset">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="configGyroscopeZOffset" class="form-label">GyroscopeZOffset</label>
+                                        <input type="number" class="form-control" min="-10000" step="0.001"
+                                            id="configGyroscopeZOffset">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="configMotionDetectionThreshold"
+                                            class="form-label">MotionDetectionThreshold</label>
+                                        <input type="number" class="form-control" min="-10000" step="0.001"
+                                            id="configMotionDetectionThreshold">
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary">Submit</button>
+
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+</body>
+
+</html>
