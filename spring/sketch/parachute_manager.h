@@ -7,7 +7,7 @@
 
 class ParachuteManager
 {
-  public:
+public:
     ParachuteManager();
 
     bool setup(Config *config);
@@ -20,7 +20,7 @@ class ParachuteManager
     bool is_altitude_triggered();
     bool is_orientation_triggered();
 
-  private:
+private:
 
     void reset();
 
