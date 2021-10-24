@@ -7,6 +7,8 @@ typedef struct __attribute__((packed)) DataLoggerEntry {
 
   uint16_t time; // 2
 
+  float elapsed; // 4
+
   float voltage; // 4
   float altitude; // 4
 

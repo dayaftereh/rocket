@@ -18,6 +18,7 @@ void ErrorManager::error(ErrorCode error) {
 void ErrorManager::flash_error(int count) {
   // flash the error code
   this->_status_leds->flash(count, 500);
+  delay(750);
   // flash the reset
   this->flash_reset();
 }

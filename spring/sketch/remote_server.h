@@ -10,13 +10,14 @@
 
 #include "data_logger.h"
 #include "config_manager.h"
+#include "parachute_manager.h"
 
 class RemoteServer
 {
   public:
     RemoteServer();
 
-    bool setup(ConfigManager *config_manager, DataLogger *data_logger);
+    bool setup(ConfigManager *config_manager, DataLogger *data_logger, ParachuteManager* parachute_manager);
 
     void update();
 
@@ -37,6 +38,9 @@ class RemoteServer
     void handle_get_configuration();
     void handle_update_configuration();
 
+    // parachute
+    void handle_trigger_parachute();
+
     bool _active;
     unsigned long _last_broadcast;
 
@@ -45,6 +49,7 @@ class RemoteServer
 
     DataLogger *_data_logger;
     ConfigManager *_config_manager;
+    ParachuteManager* _parachute_manager;
 };
 
 #endif // _REMOTE_SERVER_H

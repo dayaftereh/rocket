@@ -4,11 +4,12 @@ RemoteServer::RemoteServer(): _web_server(REMOTE_SERVER_PORT) {
 
 }
 
-bool RemoteServer::setup(ConfigManager *config_manager, DataLogger *data_logger) {
+bool RemoteServer::setup(ConfigManager *config_manager, DataLogger *data_logger, ParachuteManager* parachute_manager) {
   Serial.println("starting remote server...");
 
   this->_data_logger = data_logger;
   this->_config_manager = config_manager;
+  this->_parachute_manager = parachute_manager;
 
   // set actibe for startup
   this->_active = true;
@@ -68,6 +69,7 @@ bool RemoteServer::setup(ConfigManager *config_manager, DataLogger *data_logger)
   this->_web_server.onNotFound(std::bind(&RemoteServer::handle_not_found, this));
   this->_web_server.on("/api/config", HTTP_GET, std::bind(&RemoteServer::handle_get_configuration, this));
   this->_web_server.on("/api/config", HTTP_POST, std::bind(&RemoteServer::handle_update_configuration, this));
+  this->_web_server.on("/api/trigger", HTTP_GET, std::bind(&RemoteServer::handle_trigger_parachute, this));
 
   // add the websocket hook
   this->_web_server.addHook(this->_web_socket.hookForWebserver("/api/ws", [&](uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
@@ -170,6 +172,8 @@ void RemoteServer::handle_get_configuration() {
   // mpu6050 motion
   responseDoc["motionDetectionThreshold"] = config->motion_detection_threshold;
 
+  responseDoc["parachuteTimeout"] = config->parachute_timeout;
+
   // serialize the response
   String output;
   serializeJson(responseDoc, output);
@@ -233,6 +237,11 @@ void RemoteServer::handle_update_configuration() {
     config->motion_detection_threshold = doc["motionDetectionThreshold"];
   }
 
+  bool has_parachute_timeout = doc.containsKey("parachuteTimeout");
+  if (has_parachute_timeout) {
+    config->parachute_timeout = doc["parachuteTimeout"];
+  }
+
   // write the new config to eeprom
   bool success = this->_config_manager->write();
   if (!success) {
@@ -242,4 +251,11 @@ void RemoteServer::handle_update_configuration() {
 
   // send result back
   this->send_result(t);
+}
+
+void RemoteServer::handle_trigger_parachute() {
+  // trigger the parachute
+  this->_parachute_manager->trigger();
+  // send ok back
+  this->_web_server.send(200, "text/plain", "200: OK");
 }

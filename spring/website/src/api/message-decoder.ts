@@ -17,6 +17,9 @@ export class MessageDecoder {
         message.time = dataView.getUint16(index, this.littleEndian)
         index += 2
 
+        message.elapsed = dataView.getFloat32(index, this.littleEndian)
+        index += 4
+
         message.voltage = dataView.getFloat32(index, this.littleEndian)
         index += 4
 

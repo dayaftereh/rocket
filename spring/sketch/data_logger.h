@@ -1,9 +1,9 @@
 #ifndef _DATA_LOGGER_H
 #define _DATA_LOGGER_H
 
-#include<SD.h>
-#include<SPI.h>
-#include<SPIMemory.h>
+#include <SD.h>
+#include <SPI.h>
+#include <SPIMemory.h>
 
 #include "stats.h"
 #include "config.h"
@@ -11,6 +11,7 @@
 #include "motion_manager.h"
 #include "altitude_manager.h"
 #include "data_logger_entry.h"
+#include "parachute_manager.h"
 #include "voltage_measurement.h"
 
 class DataLogger
@@ -18,7 +19,7 @@ class DataLogger
   public:
     DataLogger();
 
-    bool setup(Stats *stats, StatusLeds *status_leds, AltitudeManager *altitude_manager, VoltageMeasurement *voltage_measurement, MotionManager *motion_manager);
+    bool setup(Stats *stats, StatusLeds *status_leds, AltitudeManager *altitude_manager, VoltageMeasurement *voltage_measurement, MotionManager *motion_manager, ParachuteManager *parachute_manager);
     void update();
 
     void start();
@@ -27,6 +28,8 @@ class DataLogger
     void load_data_logger_entry(DataLoggerEntry &entry);
 
   private:
+    void write_entry_2_data_file(byte *data, uint32_t length);
+    void write_entry_2_flash_memory(byte *data, uint32_t length);
 
     bool open_data_file();
     bool sd_card_speed_test();
@@ -45,6 +48,7 @@ class DataLogger
     StatusLeds *_status_leds;
     MotionManager *_motion_manager;
     AltitudeManager *_altitude_manager;
+    ParachuteManager *_parachute_manager;
     VoltageMeasurement *_voltage_measurement;
 };
 

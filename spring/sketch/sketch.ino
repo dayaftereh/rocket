@@ -7,6 +7,7 @@
 #include "motion_manager.h"
 #include "flight_observer.h"
 #include "altitude_manager.h"
+#include "parachute_manager.h"
 #include "voltage_measurement.h"
 
 Stats stats;
@@ -18,6 +19,7 @@ ConfigManager configManager;
 MotionManager motionManager;
 FlightObserver flightObserver;
 AltitudeManager altitudeManager;
+ParachuteManager parachuteManager;
 VoltageMeasurement voltageMeasurement;
 
 void setup() {
@@ -88,11 +90,18 @@ void setup() {
     errorManager.error(ERROR_VOLTAGE_MEASUREMENT);
   }
 
+  // ParachuteManager
+  success = parachuteManager.setup(config);
+  if (!success) {
+    Serial.println("fail to setup parachute manager");
+    errorManager.error(ERROR_PARACHUTE_MANAGER);
+  }
+
   // update the status progress
   statusLeds.progress();
 
   // DataLogger
-  success = dataLogger.setup(&stats, &statusLeds, &altitudeManager, &voltageMeasurement, &motionManager);
+  success = dataLogger.setup(&stats, &statusLeds, &altitudeManager, &voltageMeasurement, &motionManager, &parachuteManager);
   if (!success) {
     Serial.println("fail to setup data logger");
     errorManager.error(ERROR_DATA_LOGGER);
@@ -102,7 +111,7 @@ void setup() {
   statusLeds.progress();
 
   // RemoteServer
-  success = remoteServer.setup(&configManager, &dataLogger);
+  success = remoteServer.setup(&configManager, &dataLogger, &parachuteManager);
   if (!success) {
     Serial.println("fail to setup remote server");
     errorManager.error(ERROR_REMOTE_SERVER);
@@ -134,6 +143,7 @@ void loop() {
   remoteServer.update();
   motionManager.update();
   altitudeManager.update();
+  parachuteManager.update();
   voltageMeasurement.update();
 
   // always update flight observer as last

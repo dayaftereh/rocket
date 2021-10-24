@@ -90,6 +90,8 @@ bool ConfigManager::write_default() {
   // mpu6050 motion
   this->_config.motion_detection_threshold = 1.0;
 
+  this->_config.parachute_timeout = 1000;
+
   bool success = this->write();
   if (!success) {
     Serial.println("fail to write default config to eeprom");

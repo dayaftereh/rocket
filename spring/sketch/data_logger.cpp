@@ -1,34 +1,46 @@
 #include "data_logger.h"
 
-DataLogger::DataLogger() {
-
+DataLogger::DataLogger()
+{
 }
 
-bool DataLogger::setup(Stats *stats, StatusLeds *status_leds, AltitudeManager *altitude_manager, VoltageMeasurement *voltage_measurement, MotionManager *motion_manager) {
+bool DataLogger::setup(Stats *stats, StatusLeds *status_leds, AltitudeManager *altitude_manager, VoltageMeasurement *voltage_measurement, MotionManager *motion_manager, ParachuteManager *parachute_manager)
+{
   this->_started = false;
-  
-  this->_stats = stats;  
+
+  this->_stats = stats;
   this->_status_leds = status_leds;
   this->_motion_manager = motion_manager;
   this->_altitude_manager = altitude_manager;
+  this->_parachute_manager = parachute_manager;
   this->_voltage_measurement = voltage_measurement;
 
   bool success = SD.begin(DATA_LOGGER_SD_CS);
-  if (!success) {
+  if (!success)
+  {
     Serial.println("fail to initialize sd card.");
     return false;
   }
 
   // test the sd card for speed
   success = this->sd_card_speed_test();
-  if (!success) {
+  if (!success)
+  {
     return false;
   }
 
   // find and open the data file
   success = this->open_data_file();
-  if (!success) {
+  if (!success)
+  {
     return false;
+  }
+
+  // check if flash memory enabled
+  if (!DATA_LOGGER_USE_FLASH)
+  {
+    Serial.println("flash memory is disabled");
+    return true;
   }
 
   // create the memory flash
@@ -36,7 +48,8 @@ bool DataLogger::setup(Stats *stats, StatusLeds *status_leds, AltitudeManager *a
 
   // start the memory flash
   success = this->_flash->begin();
-  if (!success) {
+  if (!success)
+  {
     Serial.println("fail to initialize flash memory.");
     return false;
   }
@@ -46,27 +59,47 @@ bool DataLogger::setup(Stats *stats, StatusLeds *status_leds, AltitudeManager *a
 
   // verify the flash memory
   success = this->verify_flash_memory();
-  if (!success) {
+  if (!success)
+  {
     Serial.println("fail to verify flash memory.");
     return false;
   }
 
   // test the flash memory for speed
   success = this->flash_memory_speed_test();
-  if (!success) {
+  if (!success)
+  {
     return false;
   }
 
   return true;
 }
 
-bool DataLogger::sd_card_speed_test() {
+bool DataLogger::sd_card_speed_test()
+{
   Serial.println("starting sd card speedtest...");
+  // file name for the speedtest
+  String filename = "speedtest.dat";
+  // check if the file already exists
+  bool exists = SD.exists(filename);
+  if (exists)
+  {
+    Serial.println("removing speedtest file from sd card...");
+    // remove the speedtest file
+    bool success = SD.remove(filename);
+    if (!success)
+    {
+      Serial.println("fail to remove speedtest file from sd card.");
+      return false;
+    }
+  }
+
   // open the speedtest file
-  File speedtest = SD.open("speedtest.dat", FILE_WRITE);
+  File speedtest = SD.open(filename, FILE_WRITE);
   // get back to the begining
   bool success = speedtest.seek(0);
-  if (!success) {
+  if (!success)
+  {
     // close the file
     speedtest.close();
     Serial.println("fail to seek to the start of the speedtest file.");
@@ -75,19 +108,21 @@ bool DataLogger::sd_card_speed_test() {
 
   int length = 128;
   byte buf[length];
-  for (int i = 0; i < length; i++) {
+  for (int i = 0; i < length; i++)
+  {
     this->_status_leds->progress();
     buf[i] = random(0, 255);
   }
 
   int writes = 1000;
   unsigned long start = millis();
-  for (int i = 0; i < writes; i++) {
+  for (int i = 0; i < writes; i++)
+  {
     speedtest.write(buf, length);
     this->_status_leds->progress();
   }
 
-  float elapsed = ((float)( millis() - start)) / 1000.0;
+  float elapsed = ((float)(millis() - start)) / 1000.0;
   float speed = ((float)(writes * length)) / elapsed;
 
   Serial.print("sd card speed is [ ");
@@ -96,11 +131,12 @@ bool DataLogger::sd_card_speed_test() {
 
   speedtest.close();
   return true;
-
 }
 
-bool DataLogger::open_data_file() {
-  for (int i = 0; i < 100; i++) {
+bool DataLogger::open_data_file()
+{
+  for (int i = 0; i < 100; i++)
+  {
     // create the data-file for the data
     String prefix = "data_";
     String filename = prefix + i;
@@ -113,7 +149,8 @@ bool DataLogger::open_data_file() {
     bool exists = SD.exists(filename);
 
     // go to next file
-    if (exists) {
+    if (exists)
+    {
       continue;
     }
     // open the data file for write
@@ -131,12 +168,14 @@ bool DataLogger::open_data_file() {
   return false;
 }
 
-bool DataLogger::verify_flash_memory() {
+bool DataLogger::verify_flash_memory()
+{
   // get the id
   uint32_t JEDEC = this->_flash->getJEDECID();
-  if (!JEDEC) {
+  if (!JEDEC)
+  {
     Serial.println("No comms. Check wiring. Is the memory flash chip supported?");
-    return false;
+    return true;
   }
 
   Serial.print("Man ID: 0x");
@@ -159,36 +198,67 @@ bool DataLogger::verify_flash_memory() {
   return true;
 }
 
-bool DataLogger::flash_memory_speed_test() {
+bool DataLogger::flash_memory_speed_test()
+{
   Serial.println("starting flash memory speedtest...");
 
   int length = 128;
   byte buf[length];
-  for (int i = 0; i < length; i++) {
+  for (int i = 0; i < length; i++)
+  {
     this->_status_leds->progress();
     buf[i] = random(0, 255);
   }
 
   int writes = 1000;
   unsigned long start = millis();
-  for (int i = 0; i < writes; i++) {
+  for (int i = 0; i < writes; i++)
+  {
     uint32_t address = i * length;
     bool success = this->_flash->writeByteArray(address, buf, length);
+    if (!success)
+    {
+      Serial.println("fail to write to flash memory");
+      return false;
+    }
     this->_status_leds->progress();
   }
 
-  float elapsed = ((float)( millis() - start)) / 1000.0;
+  float elapsed = ((float)(millis() - start)) / 1000.0;
   float speed = ((float)(writes * length)) / elapsed;
 
-  Serial.print("flash memory speed is [ ");
+  Serial.print("flash memory write speed is [ ");
+  Serial.print(speed);
+  Serial.println(" byte/s ]");
+
+  int reads = 1000;
+  start = millis();
+  for (int i = 0; i < reads; i++)
+  {
+    uint32_t address = i * length;
+    bool success = this->_flash->readByteArray(address, buf, length);
+    if (!success)
+    {
+      Serial.println("fail to read from flash memory");
+      return false;
+    }
+    this->_status_leds->progress();
+  }
+
+  elapsed = ((float)(millis() - start)) / 1000.0;
+  speed = ((float)(reads * length)) / elapsed;
+
+  Serial.print("flash memory read speed is [ ");
   Serial.print(speed);
   Serial.println(" byte/s ]");
 
   return true;
 }
 
-void DataLogger::load_data_logger_entry(DataLoggerEntry &entry) {
+void DataLogger::load_data_logger_entry(DataLoggerEntry &entry)
+{
   entry.time = millis();
+  entry.elapsed = this->_stats->get_delta();
 
   entry.voltage = this->_voltage_measurement->get_voltage();
   entry.altitude = this->_altitude_manager->get_altitude_delta();
@@ -208,17 +278,42 @@ void DataLogger::load_data_logger_entry(DataLoggerEntry &entry) {
   entry.rotationY = rotation->y;
   entry.rotationZ = rotation->z;
 
-  entry.parachuteAltitude = false;
-  entry.parachuteOrientation = false;
+  entry.parachuteAltitude = this->_parachute_manager->is_altitude_triggered();
+  entry.parachuteOrientation = this->_parachute_manager->is_orientation_triggered();
 }
 
-void DataLogger::update() {
-  // check if data logger started
-  if (!this->_started) {
+void DataLogger::write_entry_2_data_file(byte *data, uint32_t length)
+{
+  // write the entry to data file
+  this->_data_file.write(data, length);
+  this->_entities++;
+}
+
+void DataLogger::write_entry_2_flash_memory(byte *data, uint32_t length)
+{
+  // get the next flash memory address
+  uint32_t address = length * this->_entities;
+  // calculate the final length
+  uint32_t memory_filled = address + length;
+
+  // check if the flash memory full
+  if (memory_filled > this->_flash->getCapacity())
+  {
     return;
   }
+  // write the entry to flash memory
+  bool success = this->_flash->writeByteArray(address, data, length);
 
-  Serial.println("ff");
+  this->_entities++;
+}
+
+void DataLogger::update()
+{
+  // check if data logger started
+  if (!this->_started)
+  {
+    return;
+  }
 
   // load the data logger entry
   DataLoggerEntry entry;
@@ -228,40 +323,48 @@ void DataLogger::update() {
 
   // get the size of the struct
   size_t struct_size = sizeof(entry);
-  // get the next flash memory address
-  uint32_t address = struct_size * this->_entities;
-  // calculate the final length
-  uint32_t length = address + struct_size;
-
-  // check if the flash memory full
-  if (length > this->_flash->getCapacity()) {
-    return;
-  }
-
   // get the struct as byte point
-  byte* data = (byte*)&entry;
-  // write the entry to flash memory
-  bool success = this->_flash->writeByteArray(address, data, struct_size);
+  byte *data = (byte *)&entry;
 
-  this->_entities++;
+  // check if flash memory enabled
+  if (DATA_LOGGER_USE_FLASH)
+  {
+    this->write_entry_2_flash_memory(data, struct_size);
+  }
+  else
+  {
+    this->write_entry_2_data_file(data, struct_size);
+  }
 }
 
-void DataLogger::start() {
+void DataLogger::start()
+{
   this->_started = true;
   this->_entities = 0;
 }
 
-void DataLogger::write_entities_count_2_file() {
+void DataLogger::write_entities_count_2_file()
+{
   // convert the entities to byte pointer
   uint8_t *bytes;
-  bytes = (uint8_t*)&this->_entities;
+  bytes = (uint8_t *)&this->_entities;
 
   // write the entities count
   this->_data_file.write(bytes, sizeof(this->_entities));
 }
 
-bool DataLogger::done() {
+bool DataLogger::done()
+{
   this->_started = false;
+
+  // check if flash memory enabled
+  if (!DATA_LOGGER_USE_FLASH)
+  {
+    // flush the bytes to file
+    this->_data_file.flush();
+    return true;
+  }
+
   // write the entities count to data file
   this->write_entities_count_2_file();
 
@@ -274,7 +377,8 @@ bool DataLogger::done() {
   byte buf[1024];
 
   // copy the data from flash to sd card
-  for (uint32_t i = 0; i < data_size; i += buf_length) {
+  for (uint32_t i = 0; i < data_size; i += buf_length)
+  {
     // update the status led
     this->_status_leds->finalize();
     // read the data from flash memory
@@ -282,7 +386,8 @@ bool DataLogger::done() {
 
     // write the buffer to sd file
     uint32_t n = this->_data_file.write(buf, buf_length);
-    if (n != buf_length) {
+    if (n != buf_length)
+    {
       Serial.println("fail to write data from flash memory to data-file, because mismatch of written bytes.");
       return false;
     }

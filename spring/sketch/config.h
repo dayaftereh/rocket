@@ -24,6 +24,7 @@
 #define STATUS_FINALIZE_LED_TIMEOUT 200
 
 // DataLogger -----------------------------------------------
+#define DATA_LOGGER_USE_FLASH false
 #define DATA_LOGGER_SD_CS D8
 #define DATA_LOGGER_FLASH_CS D0
 
@@ -39,6 +40,9 @@
 
 // MotionManager -----------------------------------------------
 #define MOTION_MANAGER_WARM_UP_TIMEOUT 5000
+
+// ParachuteManager -----------------------------------------------
+#define PARACHUTE_MANAGER_PIN D4
 
 // Constants -----------------------------------------------
 #define GRAVITY_OF_EARTH (9.80665F)
@@ -58,6 +62,8 @@ typedef struct {
 
   // mpu6050 motion
   float motion_detection_threshold; // deg
+
+  int parachute_timeout;
 
 } Config;
 

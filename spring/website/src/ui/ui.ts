@@ -16,6 +16,8 @@ export class UI {
         const gyroscopeYOffset: HTMLInputElement = document.querySelector("#configGyroscopeYOffset")
         const gyroscopeZOffset: HTMLInputElement = document.querySelector("#configGyroscopeZOffset")
 
+        const configParachuteTimeout: HTMLInputElement = document.querySelector("#configParachuteTimeout")
+
         const motionDetectionThreshold: HTMLInputElement = document.querySelector("#configMotionDetectionThreshold")
 
         const configForm: HTMLFormElement = document.querySelector("#configForm")
@@ -31,6 +33,7 @@ export class UI {
                 gyroscopeYOffset: +(gyroscopeYOffset.value),
                 gyroscopeZOffset: +(gyroscopeZOffset.value),
                 motionDetectionThreshold: +(motionDetectionThreshold.value),
+                parachuteTimeout: +(configParachuteTimeout.value),
             }
 
             await this.api.setConfig(config)
@@ -46,6 +49,7 @@ export class UI {
         gyroscopeYOffset.value = `${config.gyroscopeYOffset}`
         gyroscopeZOffset.value = `${config.gyroscopeZOffset}`
 
+        configParachuteTimeout.value = `${config.parachuteTimeout}`
         motionDetectionThreshold.value = `${config.motionDetectionThreshold}`
     }
 
@@ -60,6 +64,7 @@ export class UI {
 
     private initWebSocketMessage(): void {
         const currentTime: HTMLInputElement = document.querySelector("#currentTime")
+        const currentElapsed: HTMLInputElement = document.querySelector("#currentElapsed")
         const currentVoltage: HTMLInputElement = document.querySelector("#currentVoltage")
         const currentAltitude: HTMLInputElement = document.querySelector("#currentAltitude")
 
@@ -80,6 +85,7 @@ export class UI {
 
         this.api.asObservable().subscribe((message: Message) => {
             currentTime.value = this.formatNumber(message.time)
+            currentElapsed.value = this.formatNumber(message.elapsed)
             currentVoltage.value = this.formatNumber(message.voltage)
             currentAltitude.value = this.formatNumber(message.altitude)
 

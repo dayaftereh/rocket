@@ -6,4 +6,5 @@ export interface Config {
     gyroscopeYOffset: number
     gyroscopeZOffset: number
     motionDetectionThreshold: number
+    parachuteTimeout: number
 }

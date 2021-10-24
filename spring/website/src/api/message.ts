@@ -1,5 +1,6 @@
 export interface Message {
     time: number
+    elapsed: number
 
     voltage: number
     altitude: number

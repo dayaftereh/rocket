@@ -13,6 +13,7 @@ enum ErrorCode {
   ERROR_STATS,
   ERROR_FLIGHT_OBSERVER,
   ERROR_REMOTE_SERVER,
+  ERROR_PARACHUTE_MANAGER,
 };
 
 class ErrorManager

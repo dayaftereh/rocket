@@ -174,6 +174,12 @@ export class API {
         return result
     }
 
+    async trigger(): Promise<Result> {
+        const url: string = this.getApiPath('trigger')
+        const result: Result = await this.get(url)
+        return result
+    }
+
     async valve(valve: Valve): Promise<Result> {
         const url: string = this.getApiPath('valve')
         const result: Result = await this.post(url, valve)
