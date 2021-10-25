@@ -1,10 +1,14 @@
 import { API } from "../api/api";
 import { Config } from "../api/config";
 import { Message } from "../api/message";
+import { Viewer3D } from "./viewer-3d";
+
 export class UI {
 
-    constructor(private readonly api: API) {
+    private viewer3d: Viewer3D
 
+    constructor(private readonly api: API) {
+        this.viewer3d = new Viewer3D()
     }
 
     private async initConfigForm(): Promise<void> {
@@ -112,9 +116,20 @@ export class UI {
         return x.toFixed(2)
     }
 
+    private initParachuteTrigger(): void {
+        const parachuteTrigger: HTMLButtonElement = document.querySelector("#parachuteTrigger")
+        parachuteTrigger.addEventListener('click', async () => {
+            await this.api.trigger()
+        })
+    }
+
     async init(): Promise<void> {
+        this.initParachuteTrigger()
+
         await this.initConfigForm()
         await this.initWebSocketMessage()
+
+        await this.viewer3d.init()
     }
 
 }
