@@ -31,25 +31,11 @@ bool ConfigManager::setup() {
 void ConfigManager::print_config() {
   Serial.print("config from eeprom");
 
-  // offset for mpu6050 acceleration
-  Serial.print(" [ acceleration_x_offset: ");
-  Serial.print(this->_config.acceleration_x_offset);
-  Serial.print(", acceleration_y_offset: ");
-  Serial.print(this->_config.acceleration_y_offset);
-  Serial.print(", acceleration_z_offset: ");
-  Serial.print(this->_config.acceleration_z_offset);
-
-  // offset for mpu6050 gyroscope
-  Serial.print(", gyroscope_x_offset: ");
-  Serial.print(this->_config.gyroscope_x_offset);
-  Serial.print(", gyroscope_y_offset: ");
-  Serial.print(this->_config.gyroscope_y_offset);
-  Serial.print(", gyroscope_z_offset: ");
-  Serial.print(this->_config.gyroscope_z_offset);
-
-  // mpu6050 motion
-  Serial.print(", motion_detection_threshold: ");
-  Serial.print(this->_config.motion_detection_threshold);
+  Serial.print(" [ parachute_timeout: ");
+  Serial.print(this->_config.parachute_timeout);
+  
+  Serial.print(", gyro_acceleration_coefficient: ");
+  Serial.print(this->_config.gyro_acceleration_coefficient);
 
   Serial.println(" ]");
 }
@@ -77,20 +63,8 @@ bool ConfigManager::write() {
 }
 
 bool ConfigManager::write_default() {
-  // offset for mpu6050 acceleration
-  this->_config.acceleration_x_offset = -0.5;
-  this->_config.acceleration_y_offset = 0.5;
-  this->_config.acceleration_z_offset = -0.5;
-
-  // offset for mpu6050 gyroscope
-  this->_config.gyroscope_x_offset = -48.5;
-  this->_config.gyroscope_y_offset = -1.0;
-  this->_config.gyroscope_z_offset = 1.0;
-
-  // mpu6050 motion
-  this->_config.motion_detection_threshold = 1.0;
-
-  this->_config.parachute_timeout = 1000;
+  this->_config.parachute_timeout = 1000;  
+  this->_config.gyro_acceleration_coefficient = 0.98;
 
   bool success = this->write();
   if (!success) {

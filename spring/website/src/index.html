@@ -146,7 +146,7 @@
 
                                 <div class="row">
                                     <div class="col text-center">
-                                        <button type="button" class="btn btn-warn btn-lg" id="parachuteTrigger" style="font-size: 3rem;">Parachute</button>
+                                        <button type="button" class="btn btn-warning btn-lg" id="parachuteTrigger" style="font-size: 3rem;">Parachute</button>
                                     </div>
                                 </div>
 
@@ -155,54 +155,13 @@
                                 <form id="configForm">
 
                                     <div class="mb-3">
-                                        <label for="configAccelerationXOffset"
-                                            class="form-label">AccelerationXOffset</label>
-                                        <input type="number" class="form-control" min="-10000" step="0.001"
-                                            id="configAccelerationXOffset">
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="configAccelerationYOffset"
-                                            class="form-label">AccelerationYOffset</label>
-                                        <input type="number" class="form-control" min="-10000" step="0.001"
-                                            id="configAccelerationYOffset">
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="configAccelerationZOffset"
-                                            class="form-label">AccelerationZOffset</label>
-                                        <input type="number" class="form-control" min="-10000" step="0.001"
-                                            id="configAccelerationZOffset">
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="configGyroscopeXOffset" class="form-label">GyroscopeXOffset</label>
-                                        <input type="number" class="form-control" min="-10000" step="0.001"
-                                            id="configGyroscopeXOffset">
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="configGyroscopeYOffset" class="form-label">GyroscopeYOffset</label>
-                                        <input type="number" class="form-control" min="-10000" step="0.001"
-                                            id="configGyroscopeYOffset">
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="configGyroscopeZOffset" class="form-label">GyroscopeZOffset</label>
-                                        <input type="number" class="form-control" min="-10000" step="0.001"
-                                            id="configGyroscopeZOffset">
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="configMotionDetectionThreshold"
-                                            class="form-label">MotionDetectionThreshold</label>
-                                        <input type="number" class="form-control" min="-10000" step="0.001"
-                                            id="configMotionDetectionThreshold">
-                                    </div>
-
-                                    <div class="mb-3">
                                         <label for="configParachuteTimeout" class="form-label">ParachuteTimeout</label>
                                         <input type="number" class="form-control" id="configParachuteTimeout">
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="configGyroAccelerationCoefficient" class="form-label">GyroAccelerationCoefficient</label>
+                                        <input type="number" class="form-control" min="0" max="1" step="0.0001" id="configGyroAccelerationCoefficient">
                                     </div>
 
                                     <button type="submit" class="btn btn-primary">Submit</button>

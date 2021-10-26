@@ -42,7 +42,7 @@ void ParachuteManager::reset() {
 }
 
 void ParachuteManager::trigger() {
-  this->_trigger = false;
+  this->_trigger = true;
   this->_timer = millis();
 }
 

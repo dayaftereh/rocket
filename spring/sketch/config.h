@@ -50,21 +50,11 @@
 
 // Config struct for the eeprom
 typedef struct {
-
-  // offset for mpu6050 acceleration
-  float acceleration_x_offset; // m/s2
-  float acceleration_y_offset; // m/s2
-  float acceleration_z_offset; // m/s2
-
-  // offset for mpu6050 gyroscope
-  float gyroscope_x_offset; // deg/s
-  float gyroscope_y_offset; // deg/s
-  float gyroscope_z_offset; // deg/s
-
-  // mpu6050 motion
-  float motion_detection_threshold; // deg
-
+  // timeout for the parachute opening
   int parachute_timeout;
+
+  // coefficient between gyro and acceleration
+  float gyro_acceleration_coefficient;
 
 } Config;
 

@@ -14,7 +14,7 @@ public:
     Vec3f(float x, float y, float z);
 
     Vec3f invert();
-    Vec3f add(Vec3f &v);
+    Vec3f add(Vec3f &n);
     Vec3f scale_scalar(float s);
     Vec3f divide_scalar(float s);
 

@@ -173,10 +173,15 @@ export class API {
         return result
     }
 
-    async trigger(): Promise<Result> {
+    async trigger(): Promise<boolean> {
         const url: string = this.getApiPath('trigger')
-        const result: Result = await this.get(url)
-        return result
+        const response: Response = await fetch(url, {
+            method: 'GET',
+            cache: 'no-cache',
+            redirect: 'manual',
+            referrerPolicy: 'no-referrer'
+        })
+        return response.ok
     }
 
 }

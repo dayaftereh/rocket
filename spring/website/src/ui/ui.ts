@@ -8,21 +8,12 @@ export class UI {
     private viewer3d: Viewer3D
 
     constructor(private readonly api: API) {
-        this.viewer3d = new Viewer3D()
+        this.viewer3d = new Viewer3D(api)
     }
 
     private async initConfigForm(): Promise<void> {
-        const accelerationXOffset: HTMLInputElement = document.querySelector("#configAccelerationXOffset")
-        const accelerationYOffset: HTMLInputElement = document.querySelector("#configAccelerationYOffset")
-        const accelerationZOffset: HTMLInputElement = document.querySelector("#configAccelerationZOffset")
-
-        const gyroscopeXOffset: HTMLInputElement = document.querySelector("#configGyroscopeXOffset")
-        const gyroscopeYOffset: HTMLInputElement = document.querySelector("#configGyroscopeYOffset")
-        const gyroscopeZOffset: HTMLInputElement = document.querySelector("#configGyroscopeZOffset")
-
         const configParachuteTimeout: HTMLInputElement = document.querySelector("#configParachuteTimeout")
-
-        const motionDetectionThreshold: HTMLInputElement = document.querySelector("#configMotionDetectionThreshold")
+        const configGyroAccelerationCoefficient: HTMLInputElement = document.querySelector("#configGyroAccelerationCoefficient")
 
         const configForm: HTMLFormElement = document.querySelector("#configForm")
 
@@ -30,13 +21,7 @@ export class UI {
             ev.preventDefault()
 
             const config: Config = {
-                accelerationXOffset: +(accelerationXOffset.value),
-                accelerationYOffset: +(accelerationYOffset.value),
-                accelerationZOffset: +(accelerationZOffset.value),
-                gyroscopeXOffset: +(gyroscopeXOffset.value),
-                gyroscopeYOffset: +(gyroscopeYOffset.value),
-                gyroscopeZOffset: +(gyroscopeZOffset.value),
-                motionDetectionThreshold: +(motionDetectionThreshold.value),
+                gyroAccelerationCoefficient: +(configGyroAccelerationCoefficient.value),
                 parachuteTimeout: +(configParachuteTimeout.value),
             }
 
@@ -45,16 +30,8 @@ export class UI {
 
         const config: Config = await this.api.getConfig()
 
-        accelerationXOffset.value = `${config.accelerationXOffset}`
-        accelerationYOffset.value = `${config.accelerationYOffset}`
-        accelerationZOffset.value = `${config.accelerationZOffset}`
-
-        gyroscopeXOffset.value = `${config.gyroscopeXOffset}`
-        gyroscopeYOffset.value = `${config.gyroscopeYOffset}`
-        gyroscopeZOffset.value = `${config.gyroscopeZOffset}`
-
         configParachuteTimeout.value = `${config.parachuteTimeout}`
-        motionDetectionThreshold.value = `${config.motionDetectionThreshold}`
+        configGyroAccelerationCoefficient.value = `${config.gyroAccelerationCoefficient}`
     }
 
     private liproS1VoltageLevelColor(voltage: number): string {
@@ -89,7 +66,7 @@ export class UI {
 
         this.api.asObservable().subscribe((message: Message) => {
             currentTime.value = this.formatNumber(message.time)
-            currentElapsed.value = this.formatNumber(message.elapsed)
+            currentElapsed.value = message.elapsed.toFixed(5)
             currentVoltage.value = this.formatNumber(message.voltage)
             currentAltitude.value = this.formatNumber(message.altitude)
 

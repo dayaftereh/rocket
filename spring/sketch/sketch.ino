@@ -47,6 +47,19 @@ void setup() {
     errorManager.error(ERROR_CONFIG_MANAGER);
   }
 
+  // get the loaded config
+  Config *config = configManager.get_config();
+
+  // update the status progress
+  statusLeds.progress();
+
+  // ParachuteManager
+  success = parachuteManager.setup(config);
+  if (!success) {
+    Serial.println("fail to setup parachute manager");
+    errorManager.error(ERROR_PARACHUTE_MANAGER);
+  }
+
   // update the status progress
   statusLeds.progress();
 
@@ -55,10 +68,7 @@ void setup() {
   if (!success) {
     Serial.println("fail to setup stats");
     errorManager.error(ERROR_STATS);
-  }
-
-  // get the loaded config
-  Config *config = configManager.get_config();
+  }  
 
   // update the status progress
   statusLeds.progress();
@@ -88,13 +98,6 @@ void setup() {
   if (!success) {
     Serial.println("fail to setup voltage measurement");
     errorManager.error(ERROR_VOLTAGE_MEASUREMENT);
-  }
-
-  // ParachuteManager
-  success = parachuteManager.setup(config);
-  if (!success) {
-    Serial.println("fail to setup parachute manager");
-    errorManager.error(ERROR_PARACHUTE_MANAGER);
   }
 
   // update the status progress

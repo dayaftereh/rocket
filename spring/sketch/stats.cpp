@@ -6,7 +6,7 @@ Stats::Stats() {
 
 bool Stats::setup() {
   this->_delta = 0.0;
-  this->_last = millis();
+  this->_last = micros();
 
   this->_fps = 0.0;
   this->_counter = 0;
@@ -18,11 +18,13 @@ bool Stats::setup() {
 float Stats::update() {
   this->_counter++;
 
-  unsigned long now = millis();
+  unsigned long now = micros();
   unsigned long elapsed = now - this->_last;
   this->_last = now;
 
-  this->_delta = max(((float)elapsed) / 1000.0, 0.001);
+  float f = 0.000001;
+
+  this->_delta = max(((float)elapsed) * f, f);
   this->_sum_delta += this->_delta;
 
   // update and compute the fps

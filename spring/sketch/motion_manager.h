@@ -9,7 +9,7 @@
 #include "config.h"
 #include "status_leds.h"
 
-#define MPU6050_ADDR 0x68
+#define MPU6050_I2C_ADDRESS 0x68
 #define MPU6050_SMPLRT_DIV_REGISTER 0x19
 #define MPU6050_CONFIG_REGISTER 0x1a
 #define MPU6050_GYROSCOPE_CONFIG_REGISTER 0x1b
@@ -49,6 +49,10 @@ public:
   bool setup(Config *config, Stats *stats, StatusLeds *status_leds);
   void update();
 
+  Vec3f *get_rotation();
+  Vec3f *get_gyroscope();
+  Vec3f *get_acceleration();
+
 private:
   bool read();
 
@@ -58,7 +62,7 @@ private:
   bool set_gyroscope_config(MPU6050GyroscopeConfig config_num);
   bool set_acceleration_config(MPU6050AccelerationConfig config_num);
 
-  byte write_data(byte register, byte data);
+  byte write_data(byte reg, byte data);
 
   byte _address;
 
@@ -68,6 +72,7 @@ private:
 
   TwoWire *_wire;
 
+  Vec3f _rotation;
   Vec3f _gyroscope;
   Vec3f _acceleration;
 

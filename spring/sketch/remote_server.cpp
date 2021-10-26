@@ -159,20 +159,8 @@ void RemoteServer::handle_get_configuration() {
   // create the json document
   DynamicJsonDocument responseDoc(1024);
 
-  // offset for mpu6050 acceleration
-  responseDoc["accelerationXOffset"] = config->acceleration_x_offset;
-  responseDoc["accelerationYOffset"] = config->acceleration_y_offset;
-  responseDoc["accelerationZOffset"] = config->acceleration_z_offset;
-
-  // offset for mpu6050 gyroscope
-  responseDoc["gyroscopeXOffset"] = config->gyroscope_x_offset;
-  responseDoc["gyroscopeYOffset"] = config->gyroscope_y_offset;
-  responseDoc["gyroscopeZOffset"] = config->gyroscope_z_offset;
-
-  // mpu6050 motion
-  responseDoc["motionDetectionThreshold"] = config->motion_detection_threshold;
-
   responseDoc["parachuteTimeout"] = config->parachute_timeout;
+  responseDoc["gyroAccelerationCoefficient"] = config->gyro_acceleration_coefficient;
 
   // serialize the response
   String output;
@@ -202,44 +190,14 @@ void RemoteServer::handle_update_configuration() {
   // get the current configuration
   Config *config = this->_config_manager->get_config();
 
-  bool has_acceleration_x_offset = doc.containsKey("accelerationXOffset");
-  if (has_acceleration_x_offset) {
-    config->acceleration_x_offset = doc["accelerationXOffset"];
-  }
-
-  bool has_acceleration_y_offset = doc.containsKey("accelerationYOffset");
-  if (has_acceleration_y_offset) {
-    config->acceleration_y_offset = doc["accelerationYOffset"];
-  }
-
-  bool has_acceleration_z_offset = doc.containsKey("accelerationZOffset");
-  if (has_acceleration_z_offset) {
-    config->acceleration_z_offset = doc["accelerationZOffset"];
-  }
-
-  bool has_gyroscope_x_offset = doc.containsKey("gyroscopeXOffset");
-  if (has_gyroscope_x_offset) {
-    config->gyroscope_x_offset = doc["gyroscopeXOffset"];
-  }
-
-  bool has_gyroscope_y_offset = doc.containsKey("gyroscopeYOffset");
-  if (has_gyroscope_y_offset) {
-    config->gyroscope_y_offset = doc["gyroscopeYOffset"];
-  }
-
-  bool has_gyroscope_z_offset = doc.containsKey("gyroscopeZOffset");
-  if (has_gyroscope_z_offset) {
-    config->gyroscope_z_offset = doc["gyroscopeZOffset"];
-  }
-
-  bool has_motion_detection_threshold = doc.containsKey("motionDetectionThreshold");
-  if (has_motion_detection_threshold) {
-    config->motion_detection_threshold = doc["motionDetectionThreshold"];
-  }
-
   bool has_parachute_timeout = doc.containsKey("parachuteTimeout");
   if (has_parachute_timeout) {
     config->parachute_timeout = doc["parachuteTimeout"];
+  }
+
+  bool has_gyro_acceleration_coefficient = doc.containsKey("gyroAccelerationCoefficient");
+  if (has_gyro_acceleration_coefficient) {
+    config->gyro_acceleration_coefficient = doc["gyroAccelerationCoefficient"];
   }
 
   // write the new config to eeprom

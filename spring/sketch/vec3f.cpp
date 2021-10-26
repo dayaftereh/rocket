@@ -32,9 +32,9 @@ Vec3f Vec3f::divide_scalar(float s)
     return v;
 }
 
-Vec3f Vec3f::add(Vec3f &v)
+Vec3f Vec3f::add(Vec3f &n)
 {
-    Vec3f v(this->x + v.x, this->y + v.y, this->z + v.z);
+    Vec3f v(this->x + n.x, this->y + n.y, this->z + n.z);
     return v;
 }
 

@@ -263,17 +263,17 @@ void DataLogger::load_data_logger_entry(DataLoggerEntry &entry)
   entry.voltage = this->_voltage_measurement->get_voltage();
   entry.altitude = this->_altitude_manager->get_altitude_delta();
 
-  VectorFloat *gyroscope = this->_motion_manager->get_gyroscope();
+  Vec3f *gyroscope = this->_motion_manager->get_gyroscope();
   entry.gyroscopeX = gyroscope->x;
   entry.gyroscopeY = gyroscope->y;
   entry.gyroscopeZ = gyroscope->z;
 
-  VectorFloat *acceleration = this->_motion_manager->get_acceleration();
+  Vec3f *acceleration = this->_motion_manager->get_acceleration();
   entry.accelerationX = acceleration->x;
   entry.accelerationY = acceleration->y;
   entry.accelerationZ = acceleration->z;
 
-  VectorFloat *rotation = this->_motion_manager->get_world_rotaion();
+  Vec3f *rotation = this->_motion_manager->get_rotation();
   entry.rotationX = rotation->x;
   entry.rotationY = rotation->y;
   entry.rotationZ = rotation->z;
