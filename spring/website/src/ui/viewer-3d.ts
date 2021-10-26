@@ -1,5 +1,7 @@
-import { AxesHelper, PerspectiveCamera, Scene, WebGLRenderer } from "three";
+import { AxesHelper, CylinderGeometry, Group, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, WebGLRenderer } from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { API } from "../api/api";
+import { Message } from "../api/message";
 
 export class Viewer3D {
 
@@ -9,7 +11,9 @@ export class Viewer3D {
 
     private orbitControls: OrbitControls | undefined
 
-    constructor() {
+    private rocket: Group | undefined
+
+    constructor(private readonly api: API) {
 
     }
 
@@ -35,6 +39,11 @@ export class Viewer3D {
 
         await this.loadObjects()
 
+        // get the message updates
+        this.api.asObservable().subscribe((message: Message) => {
+            this.onMessage(message)
+        })
+
         // delay the update loop
         setTimeout(() => {
             this.loop()
@@ -44,7 +53,28 @@ export class Viewer3D {
     private async loadObjects(): Promise<void> {
         // create the origin
         const origin: AxesHelper = new AxesHelper(100.0)
-        this.scene.add(origin)       
+        this.scene.add(origin)
+
+        this.rocket = new Group()
+
+        const airFrameGeometry: CylinderGeometry = new CylinderGeometry(7.5, 7.5, 50, 60);
+        const airFrameMaterial: MeshBasicMaterial = new MeshBasicMaterial({ color: 0xffff00 });
+        const airFrame: Mesh = new Mesh(airFrameGeometry, airFrameMaterial);
+
+        const noseGeometry: CylinderGeometry = new CylinderGeometry(0.0, 7.5, 6, 60);
+        const noseMaterial: MeshBasicMaterial = new MeshBasicMaterial({ color: 0xffff00 });
+        const nose: Mesh = new Mesh(noseGeometry, noseMaterial);
+        nose.position.x = 50
+
+        this.rocket.add(airFrame, nose)
+
+        this.scene.add(this.rocket)
+    }
+
+    private onMessage(message: Message): void {
+        this.rocket.rotation.x = message.rotationX * Math.PI / 180.0
+        this.rocket.rotation.y = message.rotationY * Math.PI / 180.0
+        this.rocket.rotation.z = message.rotationZ * Math.PI / 180.0
     }
 
     private loop(): void {
@@ -61,7 +91,7 @@ export class Viewer3D {
     }
 
     private update(): void {
-        if(this.orbitControls){
+        if (this.orbitControls) {
             this.orbitControls.update()
         }
     }

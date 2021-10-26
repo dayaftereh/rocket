@@ -1,48 +1,83 @@
 #ifndef _MOTION_MANAGER_H
 #define _MOTION_MANAGER_H
 
-#include <MPU6050.h>
 #include <Arduino.h>
-#include <helper_3dmath.h>
+#include <Wire.h>
 
+#include "vec3f.h"
 #include "stats.h"
 #include "config.h"
 #include "status_leds.h"
 
+#define MPU6050_ADDR 0x68
+#define MPU6050_SMPLRT_DIV_REGISTER 0x19
+#define MPU6050_CONFIG_REGISTER 0x1a
+#define MPU6050_GYROSCOPE_CONFIG_REGISTER 0x1b
+#define MPU6050_ACCELERATION_CONFIG_REGISTER 0x1c
+#define MPU6050_PWR_MGMT_1_REGISTER 0x6b
+
+#define MPU6050_GYROSCOPE_OUT_REGISTER 0x43
+#define MPU6050_ACCELERATION_OUT_REGISTER 0x3B
+
+#define CALIB_OFFSET_NB_MES 500
+#define TEMP_LSB_2_DEGREE 340.0 // [bit/celsius]
+#define TEMP_LSB_OFFSET 12412.0
+
+#define DEFAULT_GYROSCOPE_COEFF 0.98
+
+enum MPU6050GyroscopeConfig
+{
+  MPU6050_GYROSCOPE_250_DEG = 0x00,
+  MPU6050_GYROSCOPE_500_DEG = 0x08,
+  MPU6050_GYROSCOPE_1000_DEG = 0x10,
+  MPU6050_GYROSCOPE_2000_DEG = 0x18
+};
+
+enum MPU6050AccelerationConfig
+{
+  MPU6050_ACCELERATION_2_G = 0x00,
+  MPU6050_ACCELERATION_4_G = 0x08,
+  MPU6050_ACCELERATION_8_G = 0x10,
+  MPU6050_ACCELERATION_16_G = 0x18
+};
+
 class MotionManager
 {
-  public:
-    MotionManager();
+public:
+  MotionManager();
 
-    bool setup(Config *config, Stats *stats, StatusLeds *status_leds);
-    void update();
+  bool setup(Config *config, Stats *stats, StatusLeds *status_leds);
+  void update();
 
-    VectorFloat *get_gyroscope();
-    VectorFloat *get_acceleration();
-    VectorFloat *get_world_rotaion();
-    Quaternion *get_world_orientation();
-    
-  private:
+private:
+  bool read();
 
-    void read();
-    void warmup();
-    void update_world_rotation();
-    void update_world_orientation();
+  bool initialize();
+  void update_rotation();
 
-    float get_gyroscope_scale();
-    float get_acceleromete_scale();
+  bool set_gyroscope_config(MPU6050GyroscopeConfig config_num);
+  bool set_acceleration_config(MPU6050AccelerationConfig config_num);
 
-    MPU6050 *_mpu6050;
+  byte write_data(byte register, byte data);
 
-    Stats *_stats;
-    Config *_config;
-    StatusLeds *_status_leds;
+  byte _address;
 
-    VectorFloat _gyroscope;
-    VectorFloat _acceleration;
-    VectorFloat _world_rotaion;
+  float _temperature;
+  float _gyroscope_2_deg;
+  float _acceleration_2_g;
 
-    Quaternion _world_orientation;
+  TwoWire *_wire;
+
+  Vec3f _gyroscope;
+  Vec3f _acceleration;
+
+  Vec3f _gravity;
+  Vec3f _gyroscope_offset;
+  Vec3f _acceleration_offset;
+
+  Stats *_stats;
+  Config *_config;
+  StatusLeds *_status_leds;
 };
 
 #endif // _MOTION_MANAGER_H

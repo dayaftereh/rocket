@@ -39,13 +39,14 @@
 #define ALTITUDE_MANAGER_WARM_UP_TIMEOUT 5000
 
 // MotionManager -----------------------------------------------
-#define MOTION_MANAGER_WARM_UP_TIMEOUT 5000
+#define MOTION_MANAGER_CALIBRATION_READS 500
 
 // ParachuteManager -----------------------------------------------
 #define PARACHUTE_MANAGER_PIN D4
 
 // Constants -----------------------------------------------
 #define GRAVITY_OF_EARTH (9.80665F)
+#define RAD_2_DEG (180.0/PI)
 
 // Config struct for the eeprom
 typedef struct {
