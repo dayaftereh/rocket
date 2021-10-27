@@ -1,4 +1,7 @@
 export interface Config {
-    gyroAccelerationCoefficient: number
     parachuteTimeout: number
+    complimentaryFilter: number
+    magnetometerOffsetX: number
+    magnetometerOffsetY: number
+    magnetometerOffsetZ: number
 }

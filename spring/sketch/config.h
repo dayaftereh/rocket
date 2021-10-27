@@ -47,14 +47,20 @@
 // Constants -----------------------------------------------
 #define GRAVITY_OF_EARTH (9.80665F)
 #define RAD_2_DEG (180.0/PI)
+#define DEG_2_RAD (PI/180.0)
 
 // Config struct for the eeprom
 typedef struct {
   // timeout for the parachute opening
   int parachute_timeout;
 
-  // coefficient between gyro and acceleration
-  float gyro_acceleration_coefficient;
+  // coefficient for the motion complimentary filter
+  float complimentary_filter;
+
+  // magnetometer
+  float magnetometer_offset_x;
+  float magnetometer_offset_y;
+  float magnetometer_offset_z;
 
 } Config;
 

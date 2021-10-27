@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <Wire.h>
+#include <Kalman.h>
 
 #include "vec3f.h"
 #include "stats.h"
@@ -16,14 +17,12 @@
 #define MPU6050_ACCELERATION_CONFIG_REGISTER 0x1c
 #define MPU6050_PWR_MGMT_1_REGISTER 0x6b
 
-#define MPU6050_GYROSCOPE_OUT_REGISTER 0x43
 #define MPU6050_ACCELERATION_OUT_REGISTER 0x3B
 
-#define CALIB_OFFSET_NB_MES 500
-#define TEMP_LSB_2_DEGREE 340.0 // [bit/celsius]
-#define TEMP_LSB_OFFSET 12412.0
+#define MPU6050_TEMP_LSB_2_DEGREE 340.0 // [bit/celsius]
+#define MPU6050_TEMP_LSB_OFFSET 12412.0
 
-#define DEFAULT_GYROSCOPE_COEFF 0.98
+#define HMC5883L_I2C_ADDRESS 0x1E
 
 enum MPU6050GyroscopeConfig
 {
@@ -49,36 +48,48 @@ public:
   bool setup(Config *config, Stats *stats, StatusLeds *status_leds);
   void update();
 
-  Vec3f *get_rotation();
-  Vec3f *get_gyroscope();
-  Vec3f *get_acceleration();
-
 private:
-  bool read();
-
   bool initialize();
-  void update_rotation();
+  void update_yaw();
+  void update_pitch_roll();
 
+  bool init_mpu6050();
+  bool update_mpu6050();
+  bool write_mpu6050_data(byte reg, byte data);
   bool set_gyroscope_config(MPU6050GyroscopeConfig config_num);
   bool set_acceleration_config(MPU6050AccelerationConfig config_num);
 
-  byte write_data(byte reg, byte data);
+  bool init_hmc5883l();
+  bool update_hmc5883l();
+  bool calibrate_magnetometer();
+  bool write_hmc5883l_data(byte reg, byte data);
 
-  byte _address;
+  bool write_data(byte addr, byte reg, byte data);
 
-  float _temperature;
+  byte _mpu6050_address;
+  byte _hmc5883l_address;
+
+  float _raw_temperature;
   float _gyroscope_2_deg;
   float _acceleration_2_g;
 
-  TwoWire *_wire;
+  Vec3f _raw_magnetometer;
+  Vec3f _gain_magnetometer;
+
+  Vec3f _raw_gyroscope;
+  Vec3f _raw_acceleration;
 
   Vec3f _rotation;
-  Vec3f _gyroscope;
-  Vec3f _acceleration;
+  Vec3f _kalman_angle;
 
-  Vec3f _gravity;
-  Vec3f _gyroscope_offset;
-  Vec3f _acceleration_offset;
+  Vec3f _comp_angle;
+  Vec3f _gyroscope_angle;
+
+  Kalman _kalman_x;
+  Kalman _kalman_y;
+  Kalman _kalman_z;
+
+  TwoWire *_wire;
 
   Stats *_stats;
   Config *_config;

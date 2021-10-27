@@ -17,11 +17,14 @@ public:
     Vec3f add(Vec3f &n);
     Vec3f scale_scalar(float s);
     Vec3f divide_scalar(float s);
+    Vec3f multiply(Vec3f &n);
 
     float length();
     float length_squared();
 
     Vec3f normalize();
+
+    Vec3f clone();
 
     float x;
     float y;

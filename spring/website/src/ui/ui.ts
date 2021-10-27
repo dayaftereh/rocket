@@ -13,7 +13,11 @@ export class UI {
 
     private async initConfigForm(): Promise<void> {
         const configParachuteTimeout: HTMLInputElement = document.querySelector("#configParachuteTimeout")
-        const configGyroAccelerationCoefficient: HTMLInputElement = document.querySelector("#configGyroAccelerationCoefficient")
+        const configComplimentaryFilter: HTMLInputElement = document.querySelector("#configComplimentaryFilter")
+
+        const configMagnetometerOffsetX: HTMLInputElement = document.querySelector("#configMagnetometerOffsetX")
+        const configMagnetometerOffsetY: HTMLInputElement = document.querySelector("#configMagnetometerOffsetY")
+        const configMagnetometerOffsetZ: HTMLInputElement = document.querySelector("#configMagnetometerOffsetZ")
 
         const configForm: HTMLFormElement = document.querySelector("#configForm")
 
@@ -21,8 +25,11 @@ export class UI {
             ev.preventDefault()
 
             const config: Config = {
-                gyroAccelerationCoefficient: +(configGyroAccelerationCoefficient.value),
+                complimentaryFilter: +(configComplimentaryFilter.value),
                 parachuteTimeout: +(configParachuteTimeout.value),
+                magnetometerOffsetX: +(configMagnetometerOffsetX.value),
+                magnetometerOffsetY: +(configMagnetometerOffsetY.value),
+                magnetometerOffsetZ: +(configMagnetometerOffsetZ.value),
             }
 
             await this.api.setConfig(config)
@@ -31,7 +38,11 @@ export class UI {
         const config: Config = await this.api.getConfig()
 
         configParachuteTimeout.value = `${config.parachuteTimeout}`
-        configGyroAccelerationCoefficient.value = `${config.gyroAccelerationCoefficient}`
+        configComplimentaryFilter.value = `${config.complimentaryFilter}`
+
+        configMagnetometerOffsetX.value = `${config.magnetometerOffsetX}`
+        configMagnetometerOffsetY.value = `${config.magnetometerOffsetY}`
+        configMagnetometerOffsetZ.value = `${config.magnetometerOffsetZ}`
     }
 
     private liproS1VoltageLevelColor(voltage: number): string {

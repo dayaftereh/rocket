@@ -1,10 +1,11 @@
 #include "remote_server.h"
 
-RemoteServer::RemoteServer(): _web_server(REMOTE_SERVER_PORT) {
-
+RemoteServer::RemoteServer() : _web_server(REMOTE_SERVER_PORT)
+{
 }
 
-bool RemoteServer::setup(ConfigManager *config_manager, DataLogger *data_logger, ParachuteManager* parachute_manager) {
+bool RemoteServer::setup(ConfigManager *config_manager, DataLogger *data_logger, ParachuteManager *parachute_manager)
+{
   Serial.println("starting remote server...");
 
   this->_data_logger = data_logger;
@@ -18,7 +19,8 @@ bool RemoteServer::setup(ConfigManager *config_manager, DataLogger *data_logger,
   // parse server ip
   IPAddress serverIP;
   boolean success = serverIP.fromString(REMOTE_SERVER_ADDRESS);
-  if (!success) {
+  if (!success)
+  {
     Serial.println("Fail to parse server ip address");
     return false;
   }
@@ -26,7 +28,8 @@ bool RemoteServer::setup(ConfigManager *config_manager, DataLogger *data_logger,
   // parse server ip
   IPAddress gateway;
   success = gateway.fromString(REMOTE_SERVER_GATEWAY);
-  if (!success) {
+  if (!success)
+  {
     Serial.println("Fail to parse gateway ip address");
     return false;
   }
@@ -34,21 +37,24 @@ bool RemoteServer::setup(ConfigManager *config_manager, DataLogger *data_logger,
   // parse subnet mask
   IPAddress subNMask;
   success = subNMask.fromString(REMOTE_SERVER_SUBNET_MASK);
-  if (!success) {
+  if (!success)
+  {
     Serial.println("Fail to parse subnet mask ip address");
     return false;
   }
 
   // setup soft access point
   success = WiFi.softAPConfig(serverIP, gateway, subNMask);
-  if (!success) {
+  if (!success)
+  {
     Serial.println("Fail to configure soft access point");
     return false;
   }
 
   // setup the access point
   success = WiFi.softAP(ACCESS_POINT_SSID, ACCESS_POINT_PASSWD, ACCESS_POINT_CHANNEL);
-  if (!success) {
+  if (!success)
+  {
     Serial.println("Fail to setup access point");
     return false;
   }
@@ -60,7 +66,8 @@ bool RemoteServer::setup(ConfigManager *config_manager, DataLogger *data_logger,
 
   // start spiffs for the file server
   success = SPIFFS.begin();
-  if (!success) {
+  if (!success)
+  {
     Serial.println("Fail to setup spiffs");
     return false;
   }
@@ -72,9 +79,8 @@ bool RemoteServer::setup(ConfigManager *config_manager, DataLogger *data_logger,
   this->_web_server.on("/api/trigger", HTTP_GET, std::bind(&RemoteServer::handle_trigger_parachute, this));
 
   // add the websocket hook
-  this->_web_server.addHook(this->_web_socket.hookForWebserver("/api/ws", [&](uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
-    this->handle_web_socket(num, type, payload, length);
-  }));
+  this->_web_server.addHook(this->_web_socket.hookForWebserver("/api/ws", [&](uint8_t num, WStype_t type, uint8_t *payload, size_t length)
+                                                               { this->handle_web_socket(num, type, payload, length); }));
 
   this->_web_server.serveStatic("/", SPIFFS, "/index.html");
   this->_web_server.begin();
@@ -82,8 +88,10 @@ bool RemoteServer::setup(ConfigManager *config_manager, DataLogger *data_logger,
   return true;
 }
 
-void RemoteServer::update() {
-  if (!this->_active) {
+void RemoteServer::update()
+{
+  if (!this->_active)
+  {
     return;
   }
 
@@ -93,11 +101,13 @@ void RemoteServer::update() {
   this->broadcast_update();
 }
 
-void RemoteServer::broadcast_update() {
+void RemoteServer::broadcast_update()
+{
   unsigned long now = millis();
   unsigned long delta = now - this->_last_broadcast;
   // check if bradcast needed
-  if (delta < REMOTE_SERVER_BROADCAST_TIMEOUT) {
+  if (delta < REMOTE_SERVER_BROADCAST_TIMEOUT)
+  {
     return;
   }
   // update last broadcast
@@ -110,20 +120,23 @@ void RemoteServer::broadcast_update() {
   // get the size of the struct
   size_t struct_size = sizeof(entry);
   // get the struct as pointer
-  byte *pointer = (byte*)&entry;
+  byte *pointer = (byte *)&entry;
   // broadcast the data logger entry
   this->_web_socket.broadcastBIN(pointer, struct_size);
 }
 
-void RemoteServer::enable() {
+void RemoteServer::enable()
+{
   this->_active = true;
 }
 
-void RemoteServer::disable() {
+void RemoteServer::disable()
+{
   this->_active = false;
 }
 
-void RemoteServer::send_result(int16_t t) {
+void RemoteServer::send_result(int16_t t)
+{
   // create the json document
   DynamicJsonDocument responseDoc(1024);
 
@@ -137,22 +150,27 @@ void RemoteServer::send_result(int16_t t) {
   this->_web_server.send(200, "application/json", output);
 }
 
-String RemoteServer::read_request_body() {
-  if (!this->_web_server.hasArg("plain")) {
+String RemoteServer::read_request_body()
+{
+  if (!this->_web_server.hasArg("plain"))
+  {
     return "";
   }
   String plain = this->_web_server.arg("plain");
   return plain;
 }
 
-void RemoteServer::handle_web_socket(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
+void RemoteServer::handle_web_socket(uint8_t num, WStype_t type, uint8_t *payload, size_t length)
+{
 }
 
-void RemoteServer::handle_not_found() {
+void RemoteServer::handle_not_found()
+{
   this->_web_server.send(404, "text/plain", "404: Not found");
 }
 
-void RemoteServer::handle_get_configuration() {
+void RemoteServer::handle_get_configuration()
+{
   // get the current configuration
   Config *config = this->_config_manager->get_config();
 
@@ -160,7 +178,10 @@ void RemoteServer::handle_get_configuration() {
   DynamicJsonDocument responseDoc(1024);
 
   responseDoc["parachuteTimeout"] = config->parachute_timeout;
-  responseDoc["gyroAccelerationCoefficient"] = config->gyro_acceleration_coefficient;
+  responseDoc["complimentaryFilter"] = config->complimentary_filter;
+  responseDoc["magnetometerOffsetX"] = config->magnetometer_offset_x;
+  responseDoc["magnetometerOffsetY"] = config->magnetometer_offset_y;
+  responseDoc["magnetometerOffsetZ"] = config->magnetometer_offset_z;
 
   // serialize the response
   String output;
@@ -169,7 +190,8 @@ void RemoteServer::handle_get_configuration() {
   this->_web_server.send(200, "application/json", output);
 }
 
-void RemoteServer::handle_update_configuration() {
+void RemoteServer::handle_update_configuration()
+{
   int16_t t = millis();
 
   // read the body
@@ -182,7 +204,8 @@ void RemoteServer::handle_update_configuration() {
   DynamicJsonDocument doc(1024);
   DeserializationError error = deserializeJson(doc, body);
   // check if failed
-  if (error) {
+  if (error)
+  {
     this->_web_server.send(400, "text/plain", error.f_str());
     return;
   }
@@ -191,18 +214,39 @@ void RemoteServer::handle_update_configuration() {
   Config *config = this->_config_manager->get_config();
 
   bool has_parachute_timeout = doc.containsKey("parachuteTimeout");
-  if (has_parachute_timeout) {
+  if (has_parachute_timeout)
+  {
     config->parachute_timeout = doc["parachuteTimeout"];
   }
 
-  bool has_gyro_acceleration_coefficient = doc.containsKey("gyroAccelerationCoefficient");
-  if (has_gyro_acceleration_coefficient) {
-    config->gyro_acceleration_coefficient = doc["gyroAccelerationCoefficient"];
+  bool has_complimentary_filter = doc.containsKey("complimentaryFilter");
+  if (has_complimentary_filter)
+  {
+    config->complimentary_filter = doc["complimentaryFilter"];
+  }
+
+  bool has_magnetometer_offset_x = doc.containsKey("magnetometerOffsetX");
+  if (has_magnetometer_offset_x)
+  {
+    config->magnetometer_offset_x = doc["magnetometerOffsetX"];
+  }
+
+  bool has_magnetometer_offset_y = doc.containsKey("magnetometerOffsetY");
+  if (has_magnetometer_offset_y)
+  {
+    config->magnetometer_offset_y = doc["magnetometerOffsetY"];
+  }
+
+  bool has_magnetometer_offset_z = doc.containsKey("magnetometerOffsetZ");
+  if (has_magnetometer_offset_z)
+  {
+    config->magnetometer_offset_z = doc["magnetometerOffsetZ"];
   }
 
   // write the new config to eeprom
   bool success = this->_config_manager->write();
-  if (!success) {
+  if (!success)
+  {
     this->_web_server.send(400, "text/plain", "fail to commit config");
     return;
   }
@@ -211,7 +255,8 @@ void RemoteServer::handle_update_configuration() {
   this->send_result(t);
 }
 
-void RemoteServer::handle_trigger_parachute() {
+void RemoteServer::handle_trigger_parachute()
+{
   // trigger the parachute
   this->_parachute_manager->trigger();
   // send ok back

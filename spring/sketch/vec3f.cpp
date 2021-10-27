@@ -38,6 +38,12 @@ Vec3f Vec3f::add(Vec3f &n)
     return v;
 }
 
+Vec3f Vec3f::multiply(Vec3f &n)
+{
+    Vec3f v(this->x * n.x, this->y * n.y, this->z * n.z);
+    return v;
+}
+
 float Vec3f::length()
 {
     float ls = this->length_squared();
@@ -58,4 +64,10 @@ Vec3f Vec3f::normalize()
     }
 
     return this->divide_scalar(l);
+}
+
+Vec3f Vec3f::clone()
+{
+    Vec3f v(this->x, this->y, this->z);
+    return v;
 }
