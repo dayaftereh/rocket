@@ -90,6 +90,8 @@ void setup() {
     errorManager.error(ERROR_MOTION_MANAGER);
   }
 
+  Serial.println("foos");
+
   // update the status progress
   statusLeds.progress();
 

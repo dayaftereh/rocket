@@ -22,7 +22,7 @@
 #define MPU6050_TEMP_LSB_2_DEGREE 340.0 // [bit/celsius]
 #define MPU6050_TEMP_LSB_OFFSET 12412.0
 
-#define HMC5883L_I2C_ADDRESS 0x1E
+#define HMC5883L_I2C_ADDRESS 0x0D
 
 enum MPU6050GyroscopeConfig
 {
@@ -42,58 +42,66 @@ enum MPU6050AccelerationConfig
 
 class MotionManager
 {
-public:
-  MotionManager();
+  public:
+    MotionManager();
 
-  bool setup(Config *config, Stats *stats, StatusLeds *status_leds);
-  void update();
+    bool setup(Config *config, Stats *stats, StatusLeds *status_leds);
+    void update();
 
-private:
-  bool initialize();
-  void update_yaw();
-  void update_pitch_roll();
+    Vec3f *get_rotation();
+    Vec3f *get_gyroscope();
+    Vec3f *get_acceleration();
 
-  bool init_mpu6050();
-  bool update_mpu6050();
-  bool write_mpu6050_data(byte reg, byte data);
-  bool set_gyroscope_config(MPU6050GyroscopeConfig config_num);
-  bool set_acceleration_config(MPU6050AccelerationConfig config_num);
+  private:
+    bool initialize();
+    void update_yaw();
+    void update_pitch_roll();
+    void update_acceleration_gyroscope();
 
-  bool init_hmc5883l();
-  bool update_hmc5883l();
-  bool calibrate_magnetometer();
-  bool write_hmc5883l_data(byte reg, byte data);
+    bool init_mpu6050();
+    bool update_mpu6050();
+    bool write_mpu6050_data(byte reg, byte data);
+    bool set_gyroscope_config(MPU6050GyroscopeConfig config_num);
+    bool set_acceleration_config(MPU6050AccelerationConfig config_num);
 
-  bool write_data(byte addr, byte reg, byte data);
+    bool init_hmc5883l();
+    bool update_hmc5883l();
+    bool calibrate_magnetometer();
+    bool write_hmc5883l_data(byte reg, byte data);
 
-  byte _mpu6050_address;
-  byte _hmc5883l_address;
+    bool write_data(byte addr, byte reg, byte data);
 
-  float _raw_temperature;
-  float _gyroscope_2_deg;
-  float _acceleration_2_g;
+    byte _mpu6050_address;
+    byte _hmc5883l_address;
 
-  Vec3f _raw_magnetometer;
-  Vec3f _gain_magnetometer;
+    float _raw_temperature;
+    float _gyroscope_2_deg;
+    float _acceleration_2_g;
 
-  Vec3f _raw_gyroscope;
-  Vec3f _raw_acceleration;
+    Vec3f _raw_magnetometer;
+    Vec3f _gain_magnetometer;
 
-  Vec3f _rotation;
-  Vec3f _kalman_angle;
+    Vec3f _gyroscope;
+    Vec3f _acceleration;
 
-  Vec3f _comp_angle;
-  Vec3f _gyroscope_angle;
+    Vec3f _raw_gyroscope;
+    Vec3f _raw_acceleration;
 
-  Kalman _kalman_x;
-  Kalman _kalman_y;
-  Kalman _kalman_z;
+    Vec3f _rotation;
+    Vec3f _kalman_angle;
 
-  TwoWire *_wire;
+    Vec3f _comp_angle;
+    Vec3f _gyroscope_angle;
 
-  Stats *_stats;
-  Config *_config;
-  StatusLeds *_status_leds;
+    Kalman _kalman_x;
+    Kalman _kalman_y;
+    Kalman _kalman_z;
+
+    TwoWire *_wire;
+
+    Stats *_stats;
+    Config *_config;
+    StatusLeds *_status_leds;
 };
 
 #endif // _MOTION_MANAGER_H
