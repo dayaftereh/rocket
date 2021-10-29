@@ -25,12 +25,12 @@ bool MotionManager::setup(Config *config, Stats *stats, StatusLeds *status_leds)
 
   this->_status_leds->progress();
 
-  /*success = this->init_hmc5883l();
-    if (!success)
-    {
+  success = this->init_hmc5883l();
+  if (!success)
+  {
     Serial.println("fail to initialize hmc5883l");
     return false;
-    }*/
+  }
 
   this->_status_leds->progress();
 
@@ -89,6 +89,20 @@ bool MotionManager::init_mpu6050()
     return false;
   }
 
+  this->_status_leds->progress();
+
+  delay(10);
+
+  this->_status_leds->progress();
+
+  success = calibrate_mpu6050();
+  if (!success)
+  {
+    Serial.println("fail to calibrate mpu6050");
+    return false;
+  }
+
+
   return true;
 }
 
@@ -102,6 +116,8 @@ bool MotionManager::init_hmc5883l()
     return false;
   }
 
+  this->_magnetometer_2_gauss = 3000.0;
+
   // Configure device for continuous mode
   success = this->write_hmc5883l_data(0x09, 0b00000001 | 0b00001100 | 0b00010000 | 0b00000000);
   if (!success)
@@ -110,12 +126,12 @@ bool MotionManager::init_hmc5883l()
     return false;
   }
 
-  /*success = this->calibrate_magnetometer();
-    if (!success)
-    {
+  success = this->calibrate_magnetometer();
+  if (!success)
+  {
     Serial.println("fail to calibrate hmc5883l");
     return false;
-    }*/
+  }
 
   return true;
 }
@@ -173,6 +189,10 @@ bool MotionManager::set_gyroscope_config(MPU6050GyroscopeConfig config_num)
       break;
   }
 
+  Serial.print("gyroscope_2_degree is [ ");
+  Serial.print(this->_gyroscope_2_deg, 4);
+  Serial.println(" ]");
+
   return success;
 }
 bool MotionManager::set_acceleration_config(MPU6050AccelerationConfig config_num)
@@ -198,12 +218,63 @@ bool MotionManager::set_acceleration_config(MPU6050AccelerationConfig config_num
       break;
   }
 
+  Serial.print("acceleration_2_g is [ ");
+  Serial.print(this->_acceleration_2_g, 4);
+  Serial.println(" ]");
+
   return success;
+}
+
+bool MotionManager::calibrate_mpu6050() {
+  Vec3f gyroscope_offset;
+  Vec3f acceleration_offset;
+
+  for (int i = 0; i < MOTION_MANAGER_CALIBRATION_READS; i++) {
+    this->_status_leds->progress();
+
+    bool success = this->update_mpu6050();
+    if (!success)
+    {
+      Serial.println("fail to read values for calibraten from mpu6050");
+      return false;
+    }
+
+    gyroscope_offset = gyroscope_offset.add(_raw_gyroscope);
+    acceleration_offset = acceleration_offset.add(_raw_acceleration);
+
+    delay(2);
+  }
+
+  this->_gyroscope_offset = gyroscope_offset.divide_scalar(MOTION_MANAGER_CALIBRATION_READS).invert();
+  //this->_acceleration_offset = acceleration_offset.divide_scalar(MOTION_MANAGER_CALIBRATION_READS).invert();
+
+  Vec3f gravity(0.0, 0.0, 1.0);
+  gravity = gravity.scale_scalar(this->_acceleration_2_g);
+  //this->_acceleration_offset = this->_acceleration_offset.add(gravity);
+
+  Serial.print("gyroscope_offset [ x: ");
+  Serial.print(this->_gyroscope_offset.x, 4);
+  Serial.print(", y: ");
+  Serial.print(this->_gyroscope_offset.y, 4);
+  Serial.print(", z: ");
+  Serial.print(this->_gyroscope_offset.z, 4);
+  Serial.println(" ]");
+
+  Serial.print("acceleration_offset [ x: ");
+  Serial.print(this->_acceleration_offset.x, 4);
+  Serial.print(", y: ");
+  Serial.print(this->_acceleration_offset.y, 4);
+  Serial.print(", z: ");
+  Serial.print(this->_acceleration_offset.z, 4);
+  Serial.println(" ]");
+
+  return true;
 }
 
 bool MotionManager::calibrate_magnetometer()
 {
-  /*bool success = this->write_hmc5883l_data(0x00, 0x11);
+  /*
+    bool success = this->write_hmc5883l_data(0x00, 0x11);
     if (!success)
     {
     Serial.println("fail to set magnetometer to read positive bias");
@@ -288,7 +359,6 @@ bool MotionManager::calibrate_magnetometer()
 
 bool MotionManager::initialize()
 {
-  Serial.println("1s");
   bool success = this->update_mpu6050();
   if (!success)
   {
@@ -296,16 +366,12 @@ bool MotionManager::initialize()
     return false;
   }
 
-  Serial.println("1.1s");
-
   success = this->update_hmc5883l();
   if (!success)
   {
     Serial.println("fail to update hmc5883l for initializing starting angle");
     return false;
   }
-
-  Serial.println("2s");
 
   this->update_pitch_roll();
   this->update_yaw();
@@ -322,26 +388,54 @@ bool MotionManager::initialize()
   this->_comp_angle.z = this->_rotation.z;
   this->_gyroscope_angle.z = this->_rotation.z;
 
-  Serial.println("3s");
+  Serial.print("initial rotation gain [ x: ");
+  Serial.print(this->_rotation.x, 4);
+  Serial.print(", y: ");
+  Serial.print(this->_rotation.y, 4);
+  Serial.print(", z: ");
+  Serial.print(this->_rotation.z, 4);
+  Serial.println(" ]");
+
 
   return true;
 }
 
 bool MotionManager::update_hmc5883l()
 {
-  /*this->_wire->beginTransmission(this->_hmc5883l_address);
-    this->_wire->write(0x00);
-    this->_wire->endTransmission(false);
-    // Get magnetometer values
-    this->_wire->requestFrom(this->_hmc5883l_address, (uint8_t)7);
+  this->_wire->beginTransmission(this->_hmc5883l_address);
+  this->_wire->write(0x00);
+  this->_wire->endTransmission(false);
 
-    this->_raw_magnetometer.x = (this->_wire->read() | (this->_wire->read() << 8));
-    this->_raw_magnetometer.y = (this->_wire->read() | (this->_wire->read() << 8));
-    this->_raw_magnetometer.z = (this->_wire->read() | (this->_wire->read() << 8));
+  // require 7
+  uint8_t length = 7;
 
-    byte overflow = this->_wire->read() & 0x02;*/
+  // request the magnetometer values from hmc58831
+  int received = this->_wire->requestFrom(this->_hmc5883l_address, length);
+  if (received != length)
+  {
+    return false;
+  }
 
-  return true;
+  int16_t raw_magnetometer_x = this->_wire->read() | (this->_wire->read() << 8);
+  int16_t raw_magnetometer_y = this->_wire->read() | (this->_wire->read() << 8);
+  int16_t raw_magnetometer_z = this->_wire->read() | (this->_wire->read() << 8);
+
+  this->_raw_magnetometer.x = (float)raw_magnetometer_x;
+  this->_raw_magnetometer.y = (float)raw_magnetometer_y;
+  this->_raw_magnetometer.z = (float)raw_magnetometer_z;
+
+  byte overflow = this->_wire->read() & 0x02;
+
+  /*Serial.print("_raw_magnetometer [ x: ");
+  Serial.print(this->_raw_magnetometer.x, 4);
+  Serial.print(", y: ");
+  Serial.print(this->_raw_magnetometer.y, 4);
+  Serial.print(", z: ");
+  Serial.print(this->_raw_magnetometer.z, 4);
+  Serial.println(" ]");*/
+
+  bool success = (overflow << 2) == 0;
+  return success;
 }
 
 bool MotionManager::update_mpu6050()
@@ -350,26 +444,38 @@ bool MotionManager::update_mpu6050()
   this->_wire->write(MPU6050_ACCELERATION_OUT_REGISTER);
   this->_wire->endTransmission(false);
 
-  int b = this->_wire->requestFrom(this->_mpu6050_address, (uint8_t)14);
+  // require 14
+  uint8_t length = 14;
 
-  Serial.println(b);
-
-  int16_t rawData[7]; // [ax,ay,az,temp,gx,gy,gz]
-
-  for (int i = 0; i < 7; i++) {
-    rawData[i] = Wire.read() << 8;
-    rawData[i] |= Wire.read();
+  // request the bytes from mpu650
+  int received = this->_wire->requestFrom(this->_mpu6050_address, length);
+  if (received != length)
+  {
+    return false;
   }
 
-  this->_raw_acceleration.x = rawData[0];
-  this->_raw_acceleration.y = rawData[1];
-  this->_raw_acceleration.z = rawData[2];
+  // [ax,ay,az,temp,gx,gy,gz]
+  int16_t raw_acceleration_x = (this->_wire->read() << 8) | this->_wire->read();
+  int16_t raw_acceleration_y = (this->_wire->read() << 8) | this->_wire->read();
+  int16_t raw_acceleration_z = (this->_wire->read() << 8) | this->_wire->read();
 
-  this->_raw_temperature = rawData[3];
+  int16_t raw_temperature = (this->_wire->read() << 8) | this->_wire->read();
 
-  this->_raw_gyroscope.x = rawData[4];
-  this->_raw_gyroscope.y = rawData[5];
-  this->_raw_gyroscope.z = rawData[6];
+  int16_t raw_gyroscope_x = (this->_wire->read() << 8) | this->_wire->read();
+  int16_t raw_gyroscope_y = (this->_wire->read() << 8) | this->_wire->read();
+  int16_t raw_gyroscope_z = (this->_wire->read() << 8) | this->_wire->read();
+
+  this->_raw_acceleration.x = (float) raw_acceleration_x;
+  this->_raw_acceleration.y = (float) raw_acceleration_y;
+  this->_raw_acceleration.z = (float) raw_acceleration_z;
+
+  this->_raw_temperature = (float) raw_temperature;
+
+  this->_raw_gyroscope.x = (float) raw_gyroscope_x;
+  this->_raw_gyroscope.y = (float) raw_gyroscope_y;
+  this->_raw_gyroscope.z = (float) raw_gyroscope_z;
+
+  return true;
 }
 
 void MotionManager::update_pitch_roll()
@@ -403,7 +509,6 @@ void MotionManager::update_yaw()
 
 void MotionManager::update()
 {
-  Serial.println("foo");
   /* Update all the IMU values */
   this->update_mpu6050();
   this->update_hmc5883l();
@@ -415,8 +520,8 @@ void MotionManager::update()
   /* Roll and pitch estimation */
   this->update_pitch_roll();
 
-  float gyro_x_rate = this->_raw_gyroscope.x / this->_gyroscope_2_deg; // Convert to deg/s
-  float gyro_y_rate = this->_raw_gyroscope.y / this->_gyroscope_2_deg; // Convert to deg/s
+  float gyro_x_rate = this->_gyroscope.x; //this->_raw_gyroscope.x / this->_gyroscope_2_deg; // Convert to deg/s
+  float gyro_y_rate = this->_gyroscope.y; // this->_gyroscope_2_deg; // Convert to deg/s
 
   // This fixes the transition problem when the yaw angle jumps between -180 and 180 degrees
   if ((this->_rotation.y < -90.0 && this->_kalman_angle.y > 90.0) || (this->_rotation.y > 90.0 && this->_kalman_angle.y < -90.0))
@@ -442,7 +547,7 @@ void MotionManager::update()
   /* Yaw estimation */
   this->update_yaw();
 
-  float gyro_z_rate = this->_raw_gyroscope.z / this->_gyroscope_2_deg; // Convert to deg/s
+  float gyro_z_rate = this->_gyroscope.z; //this->_raw_gyroscope.z / this->_gyroscope_2_deg; // Convert to deg/s
 
   // This fixes the transition problem when the yaw angle jumps between -180 and 180 degrees
   if ((this->_rotation.z < -90 && this->_kalman_angle.z > 90.0) || (this->_rotation.z > 90.0 && this->_kalman_angle.z < -90.0))
@@ -484,26 +589,42 @@ void MotionManager::update()
   {
     this->_gyroscope_angle.z = this->_kalman_angle.z;
   }
+
+  /*Serial.print("_acceleration [ x: ");
+    Serial.print(this->_acceleration.x, 4);
+    Serial.print(", y: ");
+    Serial.print(this->_acceleration.y, 4);
+    Serial.print(", z: ");
+    Serial.print(this->_acceleration.z, 4);
+    Serial.println(" ]");*/
 }
 
-void MotionManager::update_acceleration_gyroscope() {
-  this->_gyroscope.x = this->_raw_gyroscope.x / this->_gyroscope_2_deg; // Convert to deg/s
-  this->_gyroscope.y = this->_raw_gyroscope.y / this->_gyroscope_2_deg; // Convert to deg/s
-  this->_gyroscope.z = this->_raw_gyroscope.z / this->_gyroscope_2_deg; // Convert to deg/s
+void MotionManager::update_acceleration_gyroscope()
+{
+  this->_gyroscope.x = (this->_raw_gyroscope.x + this->_gyroscope_offset.x) / this->_gyroscope_2_deg; // Convert to deg/s
+  this->_gyroscope.y = (this->_raw_gyroscope.y + this->_gyroscope_offset.y) / this->_gyroscope_2_deg; // Convert to deg/s
+  this->_gyroscope.z = (this->_raw_gyroscope.z + this->_gyroscope_offset.z) / this->_gyroscope_2_deg; // Convert to deg/s
 
-  this->_acceleration.x = (this->_raw_acceleration.x / this->_acceleration_2_g) * GRAVITY_OF_EARTH; // Convert to m/s2
-  this->_acceleration.y = (this->_raw_acceleration.y / this->_acceleration_2_g) * GRAVITY_OF_EARTH; // Convert to m/s2
-  this->_acceleration.z = (this->_raw_acceleration.z / this->_acceleration_2_g) * GRAVITY_OF_EARTH; // Convert to m/s2
+  this->_acceleration.x = ((this->_raw_acceleration.x + this->_acceleration_offset.x) / this->_acceleration_2_g) * GRAVITY_OF_EARTH; // Convert to m/s2
+  this->_acceleration.y = ((this->_raw_acceleration.y + this->_acceleration_offset.y) / this->_acceleration_2_g) * GRAVITY_OF_EARTH; // Convert to m/s2
+  this->_acceleration.z = ((this->_raw_acceleration.z + this->_acceleration_offset.z) / this->_acceleration_2_g) * GRAVITY_OF_EARTH; // Convert to m/s2
+
+  this->_magnetometer.x = this->_raw_magnetometer.x / this->_magnetometer_2_gauss;
+  this->_magnetometer.y = this->_raw_magnetometer.y / this->_magnetometer_2_gauss;
+  this->_magnetometer.z = this->_raw_magnetometer.z / this->_magnetometer_2_gauss;
 }
 
-Vec3f *MotionManager::get_rotation() {
-  return &this->_comp_angle;
+Vec3f *MotionManager::get_rotation()
+{
+  return &this->_rotation;
 }
 
-Vec3f *MotionManager::get_gyroscope() {
+Vec3f *MotionManager::get_gyroscope()
+{
   return &this->_gyroscope;
 }
 
-Vec3f *MotionManager::get_acceleration() {
+Vec3f *MotionManager::get_acceleration()
+{
   return &this->_acceleration;
 }

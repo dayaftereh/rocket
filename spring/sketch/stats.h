@@ -17,6 +17,8 @@ class Stats
 
   private:
 
+    bool _first;
+
     float _fps;
 
     int _counter;

@@ -84,9 +84,9 @@ bool ConfigManager::write_default()
   this->_config.parachute_timeout = 1000;
   this->_config.complimentary_filter = 0.93;
 
-  this->_config.magnetometer_offset_x = (603.0 + (-578.0)) / 2.0;
-  this->_config.magnetometer_offset_y = (542.0 + (-701.0)) / 2.0;
-  this->_config.magnetometer_offset_z = (547.0 + (-556.0)) / 2.0;
+  this->_config.magnetometer_offset_x = 0;//;(603.0 + (-578.0)) / 2.0;
+  this->_config.magnetometer_offset_y = 0;//(542.0 + (-701.0)) / 2.0;
+  this->_config.magnetometer_offset_z = 0;//(547.0 + (-556.0)) / 2.0;
 
   bool success = this->write();
   if (!success)

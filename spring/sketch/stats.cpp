@@ -12,16 +12,22 @@ bool Stats::setup() {
   this->_counter = 0;
   this->_sum_delta = 0.0;
 
+  this->_first = true;
+
   return true;
 }
 
 float Stats::update() {
-  this->_counter++;
-
   unsigned long now = micros();
   unsigned long elapsed = now - this->_last;
   this->_last = now;
 
+  if (this->_first) {
+    this->_first = false;
+    return 0.0;
+  }
+
+   this->_counter++;
   float f = 0.000001;
 
   this->_delta = max(((float)elapsed) * f, f);

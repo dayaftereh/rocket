@@ -51,6 +51,8 @@ bool RemoteServer::setup(ConfigManager *config_manager, DataLogger *data_logger,
     return false;
   }
 
+  delay(10);
+
   // setup the access point
   success = WiFi.softAP(ACCESS_POINT_SSID, ACCESS_POINT_PASSWD, ACCESS_POINT_CHANNEL);
   if (!success)
@@ -64,6 +66,8 @@ bool RemoteServer::setup(ConfigManager *config_manager, DataLogger *data_logger,
   Serial.print(WiFi.softAPIP());
   Serial.println(" ]");
 
+  delay(10);
+
   // start spiffs for the file server
   success = SPIFFS.begin();
   if (!success)
@@ -71,6 +75,17 @@ bool RemoteServer::setup(ConfigManager *config_manager, DataLogger *data_logger,
     Serial.println("Fail to setup spiffs");
     return false;
   }
+
+  delay(10);
+
+  // Start the mDNS responder for spring.local
+  success = MDNS.begin("spring");
+  if (!success) {
+    Serial.println("fail to setup MDNS responder!");
+    return false;
+  }
+
+  delay(10);
 
   // setup the web-server
   this->_web_server.onNotFound(std::bind(&RemoteServer::handle_not_found, this));
@@ -80,7 +95,11 @@ bool RemoteServer::setup(ConfigManager *config_manager, DataLogger *data_logger,
 
   // add the websocket hook
   this->_web_server.addHook(this->_web_socket.hookForWebserver("/api/ws", [&](uint8_t num, WStype_t type, uint8_t *payload, size_t length)
-                                                               { this->handle_web_socket(num, type, payload, length); }));
+  {
+    this->handle_web_socket(num, type, payload, length);
+  }));
+
+  delay(10);
 
   this->_web_server.serveStatic("/", SPIFFS, "/index.html");
   this->_web_server.begin();

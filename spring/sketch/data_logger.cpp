@@ -277,6 +277,7 @@ void DataLogger::load_data_logger_entry(DataLoggerEntry &entry)
   entry.rotationX = rotation->x;
   entry.rotationY = rotation->y;
   entry.rotationZ = rotation->z;
+  //entry.rotationZ = 0.0;
 
   entry.parachuteAltitude = this->_parachute_manager->is_altitude_triggered();
   entry.parachuteOrientation = this->_parachute_manager->is_orientation_triggered();

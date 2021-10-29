@@ -60,6 +60,7 @@ class MotionManager
 
     bool init_mpu6050();
     bool update_mpu6050();
+    bool calibrate_mpu6050();
     bool write_mpu6050_data(byte reg, byte data);
     bool set_gyroscope_config(MPU6050GyroscopeConfig config_num);
     bool set_acceleration_config(MPU6050AccelerationConfig config_num);
@@ -77,12 +78,17 @@ class MotionManager
     float _raw_temperature;
     float _gyroscope_2_deg;
     float _acceleration_2_g;
+    float _magnetometer_2_gauss;
 
+    Vec3f _magnetometer;
     Vec3f _raw_magnetometer;
     Vec3f _gain_magnetometer;
 
     Vec3f _gyroscope;
     Vec3f _acceleration;
+
+    Vec3f _gyroscope_offset;
+    Vec3f _acceleration_offset;
 
     Vec3f _raw_gyroscope;
     Vec3f _raw_acceleration;
