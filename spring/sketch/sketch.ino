@@ -1,4 +1,5 @@
 #include "stats.h"
+#include "networking.h"
 #include "data_logger.h"
 #include "status_leds.h"
 #include "remote_server.h"
@@ -13,6 +14,7 @@
 Stats stats;
 StatusLeds statusLeds;
 DataLogger dataLogger;
+Networking networking;
 RemoteServer remoteServer;
 ErrorManager errorManager;
 ConfigManager configManager;
@@ -22,7 +24,8 @@ AltitudeManager altitudeManager;
 ParachuteManager parachuteManager;
 VoltageMeasurement voltageMeasurement;
 
-void setup() {
+void setup()
+{
   Serial.begin(SERIAL_BAUD_RATE);
 
   // start the wire
@@ -40,9 +43,18 @@ void setup() {
   // update the status progress
   statusLeds.progress();
 
+  // Networking
+  bool success = networking.setup();
+  if (!success)
+  {
+    Serial.println("fail to setup networking");
+    errorManager.error(ERROR_NETWORKING);
+  }
+
   // ConfigManager
-  bool success = configManager.setup();
-  if (!success) {
+  success = configManager.setup();
+  if (!success)
+  {
     Serial.println("fail to setup config manager");
     errorManager.error(ERROR_CONFIG_MANAGER);
   }
@@ -55,7 +67,8 @@ void setup() {
 
   // ParachuteManager
   success = parachuteManager.setup(config);
-  if (!success) {
+  if (!success)
+  {
     Serial.println("fail to setup parachute manager");
     errorManager.error(ERROR_PARACHUTE_MANAGER);
   }
@@ -65,10 +78,11 @@ void setup() {
 
   // Stats
   success = stats.setup();
-  if (!success) {
+  if (!success)
+  {
     Serial.println("fail to setup stats");
     errorManager.error(ERROR_STATS);
-  }  
+  }
 
   // update the status progress
   statusLeds.progress();
@@ -85,7 +99,8 @@ void setup() {
 
   // MotionManagernager
   success = motionManager.setup(config, &stats, &statusLeds);
-  if (!success) {
+  if (!success)
+  {
     Serial.println("fail to setup motion manager");
     errorManager.error(ERROR_MOTION_MANAGER);
   }
@@ -95,7 +110,8 @@ void setup() {
 
   // VoltageMeasurement
   success = voltageMeasurement.setup(config);
-  if (!success) {
+  if (!success)
+  {
     Serial.println("fail to setup voltage measurement");
     errorManager.error(ERROR_VOLTAGE_MEASUREMENT);
   }
@@ -105,7 +121,8 @@ void setup() {
 
   // DataLogger
   success = dataLogger.setup(&stats, &statusLeds, &altitudeManager, &voltageMeasurement, &motionManager, &parachuteManager);
-  if (!success) {
+  if (!success)
+  {
     Serial.println("fail to setup data logger");
     errorManager.error(ERROR_DATA_LOGGER);
   }
@@ -115,7 +132,8 @@ void setup() {
 
   // RemoteServer
   success = remoteServer.setup(&configManager, &dataLogger, &parachuteManager);
-  if (!success) {
+  if (!success)
+  {
     Serial.println("fail to setup remote server");
     errorManager.error(ERROR_REMOTE_SERVER);
   }
@@ -125,7 +143,8 @@ void setup() {
 
   // FlightObserver
   success = flightObserver.setup(config, &statusLeds, &motionManager, &altitudeManager, &dataLogger);
-  if (!success) {
+  if (!success)
+  {
     Serial.println("fail to setup flight observer");
     errorManager.error(ERROR_FLIGHT_OBSERVER);
   }
@@ -137,7 +156,8 @@ void setup() {
   Serial.flush();
 }
 
-void loop() {
+void loop()
+{
   // always update stats first
   float delta = stats.update();
 
