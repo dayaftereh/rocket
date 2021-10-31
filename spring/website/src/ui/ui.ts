@@ -13,11 +13,9 @@ export class UI {
 
     private async initConfigForm(): Promise<void> {
         const configParachuteTimeout: HTMLInputElement = document.querySelector("#configParachuteTimeout")
-        const configComplimentaryFilter: HTMLInputElement = document.querySelector("#configComplimentaryFilter")
 
-        const configMagnetometerOffsetX: HTMLInputElement = document.querySelector("#configMagnetometerOffsetX")
-        const configMagnetometerOffsetY: HTMLInputElement = document.querySelector("#configMagnetometerOffsetY")
-        const configMagnetometerOffsetZ: HTMLInputElement = document.querySelector("#configMagnetometerOffsetZ")
+        const configMadgwickKI: HTMLInputElement = document.querySelector("#configMadgwickKI")
+        const configMadgwickKP: HTMLInputElement = document.querySelector("#configMadgwickKP")
 
         const configForm: HTMLFormElement = document.querySelector("#configForm")
 
@@ -25,11 +23,9 @@ export class UI {
             ev.preventDefault()
 
             const config: Config = {
-                complimentaryFilter: +(configComplimentaryFilter.value),
+                madgwickKI: +(configMadgwickKI.value),
+                madgwickKP: +(configMadgwickKP.value),
                 parachuteTimeout: +(configParachuteTimeout.value),
-                magnetometerOffsetX: +(configMagnetometerOffsetX.value),
-                magnetometerOffsetY: +(configMagnetometerOffsetY.value),
-                magnetometerOffsetZ: +(configMagnetometerOffsetZ.value),
             }
 
             await this.api.setConfig(config)
@@ -38,11 +34,9 @@ export class UI {
         const config: Config = await this.api.getConfig()
 
         configParachuteTimeout.value = `${config.parachuteTimeout}`
-        configComplimentaryFilter.value = `${config.complimentaryFilter}`
 
-        configMagnetometerOffsetX.value = `${config.magnetometerOffsetX}`
-        configMagnetometerOffsetY.value = `${config.magnetometerOffsetY}`
-        configMagnetometerOffsetZ.value = `${config.magnetometerOffsetZ}`
+        configMadgwickKI.value = `${config.madgwickKI}`
+        configMadgwickKP.value = `${config.madgwickKP}`
     }
 
     private liproS1VoltageLevelColor(voltage: number): string {
@@ -68,6 +62,10 @@ export class UI {
         const currentAccelerationY: HTMLInputElement = document.querySelector("#currentAccelerationY")
         const currentAccelerationZ: HTMLInputElement = document.querySelector("#currentAccelerationZ")
 
+        const currentMagnetometerX: HTMLInputElement = document.querySelector("#currentMagnetometerX")
+        const currentMagnetometerY: HTMLInputElement = document.querySelector("#currentMagnetometerY")
+        const currentMagnetometerZ: HTMLInputElement = document.querySelector("#currentMagnetometerZ")
+
         const currentRotationX: HTMLInputElement = document.querySelector("#currentRotationX")
         const currentRotationY: HTMLInputElement = document.querySelector("#currentRotationY")
         const currentRotationZ: HTMLInputElement = document.querySelector("#currentRotationZ")
@@ -88,6 +86,10 @@ export class UI {
             currentAccelerationX.value = this.formatNumber(message.accelerationX)
             currentAccelerationY.value = this.formatNumber(message.accelerationY)
             currentAccelerationZ.value = this.formatNumber(message.accelerationZ)
+
+            currentMagnetometerX.value = this.formatNumber(message.magnetometerX)
+            currentMagnetometerY.value = this.formatNumber(message.magnetometerY)
+            currentMagnetometerZ.value = this.formatNumber(message.magnetometerZ)
 
             currentRotationX.value = this.formatNumber(message.rotationX)
             currentRotationY.value = this.formatNumber(message.rotationY)

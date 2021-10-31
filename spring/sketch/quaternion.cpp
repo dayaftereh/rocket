@@ -42,10 +42,10 @@ void Quaternion::set_euler(float x, float y, float z)
 
 Quaternion Quaternion::multiply(Quaternion &q)
 {
-    float qax = this->.x;
-    float qay = this->.y;
-    float qaz = this->.z;
-    float qaw = this->.w;
+    float qax = this->x;
+    float qay = this->y;
+    float qaz = this->z;
+    float qaw = this->w;
 
     float qbx = q.x;
     float qby = q.y;

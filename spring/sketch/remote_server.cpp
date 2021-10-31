@@ -26,7 +26,6 @@ bool RemoteServer::setup(ConfigManager *config_manager, DataLogger *data_logger,
 
   delay(10);
 
-  
   // setup the web-server
   this->_web_server.onNotFound(std::bind(&RemoteServer::handle_not_found, this));
   this->_web_server.on("/api/config", HTTP_GET, std::bind(&RemoteServer::handle_get_configuration, this));
@@ -35,9 +34,7 @@ bool RemoteServer::setup(ConfigManager *config_manager, DataLogger *data_logger,
 
   // add the websocket hook
   this->_web_server.addHook(this->_web_socket.hookForWebserver("/api/ws", [&](uint8_t num, WStype_t type, uint8_t *payload, size_t length)
-  {
-    this->handle_web_socket(num, type, payload, length);
-  }));
+                                                               { this->handle_web_socket(num, type, payload, length); }));
 
   delay(10);
 
@@ -137,10 +134,8 @@ void RemoteServer::handle_get_configuration()
   DynamicJsonDocument responseDoc(1024);
 
   responseDoc["parachuteTimeout"] = config->parachute_timeout;
-  responseDoc["complimentaryFilter"] = config->complimentary_filter;
-  responseDoc["magnetometerOffsetX"] = config->magnetometer_offset_x;
-  responseDoc["magnetometerOffsetY"] = config->magnetometer_offset_y;
-  responseDoc["magnetometerOffsetZ"] = config->magnetometer_offset_z;
+  responseDoc["madgwickKI"] = config->madgwick_ki;
+  responseDoc["madgwickKP"] = config->madgwick_kp;
 
   // serialize the response
   String output;
@@ -178,28 +173,16 @@ void RemoteServer::handle_update_configuration()
     config->parachute_timeout = doc["parachuteTimeout"];
   }
 
-  bool has_complimentary_filter = doc.containsKey("complimentaryFilter");
-  if (has_complimentary_filter)
+  bool has_madgwick_ki = doc.containsKey("madgwickKI");
+  if (has_madgwick_ki)
   {
-    config->complimentary_filter = doc["complimentaryFilter"];
+    config->madgwick_ki = doc["madgwickKI"];
   }
 
-  bool has_magnetometer_offset_x = doc.containsKey("magnetometerOffsetX");
-  if (has_magnetometer_offset_x)
+  bool has_madgwick_kp = doc.containsKey("madgwickKP");
+  if (has_madgwick_kp)
   {
-    config->magnetometer_offset_x = doc["magnetometerOffsetX"];
-  }
-
-  bool has_magnetometer_offset_y = doc.containsKey("magnetometerOffsetY");
-  if (has_magnetometer_offset_y)
-  {
-    config->magnetometer_offset_y = doc["magnetometerOffsetY"];
-  }
-
-  bool has_magnetometer_offset_z = doc.containsKey("magnetometerOffsetZ");
-  if (has_magnetometer_offset_z)
-  {
-    config->magnetometer_offset_z = doc["magnetometerOffsetZ"];
+    config->madgwick_kp = doc["madgwickKP"];
   }
 
   // write the new config to eeprom

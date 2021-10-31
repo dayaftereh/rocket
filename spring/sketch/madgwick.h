@@ -4,6 +4,7 @@
 #include <math.h>
 
 #include "vec3f.h"
+#include "stats.h"
 #include "config.h"
 #include "quaternion.h"
 
@@ -29,23 +30,21 @@
 class Madgwick
 {
 public:
-    Madgwick();
+  Madgwick();
 
-    bool setup(Config *config);
+  bool setup(Config *config, Stats *stats);
 
-    void update(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz);
+  void update(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz);
 
-    Quaternion *get_quaternion();
+  Quaternion *get_quaternion();
 
 private:
-    float _kP; // proportional gain governs rate of convergence to accelerometer/magnetometer
-    float _kI; // integral gain governs rate of convergence of gyroscope biases
-    float _half_T; // half the sample period
 
-    Quaternion _q;
-    Vec3f _integral_error; // scaled integral error
+  Quaternion _q;
+  Vec3f integral_error;
 
-    Config *_config;
+  Stats *_stats;
+  Config *_config;
 };
 
 #endif // _MADWICK_H

@@ -13,6 +13,10 @@ export interface Message {
     accelerationY: number
     accelerationZ: number
 
+    magnetometerX: number
+    magnetometerY: number
+    magnetometerZ: number
+
     rotationX: number
     rotationY: number
     rotationZ: number

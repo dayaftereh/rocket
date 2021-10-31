@@ -4,8 +4,21 @@
 #include <Arduino.h>
 #include <Wire.h>
 
+#include "vec3f.h"
 #include "config.h"
 #include "status_leds.h"
+
+#define MPU6050_I2C_ADDRESS 0x68
+#define MPU6050_SMPLRT_DIV_REGISTER 0x19
+#define MPU6050_CONFIG_REGISTER 0x1a
+#define MPU6050_GYROSCOPE_CONFIG_REGISTER 0x1b
+#define MPU6050_ACCELERATION_CONFIG_REGISTER 0x1c
+#define MPU6050_PWR_MGMT_1_REGISTER 0x6b
+
+#define MPU6050_ACCELERATION_OUT_REGISTER 0x3B
+
+#define MPU6050_TEMP_LSB_2_DEGREE 340.0 // [bit/celsius]
+#define MPU6050_TEMP_LSB_OFFSET 12412.0
 
 enum MPU6050GyroscopeConfig
 {
@@ -39,10 +52,10 @@ private:
     bool read();
     bool calibrate();
 
+    bool write_data(byte reg, byte data);
+
     bool set_gyroscope_config(MPU6050GyroscopeConfig config_num);
     bool set_acceleration_config(MPU6050AccelerationConfig config_num);
-
-    bool write_data(byte reg, byte data);
 
     byte _address;
 

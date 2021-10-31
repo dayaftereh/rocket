@@ -54,13 +54,10 @@ typedef struct {
   // timeout for the parachute opening
   int parachute_timeout;
 
-  // coefficient for the motion complimentary filter
-  float complimentary_filter;
+  float madgwick_ki;
+  float madgwick_kp;
 
-  // magnetometer
-  float magnetometer_offset_x;
-  float magnetometer_offset_y;
-  float magnetometer_offset_z;
+
 
 } Config;
 

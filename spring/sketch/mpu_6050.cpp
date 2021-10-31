@@ -11,6 +11,7 @@ bool MPU6050::setup(Config *config, TwoWire *wire, StatusLeds *status_leds)
     this->_status_leds = status_leds;
 
     // Initialize
+    this->_address = MPU6050_I2C_ADDRESS;
 
     // setup the mpu6050
     bool success = this->write_data(MPU6050_PWR_MGMT_1_REGISTER, 0x01); // PLL with X axis gyroscope reference and disable sleep mode
@@ -151,7 +152,7 @@ bool MPU6050::calibrate()
     {
         this->_status_leds->progress();
 
-        bool success = this->_read();
+        bool success = this->read();
         if (!success)
         {
             Serial.println("fail to read values for calibraten from mpu6050");
@@ -192,7 +193,7 @@ bool MPU6050::calibrate()
 
 bool MPU6050::read()
 {
-    this->_wire->beginTransmission(this->_mpu6050_address);
+    this->_wire->beginTransmission(this->_address);
     this->_wire->write(MPU6050_ACCELERATION_OUT_REGISTER);
     this->_wire->endTransmission(false);
 
@@ -200,7 +201,7 @@ bool MPU6050::read()
     uint8_t length = 14;
 
     // request the bytes from mpu650
-    int received = this->_wire->requestFrom(this->_mpu6050_address, length);
+    int received = this->_wire->requestFrom(this->_address, length);
     if (received != length)
     {
         return false;
@@ -228,4 +229,31 @@ bool MPU6050::read()
     this->_raw_gyroscope.z = (float)raw_gyroscope_z;
 
     return true;
+}
+
+void MPU6050::update()
+{
+    bool success = this->read();
+    if (!success)
+    {
+        return;
+    }
+
+    this->_gyroscope.x = (this->_raw_gyroscope.x + this->_gyroscope_offset.x) / this->_gyroscope_2_deg; // Convert to deg/s
+    this->_gyroscope.y = (this->_raw_gyroscope.y + this->_gyroscope_offset.y) / this->_gyroscope_2_deg; // Convert to deg/s
+    this->_gyroscope.z = (this->_raw_gyroscope.z + this->_gyroscope_offset.z) / this->_gyroscope_2_deg; // Convert to deg/s
+
+    this->_acceleration.x = ((this->_raw_acceleration.x + this->_acceleration_offset.x) / this->_acceleration_2_g) * GRAVITY_OF_EARTH; // Convert to m/s2
+    this->_acceleration.y = ((this->_raw_acceleration.y + this->_acceleration_offset.y) / this->_acceleration_2_g) * GRAVITY_OF_EARTH; // Convert to m/s2
+    this->_acceleration.z = ((this->_raw_acceleration.z + this->_acceleration_offset.z) / this->_acceleration_2_g) * GRAVITY_OF_EARTH; // Convert to m/s2
+}
+
+Vec3f *MPU6050::get_gyroscope()
+{
+    return &this->_gyroscope;
+}
+
+Vec3f *MPU6050::get_acceleration()
+{
+    return &this->_acceleration;
 }

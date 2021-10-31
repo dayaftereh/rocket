@@ -39,17 +39,11 @@ void ConfigManager::print_config()
   Serial.print(" [ parachute_timeout: ");
   Serial.print(this->_config.parachute_timeout);
 
-  Serial.print(", complimentary_filter: ");
-  Serial.print(this->_config.complimentary_filter);
+  Serial.print(", madgwick_kp: ");
+  Serial.print(this->_config.madgwick_kp);
 
-  Serial.print(", magnetometer_offset_x: ");
-  Serial.print(this->_config.magnetometer_offset_x);
-
-  Serial.print(", magnetometer_offset_y: ");
-  Serial.print(this->_config.magnetometer_offset_y);
-
-  Serial.print(", magnetometer_offset_z: ");
-  Serial.print(this->_config.magnetometer_offset_z);
+  Serial.print(", madgwick_ki: ");
+  Serial.print(this->_config.madgwick_ki);
 
   Serial.println(" ]");
 }
@@ -82,11 +76,9 @@ bool ConfigManager::write()
 bool ConfigManager::write_default()
 {
   this->_config.parachute_timeout = 1000;
-  this->_config.complimentary_filter = 0.93;
 
-  this->_config.magnetometer_offset_x = 0;//;(603.0 + (-578.0)) / 2.0;
-  this->_config.magnetometer_offset_y = 0;//(542.0 + (-701.0)) / 2.0;
-  this->_config.magnetometer_offset_z = 0;//(547.0 + (-556.0)) / 2.0;
+  this->_config.madgwick_kp = 2.0;
+  this->_config.madgwick_ki = 0.005;
 
   bool success = this->write();
   if (!success)

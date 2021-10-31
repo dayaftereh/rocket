@@ -43,6 +43,8 @@ bool DataLogger::setup(Stats *stats, StatusLeds *status_leds, AltitudeManager *a
     return true;
   }
 
+  Serial.println("configuring flash memory");
+
   // create the memory flash
   this->_flash = new SPIFlash(DATA_LOGGER_FLASH_CS);
 
@@ -62,6 +64,13 @@ bool DataLogger::setup(Stats *stats, StatusLeds *status_leds, AltitudeManager *a
   if (!success)
   {
     Serial.println("fail to verify flash memory.");
+    return false;
+  }
+
+  success = this->_flash->eraseSection(1, 100000);
+  if (!success)
+  {
+    Serial.println("fail to erase flash memory.");
     return false;
   }
 
@@ -214,10 +223,12 @@ bool DataLogger::flash_memory_speed_test()
   unsigned long start = millis();
   for (int i = 0; i < writes; i++)
   {
-    uint32_t address = i * length;
-    bool success = this->_flash->writeByteArray(address, buf, length);
+    uint32_t address = i * length + 1;
+    bool success = this->_flash->writeByteArray(address, &buf[0], length);
     if (!success)
     {
+      Serial.print(i);
+      Serial.println( this->_flash->error());
       Serial.println("fail to write to flash memory");
       return false;
     }
@@ -233,14 +244,24 @@ bool DataLogger::flash_memory_speed_test()
 
   int reads = 1000;
   start = millis();
+  byte buf2[length];
   for (int i = 0; i < reads; i++)
   {
-    uint32_t address = i * length;
-    bool success = this->_flash->readByteArray(address, buf, length);
+    uint32_t address = i * length + 1;
+    bool success = this->_flash->readByteArray(address, &buf2[0], length);
     if (!success)
     {
+      Serial.println( this->_flash->error());
       Serial.println("fail to read from flash memory");
       return false;
+    }
+    for (int j = 0; j < length; j++) {
+      if (buf[j] != buf2[j]) {
+        Serial.print(i);
+        Serial.print(j);
+        Serial.println("flash memory read missmatch");
+        return false;
+      }
     }
     this->_status_leds->progress();
   }
@@ -264,19 +285,24 @@ void DataLogger::load_data_logger_entry(DataLoggerEntry &entry)
   entry.altitude = this->_altitude_manager->get_altitude_delta();
 
   Vec3f *gyroscope = this->_motion_manager->get_gyroscope();
-  entry.gyroscopeX = gyroscope->x;
-  entry.gyroscopeY = gyroscope->y;
-  entry.gyroscopeZ = gyroscope->z;
+  entry.gyroscope_x = gyroscope->x;
+  entry.gyroscope_y = gyroscope->y;
+  entry.gyroscope_z = gyroscope->z;
 
   Vec3f *acceleration = this->_motion_manager->get_acceleration();
-  entry.accelerationX = acceleration->x;
-  entry.accelerationY = acceleration->y;
-  entry.accelerationZ = acceleration->z;
+  entry.acceleration_x = acceleration->x;
+  entry.acceleration_y = acceleration->y;
+  entry.acceleration_z = acceleration->z;
+
+  Vec3f *magnetometer = this->_motion_manager->get_magnetometer();
+  entry.magnetometer_x = magnetometer->x;
+  entry.magnetometer_y = magnetometer->y;
+  entry.magnetometer_z = magnetometer->z;
 
   Vec3f *rotation = this->_motion_manager->get_rotation();
-  entry.rotationX = rotation->x;
-  entry.rotationY = rotation->y;
-  entry.rotationZ = rotation->z;
+  entry.rotation_x = rotation->x;
+  entry.rotation_y = rotation->y;
+  entry.rotation_z = rotation->z;
   //entry.rotationZ = 0.0;
 
   entry.parachuteAltitude = this->_parachute_manager->is_altitude_triggered();

@@ -46,6 +46,16 @@ export class MessageDecoder {
         message.accelerationZ = dataView.getFloat32(index, this.littleEndian)
         index += 4
 
+        // magnetometer
+        message.magnetometerX = dataView.getFloat32(index, this.littleEndian)
+        index += 4
+
+        message.magnetometerY = dataView.getFloat32(index, this.littleEndian)
+        index += 4
+
+        message.magnetometerZ = dataView.getFloat32(index, this.littleEndian)
+        index += 4
+
         // rotation
         message.rotationX = dataView.getFloat32(index, this.littleEndian)
         index += 4

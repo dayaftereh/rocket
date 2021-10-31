@@ -12,17 +12,21 @@ typedef struct __attribute__((packed)) DataLoggerEntry {
   float voltage; // 4
   float altitude; // 4
 
-  float gyroscopeX; // 4
-  float gyroscopeY; // 4
-  float gyroscopeZ; // 4
+  float gyroscope_x; // 4
+  float gyroscope_y; // 4
+  float gyroscope_z; // 4
 
-  float accelerationX; // 4
-  float accelerationY; // 4
-  float accelerationZ; // 4
+  float acceleration_x; // 4
+  float acceleration_y; // 4
+  float acceleration_z; // 4
 
-  float rotationX; // 4
-  float rotationY; // 4
-  float rotationZ; // 4
+  float magnetometer_x; // 4
+  float magnetometer_y; // 4
+  float magnetometer_z; // 4
+
+  float rotation_x; // 4
+  float rotation_y; // 4
+  float rotation_z; // 4
 
   bool parachuteAltitude; // 1
   bool parachuteOrientation; // 1

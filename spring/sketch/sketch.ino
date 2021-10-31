@@ -87,12 +87,12 @@ void setup()
   // update the status progress
   statusLeds.progress();
 
-  /*// AltitudeManager
+  // AltitudeManager
   success = altitudeManager.setup(&statusLeds);
   if (!success) {
     Serial.println("fail to setup altitude manager");
     errorManager.error(ERROR_ALTITUDE_MANAGER);
-  }*/
+  }
 
   // update the status progress
   statusLeds.progress();
@@ -165,7 +165,7 @@ void loop()
   dataLogger.update();
   remoteServer.update();
   motionManager.update();
-  //altitudeManager.update();
+  altitudeManager.update();
   parachuteManager.update();
   voltageMeasurement.update();
 

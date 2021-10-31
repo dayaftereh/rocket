@@ -110,6 +110,27 @@
 
                                 <div class="row">
                                     <div class="col">
+                                        <label for="currentMagnetometerX" class="form-label">MagnetometerX</label>
+                                        <input type="text" class="form-control" id="currentMagnetometerX" disabled>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col">
+                                        <label for="currentMagnetometerY" class="form-label">MagnetometerY</label>
+                                        <input type="text" class="form-control" id="currentMagnetometerY" disabled>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col">
+                                        <label for="currentMagnetometerZ" class="form-label">MagnetometerZ</label>
+                                        <input type="text" class="form-control" id="currentMagnetometerZ" disabled>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col">
                                         <label for="currentRotationX" class="form-label">RotationX</label>
                                         <input type="text" class="form-control" id="currentRotationX" disabled>
                                     </div>
@@ -161,31 +182,17 @@
                                     </div>
 
                                     <div class="mb-3">
-                                        <label for="configComplimentaryFilter"
-                                            class="form-label">ComplimentaryFilter</label>
-                                        <input type="number" class="form-control" min="0" max="1" step="0.0001"
-                                            id="configComplimentaryFilter">
+                                        <label for="configMadgwickKP"
+                                            class="form-label">Madgwick KP</label>
+                                        <input type="number" class="form-control" min="0" max="10000" step="0.0001"
+                                            id="configMadgwickKP">
                                     </div>
 
                                     <div class="mb-3">
-                                        <label for="configMagnetometerOffsetX"
-                                            class="form-label">MagnetometerOffsetX</label>
-                                        <input type="number" class="form-control" min="-100000" step="0.0001"
-                                            id="configMagnetometerOffsetX">
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="configMagnetometerOffsetY"
-                                            class="form-label">MagnetometerOffsetY</label>
-                                        <input type="number" class="form-control" min="-100000" step="0.0001"
-                                            id="configMagnetometerOffsetY">
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="configMagnetometerOffsetZ"
-                                            class="form-label">MagnetometerOffsetZ</label>
-                                        <input type="number" class="form-control" min="-100000" step="0.0001"
-                                            id="configMagnetometerOffsetZ">
+                                        <label for="configMadgwickKI"
+                                            class="form-label">Madgwick KI</label>
+                                        <input type="number" class="form-control" min="0" max="10000" step="0.0001"
+                                            id="configMadgwickKI">
                                     </div>
 
                                     <button type="submit" class="btn btn-primary">Submit</button>
