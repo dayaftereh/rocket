@@ -289,7 +289,7 @@ void DataLogger::load_data_logger_entry(DataLoggerEntry &entry)
   entry.gyroscope_y = gyroscope->y;
   entry.gyroscope_z = gyroscope->z;
 
-  Vec3f *acceleration = this->_imu->get_acceleration();
+  Vec3f *acceleration = this->_imu->get_world_acceleration();
   entry.acceleration_x = acceleration->x;
   entry.acceleration_y = acceleration->y;
   entry.acceleration_z = acceleration->z;

@@ -1,5 +1,5 @@
 import { fromEvent } from "rxjs";
-import { ArrowHelper, AxesHelper, CylinderGeometry, Group, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, Vector3, WebGLRenderer } from "three";
+import { ArrowHelper, AxesHelper, CylinderGeometry, GridHelper, Group, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, Vector3, WebGLRenderer } from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { API } from "../api/api";
 import { Message } from "../api/message";
@@ -98,6 +98,11 @@ export class Viewer3D {
         const origin: AxesHelper = new AxesHelper(100.0)
         this.scene.add(origin)
 
+        const grid: GridHelper = new GridHelper(100.0, 10.0)
+        grid.rotation.x = Math.PI / 2
+        grid.position.z = -1.0
+        this.scene.add(grid)
+
         // Acceleration        
         this.acceleration = new ArrowHelper(
             new Vector3(0.0, 0.0, 1.0),
@@ -154,7 +159,7 @@ export class Viewer3D {
             const norm: Vector3 = direction.normalize()
 
             const length: number = direction.length()
-            this.acceleration.setLength(length)
+            this.acceleration.setLength(length * 10.0)
             this.acceleration.setDirection(norm)
         }
 

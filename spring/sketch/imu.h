@@ -25,6 +25,7 @@ public:
   Vec3f *get_gyroscope();
   Vec3f *get_acceleration();
   Vec3f *get_magnetometer();
+  Vec3f *get_world_acceleration();
 
 private:
   MPU6050 _mpu_6050;
@@ -32,7 +33,9 @@ private:
   QMC5883L _qmc_5883l;
 
   Quaternion _q;
+  
   Vec3f _rotation;
+  Vec3f _world_acceleration;
 
   TwoWire *_wire;
 

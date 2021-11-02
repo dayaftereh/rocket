@@ -13,10 +13,9 @@ bool IMU::setup(Config *config, Stats *stats, StatusLeds *status_leds)
   TwoWire *wire = &Wire;
 
   this->_q.set_euler(
-    this->_config->rotation_x * DEG_2_RAD,
-    this->_config->rotation_y * DEG_2_RAD,
-    this->_config->rotation_z * DEG_2_RAD
-  );
+      this->_config->rotation_x * DEG_2_RAD,
+      this->_config->rotation_y * DEG_2_RAD,
+      this->_config->rotation_z * DEG_2_RAD);
 
   bool success = this->_madgwick.setup(config, stats);
   if (!success)
@@ -61,15 +60,23 @@ void IMU::update()
 
   // update madgwick
   this->_madgwick.update(
-    gyro.x, gyro.y, gyro.z,
-    acceleration->x, acceleration->y, acceleration->z,
-    magnetometer->x, magnetometer->y, magnetometer->z);
+      gyro.x, gyro.y, gyro.z,
+      acceleration->x, acceleration->y, acceleration->z,
+      magnetometer->x, magnetometer->y, magnetometer->z);
 
-  // get the current rotation as Quaternion  
+  // get the current rotation as Quaternion
   Quaternion *q = this->_madgwick.get_quaternion();
-  Quaternion q2 = q->multiply(this->_q);
-  
+  Quaternion q1 = q->clone();
+  Quaternion q2 = q1.multiply(this->_q);
+  // calculate the rotation
   this->_rotation = q2.get_euler().scale_scalar(RAD_2_DEG);
+
+  // get the world acceleration
+  Vec3f v = acceleration->clone();
+  v = q1.multiply_vec(v).invert();
+  //this->_world_acceleration = this->_q.multiply_vec(*acceleration);
+  //this->_world_acceleration = this->_q.multiply_vec(v);
+  this->_world_acceleration = v;
 }
 
 Vec3f *IMU::get_rotation()
@@ -90,4 +97,9 @@ Vec3f *IMU::get_gyroscope()
 Vec3f *IMU::get_acceleration()
 {
   return this->_mpu_6050.get_acceleration();
+}
+
+Vec3f *IMU::get_world_acceleration()
+{
+  return &this->_world_acceleration;
 }

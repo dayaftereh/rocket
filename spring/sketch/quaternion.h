@@ -13,6 +13,7 @@ public:
     Quaternion(float x, float y, float z, float w);
 
     Quaternion clone();
+    Quaternion inverse();
 
     Vec3f get_euler();
     void set_euler(float x, float y, float z);
