@@ -34,7 +34,9 @@ bool RemoteServer::setup(ConfigManager *config_manager, DataLogger *data_logger,
 
   // add the websocket hook
   this->_web_server.addHook(this->_web_socket.hookForWebserver("/api/ws", [&](uint8_t num, WStype_t type, uint8_t *payload, size_t length)
-                                                               { this->handle_web_socket(num, type, payload, length); }));
+  {
+    this->handle_web_socket(num, type, payload, length);
+  }));
 
   delay(10);
 
@@ -134,8 +136,15 @@ void RemoteServer::handle_get_configuration()
   DynamicJsonDocument responseDoc(1024);
 
   responseDoc["parachuteTimeout"] = config->parachute_timeout;
+
+  responseDoc["launchAcceleration"] = config->launch_acceleration;
+
   responseDoc["madgwickKI"] = config->madgwick_ki;
   responseDoc["madgwickKP"] = config->madgwick_kp;
+
+  responseDoc["rotationX"] = config->rotation_x;
+  responseDoc["rotationY"] = config->rotation_y;
+  responseDoc["rotationZ"] = config->rotation_z;
 
   // serialize the response
   String output;
@@ -173,6 +182,12 @@ void RemoteServer::handle_update_configuration()
     config->parachute_timeout = doc["parachuteTimeout"];
   }
 
+  bool has_launch_acceleration = doc.containsKey("launchAcceleration");
+  if (has_launch_acceleration)
+  {
+    config->launch_acceleration = doc["launchAcceleration"];
+  }
+
   bool has_madgwick_ki = doc.containsKey("madgwickKI");
   if (has_madgwick_ki)
   {
@@ -183,6 +198,24 @@ void RemoteServer::handle_update_configuration()
   if (has_madgwick_kp)
   {
     config->madgwick_kp = doc["madgwickKP"];
+  }
+
+  bool has_rotation_x = doc.containsKey("rotationX");
+  if (has_rotation_x)
+  {
+    config->rotation_x = doc["rotationX"];
+  }
+
+  bool has_rotation_y = doc.containsKey("rotationY");
+  if (has_rotation_y)
+  {
+    config->rotation_y = doc["rotationY"];
+  }
+
+  bool has_rotation_z = doc.containsKey("rotationZ");
+  if (has_rotation_z)
+  {
+    config->rotation_z = doc["rotationZ"];
   }
 
   // write the new config to eeprom

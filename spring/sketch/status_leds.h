@@ -20,10 +20,11 @@ class StatusLeds
 
     void flash(int count, int timeout);      
 
-  private:
-
     void on();
-    void off();  
+    void off();
+    
+  private:
+    
     void toggle();  
 
     bool _led1;

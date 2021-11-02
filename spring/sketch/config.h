@@ -46,18 +46,33 @@
 
 // Constants -----------------------------------------------
 #define GRAVITY_OF_EARTH (9.80665F)
-#define RAD_2_DEG (180.0/PI)
-#define DEG_2_RAD (PI/180.0)
+#define RAD_2_DEG (180.0 / PI)
+#define DEG_2_RAD (PI / 180.0)
+
+enum IMUUpAxes
+{
+  IMU_AXES_X = 1,
+  IMU_AXES_Y = 2,
+  IMU_AXES_Z = 3
+};
 
 // Config struct for the eeprom
-typedef struct {
+typedef struct
+{
   // timeout for the parachute opening
   int parachute_timeout;
 
+  // ki and kp for madgwick update
   float madgwick_ki;
   float madgwick_kp;
 
+  // rotation
+  float rotation_x;
+  float rotation_y;
+  float rotation_z;
 
+  //
+  float launch_acceleration;
 
 } Config;
 

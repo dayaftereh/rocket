@@ -1,5 +1,5 @@
-#ifndef _MOTION_MANAGER_H
-#define _MOTION_MANAGER_H
+#ifndef _IMU_H
+#define _IMU_H
 
 #include <Arduino.h>
 #include <Wire.h>
@@ -13,10 +13,10 @@
 #include "quaternion.h"
 #include "status_leds.h"
 
-class MotionManager
+class IMU
 {
 public:
-  MotionManager();
+  IMU();
 
   bool setup(Config *config, Stats *stats, StatusLeds *status_leds);
   void update();
@@ -31,6 +31,7 @@ private:
   Madgwick _madgwick;
   QMC5883L _qmc_5883l;
 
+  Quaternion _q;
   Vec3f _rotation;
 
   TwoWire *_wire;
@@ -40,4 +41,4 @@ private:
   StatusLeds *_status_leds;
 };
 
-#endif // _MOTION_MANAGER_H
+#endif // _IMU_H

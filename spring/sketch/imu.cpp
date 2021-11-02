@@ -1,16 +1,22 @@
-#include "motion_manager.h"
+#include "imu.h"
 
-MotionManager::MotionManager()
+IMU::IMU()
 {
 }
 
-bool MotionManager::setup(Config *config, Stats *stats, StatusLeds *status_leds)
+bool IMU::setup(Config *config, Stats *stats, StatusLeds *status_leds)
 {
   this->_stats = stats;
   this->_config = config;
   this->_status_leds = status_leds;
 
   TwoWire *wire = &Wire;
+
+  this->_q.set_euler(
+    this->_config->rotation_x * DEG_2_RAD,
+    this->_config->rotation_y * DEG_2_RAD,
+    this->_config->rotation_z * DEG_2_RAD
+  );
 
   bool success = this->_madgwick.setup(config, stats);
   if (!success)
@@ -40,7 +46,7 @@ bool MotionManager::setup(Config *config, Stats *stats, StatusLeds *status_leds)
   return true;
 }
 
-void MotionManager::update()
+void IMU::update()
 {
   // read the new data from sensors
   this->_mpu_6050.update();
@@ -55,31 +61,33 @@ void MotionManager::update()
 
   // update madgwick
   this->_madgwick.update(
-      gyro.x, gyro.y, gyro.z,
-      acceleration->x, acceleration->y, acceleration->z,
-      magnetometer->x, magnetometer->y, magnetometer->z);
+    gyro.x, gyro.y, gyro.z,
+    acceleration->x, acceleration->y, acceleration->z,
+    magnetometer->x, magnetometer->y, magnetometer->z);
 
-  // get the current rotation as Quaternion
+  // get the current rotation as Quaternion  
   Quaternion *q = this->_madgwick.get_quaternion();
-  this->_rotation = q->get_euler().scale_scalar(RAD_2_DEG);
+  Quaternion q2 = q->multiply(this->_q);
+  
+  this->_rotation = q2.get_euler().scale_scalar(RAD_2_DEG);
 }
 
-Vec3f *MotionManager::get_rotation()
+Vec3f *IMU::get_rotation()
 {
   return &this->_rotation;
 }
 
-Vec3f *MotionManager::get_magnetometer()
+Vec3f *IMU::get_magnetometer()
 {
   return this->_qmc_5883l.get_magnetometer();
 }
 
-Vec3f *MotionManager::get_gyroscope()
+Vec3f *IMU::get_gyroscope()
 {
   return this->_mpu_6050.get_gyroscope();
 }
 
-Vec3f *MotionManager::get_acceleration()
+Vec3f *IMU::get_acceleration()
 {
   return this->_mpu_6050.get_acceleration();
 }

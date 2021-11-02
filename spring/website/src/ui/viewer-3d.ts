@@ -1,5 +1,5 @@
 import { fromEvent } from "rxjs";
-import { AxesHelper, CylinderGeometry, Group, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, WebGLRenderer } from "three";
+import { ArrowHelper, AxesHelper, CylinderGeometry, Group, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, Vector3, WebGLRenderer } from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { API } from "../api/api";
 import { Message } from "../api/message";
@@ -13,6 +13,8 @@ export class Viewer3D {
     private orbitControls: OrbitControls | undefined
 
     private rocket: Group | undefined
+
+    private acceleration: ArrowHelper | undefined
 
     constructor(private readonly api: API) {
 
@@ -96,6 +98,16 @@ export class Viewer3D {
         const origin: AxesHelper = new AxesHelper(100.0)
         this.scene.add(origin)
 
+        // Acceleration        
+        this.acceleration = new ArrowHelper(
+            new Vector3(0.0, 0.0, 1.0),
+            new Vector3(0.0, 0.0, 0.0),
+            1.0,
+            '#ffff00'
+        )
+        this.scene.add(this.acceleration)
+
+        // Rocket
         this.rocket = new Group()
 
         const airFrameGeometry: CylinderGeometry = new CylinderGeometry(7.5, 7.5, 50, 60);
@@ -127,9 +139,25 @@ export class Viewer3D {
     }
 
     private onMessage(message: Message): void {
-        this.rocket.rotation.x = message.rotationX * Math.PI / 180.0
-        this.rocket.rotation.y = message.rotationY * Math.PI / 180.0
-        this.rocket.rotation.z = message.rotationZ * Math.PI / 180.0
+        if (this.rocket) {
+            this.rocket.rotation.x = message.rotationX * Math.PI / 180.0
+            this.rocket.rotation.y = message.rotationY * Math.PI / 180.0
+            this.rocket.rotation.z = message.rotationZ * Math.PI / 180.0
+        }
+
+        if (this.acceleration) {
+            const direction: Vector3 = new Vector3(
+                message.accelerationX,
+                message.accelerationY,
+                message.accelerationZ,
+            )
+            const norm: Vector3 = direction.normalize()
+
+            const length: number = direction.length()
+            this.acceleration.setLength(length)
+            this.acceleration.setDirection(norm)
+        }
+
     }
 
     private loop(): void {

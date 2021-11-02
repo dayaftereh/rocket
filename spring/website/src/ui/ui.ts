@@ -14,8 +14,14 @@ export class UI {
     private async initConfigForm(): Promise<void> {
         const configParachuteTimeout: HTMLInputElement = document.querySelector("#configParachuteTimeout")
 
+        const configLaunchAcceleration: HTMLInputElement = document.querySelector("#configLaunchAcceleration")
+
         const configMadgwickKI: HTMLInputElement = document.querySelector("#configMadgwickKI")
         const configMadgwickKP: HTMLInputElement = document.querySelector("#configMadgwickKP")
+
+        const configRotationX: HTMLInputElement = document.querySelector("#configRotationX")
+        const configRotationY: HTMLInputElement = document.querySelector("#configRotationY")
+        const configRotationZ: HTMLInputElement = document.querySelector("#configRotationZ")
 
         const configForm: HTMLFormElement = document.querySelector("#configForm")
 
@@ -25,7 +31,11 @@ export class UI {
             const config: Config = {
                 madgwickKI: +(configMadgwickKI.value),
                 madgwickKP: +(configMadgwickKP.value),
+                rotationX: +(configRotationX.value),
+                rotationY: +(configRotationY.value),
+                rotationZ: +(configRotationZ.value),
                 parachuteTimeout: +(configParachuteTimeout.value),
+                launchAcceleration: +(configLaunchAcceleration.value),
             }
 
             await this.api.setConfig(config)
@@ -37,6 +47,12 @@ export class UI {
 
         configMadgwickKI.value = `${config.madgwickKI}`
         configMadgwickKP.value = `${config.madgwickKP}`
+
+        configRotationX.value = `${config.rotationX}`
+        configRotationY.value = `${config.rotationY}`
+        configRotationZ.value = `${config.rotationZ}`
+
+        configLaunchAcceleration.value = `${config.launchAcceleration}`
     }
 
     private liproS1VoltageLevelColor(voltage: number): string {

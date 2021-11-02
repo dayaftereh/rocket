@@ -69,20 +69,27 @@ void Madgwick::update(float gx, float gy, float gz, float ax, float ay, float az
   ez = (ax * vy - ay * vx) + (mx * wy - my * wx);
 
   // integral error scaled integral gain
-  integral_error.x = integral_error.x + ex * this->_config->madgwick_ki;
-  integral_error.y = integral_error.y + ey * this->_config->madgwick_ki;
-  integral_error.z = integral_error.z + ez * this->_config->madgwick_ki;
+  integral_error.x += ex;
+  integral_error.y += ey;
+  integral_error.z += ez;
+
+  if (!(this->_config->madgwick_ki > 0.0)) {
+    // prevent integral wind up
+    integral_error.x = 0.0;
+    integral_error.y = 0.0;
+    integral_error.z = 0.0;
+  }
 
   // adjusted gyroscope measurements
-  gx = gx + this->_config->madgwick_kp * ex + integral_error.x;
-  gy = gy + this->_config->madgwick_kp * ey + integral_error.y;
-  gz = gz + this->_config->madgwick_kp * ez + integral_error.z;
+  gx = gx + this->_config->madgwick_kp * ex + this->_config->madgwick_ki * integral_error.x;
+  gy = gy + this->_config->madgwick_kp * ey + this->_config->madgwick_ki * integral_error.y;
+  gz = gz + this->_config->madgwick_kp * ez + this->_config->madgwick_ki * integral_error.z;
 
   // integrate quaternion rate and normalise
-  q0 = q0 + (-q1 * gx - q2 * gy - q3 * gz) * dt;
-  q1 = q1 + (q0 * gx + q2 * gz - q3 * gy) * dt;
-  q2 = q2 + (q0 * gy - q1 * gz + q3 * gx) * dt;
-  q3 = q3 + (q0 * gz + q1 * gy - q2 * gx) * dt;
+  q0 = q0 + (-q1 * gx - q2 * gy - q3 * gz) * (0.5 * dt);
+  q1 = q1 + (q0 * gx + q2 * gz - q3 * gy) * (0.5 * dt);
+  q2 = q2 + (q0 * gy - q1 * gz + q3 * gx) * (0.5 * dt);
+  q3 = q3 + (q0 * gz + q1 * gy - q2 * gx) * (0.5 * dt);
 
   // normalise quaternion
   norm = sqrt(q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3);

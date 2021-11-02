@@ -28,7 +28,7 @@ float Stats::update() {
   }
 
    this->_counter++;
-  float f = 0.000001;
+  float f = 1.0 / 1000000.0;
 
   this->_delta = max(((float)elapsed) * f, f);
   this->_sum_delta += this->_delta;

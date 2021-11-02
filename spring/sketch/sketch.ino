@@ -1,3 +1,4 @@
+#include "imu.h"
 #include "stats.h"
 #include "networking.h"
 #include "data_logger.h"
@@ -5,12 +6,12 @@
 #include "remote_server.h"
 #include "error_manager.h"
 #include "config_manager.h"
-#include "motion_manager.h"
 #include "flight_observer.h"
 #include "altitude_manager.h"
 #include "parachute_manager.h"
 #include "voltage_measurement.h"
 
+IMU imu;
 Stats stats;
 StatusLeds statusLeds;
 DataLogger dataLogger;
@@ -18,7 +19,6 @@ Networking networking;
 RemoteServer remoteServer;
 ErrorManager errorManager;
 ConfigManager configManager;
-MotionManager motionManager;
 FlightObserver flightObserver;
 AltitudeManager altitudeManager;
 ParachuteManager parachuteManager;
@@ -97,12 +97,12 @@ void setup()
   // update the status progress
   statusLeds.progress();
 
-  // MotionManagernager
-  success = motionManager.setup(config, &stats, &statusLeds);
+  // IMU
+  success = imu.setup(config, &stats, &statusLeds);
   if (!success)
   {
-    Serial.println("fail to setup motion manager");
-    errorManager.error(ERROR_MOTION_MANAGER);
+    Serial.println("fail to setup inertial measurement unit (IMU)");
+    errorManager.error(ERROR_IMU);
   }
 
   // update the status progress
@@ -120,7 +120,7 @@ void setup()
   statusLeds.progress();
 
   // DataLogger
-  success = dataLogger.setup(&stats, &statusLeds, &altitudeManager, &voltageMeasurement, &motionManager, &parachuteManager);
+  success = dataLogger.setup(&stats, &statusLeds, &altitudeManager, &voltageMeasurement, &imu, &parachuteManager);
   if (!success)
   {
     Serial.println("fail to setup data logger");
@@ -142,7 +142,7 @@ void setup()
   statusLeds.progress();
 
   // FlightObserver
-  success = flightObserver.setup(config, &statusLeds, &motionManager, &altitudeManager, &dataLogger);
+  success = flightObserver.setup(config, &statusLeds, &imu, &altitudeManager, &dataLogger);
   if (!success)
   {
     Serial.println("fail to setup flight observer");
@@ -162,10 +162,11 @@ void loop()
   float delta = stats.update();
 
   // update other components
+  imu.update();
+  altitudeManager.update();
+
   dataLogger.update();
   remoteServer.update();
-  motionManager.update();
-  altitudeManager.update();
   parachuteManager.update();
   voltageMeasurement.update();
 

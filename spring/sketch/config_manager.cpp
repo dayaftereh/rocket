@@ -20,12 +20,6 @@ bool ConfigManager::setup()
     return false;
   }
 
-  success = this->write_default();
-  if (!success)
-  {
-    return false;
-  }
-
   // output the config
   this->print_config();
 
@@ -44,6 +38,18 @@ void ConfigManager::print_config()
 
   Serial.print(", madgwick_ki: ");
   Serial.print(this->_config.madgwick_ki);
+
+  Serial.print(", rotation_x: ");
+  Serial.print(this->_config.rotation_x);
+
+  Serial.print(", rotation_y: ");
+  Serial.print(this->_config.rotation_y);
+
+  Serial.print(", rotation_z: ");
+  Serial.print(this->_config.rotation_z);
+
+  Serial.print(", launch_acceleration: ");
+  Serial.print(this->_config.launch_acceleration);
 
   Serial.println(" ]");
 }
@@ -69,23 +75,6 @@ bool ConfigManager::write()
   }
 
   Serial.println("config written to eeprom");
-
-  return true;
-}
-
-bool ConfigManager::write_default()
-{
-  this->_config.parachute_timeout = 1000;
-
-  this->_config.madgwick_kp = 2.0;
-  this->_config.madgwick_ki = 0.005;
-
-  bool success = this->write();
-  if (!success)
-  {
-    Serial.println("fail to write default config to eeprom");
-    return false;
-  }
 
   return true;
 }

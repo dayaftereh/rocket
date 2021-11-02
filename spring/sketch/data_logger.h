@@ -5,10 +5,10 @@
 #include <SPI.h>
 #include <SPIMemory.h>
 
+#include "imu.h"
 #include "stats.h"
 #include "config.h"
 #include "status_leds.h"
-#include "motion_manager.h"
 #include "altitude_manager.h"
 #include "data_logger_entry.h"
 #include "parachute_manager.h"
@@ -19,7 +19,7 @@ class DataLogger
   public:
     DataLogger();
 
-    bool setup(Stats *stats, StatusLeds *status_leds, AltitudeManager *altitude_manager, VoltageMeasurement *voltage_measurement, MotionManager *motion_manager, ParachuteManager *parachute_manager);
+    bool setup(Stats *stats, StatusLeds *status_leds, AltitudeManager *altitude_manager, VoltageMeasurement *voltage_measurement, IMU *imu, ParachuteManager *parachute_manager);
     void update();
 
     void start();
@@ -44,9 +44,9 @@ class DataLogger
     File _data_file;
     SPIFlash *_flash;
 
+    IMU *_imu;
     Stats *_stats;
     StatusLeds *_status_leds;
-    MotionManager *_motion_manager;
     AltitudeManager *_altitude_manager;
     ParachuteManager *_parachute_manager;
     VoltageMeasurement *_voltage_measurement;

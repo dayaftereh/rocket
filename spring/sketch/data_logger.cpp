@@ -4,13 +4,13 @@ DataLogger::DataLogger()
 {
 }
 
-bool DataLogger::setup(Stats *stats, StatusLeds *status_leds, AltitudeManager *altitude_manager, VoltageMeasurement *voltage_measurement, MotionManager *motion_manager, ParachuteManager *parachute_manager)
+bool DataLogger::setup(Stats *stats, StatusLeds *status_leds, AltitudeManager *altitude_manager, VoltageMeasurement *voltage_measurement, IMU *imu, ParachuteManager *parachute_manager)
 {
   this->_started = false;
 
+  this->_imu = imu;
   this->_stats = stats;
   this->_status_leds = status_leds;
-  this->_motion_manager = motion_manager;
   this->_altitude_manager = altitude_manager;
   this->_parachute_manager = parachute_manager;
   this->_voltage_measurement = voltage_measurement;
@@ -284,22 +284,22 @@ void DataLogger::load_data_logger_entry(DataLoggerEntry &entry)
   entry.voltage = this->_voltage_measurement->get_voltage();
   entry.altitude = this->_altitude_manager->get_altitude_delta();
 
-  Vec3f *gyroscope = this->_motion_manager->get_gyroscope();
+  Vec3f *gyroscope = this->_imu->get_gyroscope();
   entry.gyroscope_x = gyroscope->x;
   entry.gyroscope_y = gyroscope->y;
   entry.gyroscope_z = gyroscope->z;
 
-  Vec3f *acceleration = this->_motion_manager->get_acceleration();
+  Vec3f *acceleration = this->_imu->get_acceleration();
   entry.acceleration_x = acceleration->x;
   entry.acceleration_y = acceleration->y;
   entry.acceleration_z = acceleration->z;
 
-  Vec3f *magnetometer = this->_motion_manager->get_magnetometer();
+  Vec3f *magnetometer = this->_imu->get_magnetometer();
   entry.magnetometer_x = magnetometer->x;
   entry.magnetometer_y = magnetometer->y;
   entry.magnetometer_z = magnetometer->z;
 
-  Vec3f *rotation = this->_motion_manager->get_rotation();
+  Vec3f *rotation = this->_imu->get_rotation();
   entry.rotation_x = rotation->x;
   entry.rotation_y = rotation->y;
   entry.rotation_z = rotation->z;
