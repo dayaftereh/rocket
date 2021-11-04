@@ -67,15 +67,14 @@ void IMU::update()
   // get the current rotation as Quaternion
   Quaternion *q = this->_madgwick.get_quaternion();
   Quaternion q1 = q->clone();
-  Quaternion q2 = q1.multiply(this->_q);
+  this->_orientation = q1.multiply(this->_q);
+  
   // calculate the rotation
-  this->_rotation = q2.get_euler().scale_scalar(RAD_2_DEG);
+  this->_rotation = this->_orientation.get_euler().scale_scalar(RAD_2_DEG);
 
   // get the world acceleration
   Vec3f v = acceleration->clone();
   v = q1.multiply_vec(v).invert();
-  //this->_world_acceleration = this->_q.multiply_vec(*acceleration);
-  //this->_world_acceleration = this->_q.multiply_vec(v);
   this->_world_acceleration = v;
 }
 
@@ -102,4 +101,9 @@ Vec3f *IMU::get_acceleration()
 Vec3f *IMU::get_world_acceleration()
 {
   return &this->_world_acceleration;
+}
+
+Quaternion *IMU::get_orientation()
+{
+  return &this->_orientation;
 }

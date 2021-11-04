@@ -25,6 +25,7 @@ public:
   Vec3f *get_gyroscope();
   Vec3f *get_acceleration();
   Vec3f *get_magnetometer();
+  Quaternion *get_orientation();
   Vec3f *get_world_acceleration();
 
 private:
@@ -33,7 +34,8 @@ private:
   QMC5883L _qmc_5883l;
 
   Quaternion _q;
-  
+  Quaternion _orientation;
+
   Vec3f _rotation;
   Vec3f _world_acceleration;
 

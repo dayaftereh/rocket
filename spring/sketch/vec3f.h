@@ -15,12 +15,16 @@ public:
 
     Vec3f invert();
     Vec3f add(Vec3f &n);
+    Vec3f subtract(Vec3f &n);
     Vec3f scale_scalar(float s);
     Vec3f divide_scalar(float s);
     Vec3f multiply(Vec3f &n);
-
+    
     float length();
     float length_squared();
+
+    float dot(Vec3f &n);
+    float angle_to(Vec3f &n);
 
     Vec3f normalize();
 

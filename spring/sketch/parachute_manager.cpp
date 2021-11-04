@@ -1,6 +1,7 @@
 #include "parachute_manager.h"
 
-ParachuteManager::ParachuteManager() {
+ParachuteManager::ParachuteManager()
+{
 }
 
 bool ParachuteManager::setup(Config *config)
@@ -16,51 +17,69 @@ bool ParachuteManager::setup(Config *config)
   return true;
 }
 
-void ParachuteManager::update() {
+void ParachuteManager::update()
+{
   // write the digital output
   digitalWrite(PARACHUTE_MANAGER_PIN, this->_trigger);
   // check if a trigger running
-  if (!this->_trigger) {
+  if (!this->_trigger)
+  {
     return;
   }
 
   // calculate timer elapsed
   unsigned long elapsed = millis() - this->_timer;
   // check if time reached
-  if (elapsed < this->_config->parachute_timeout) {
+  if (elapsed < this->_config->parachute_timeout)
+  {
     return;
   }
 
   this->reset();
 }
 
-void ParachuteManager::reset() {
+void ParachuteManager::reset()
+{
   this->_trigger = false;
-  this->_altitude = false;
   this->_timer = millis();
-  this->_orientation = false;
 }
 
-void ParachuteManager::trigger() {
+void ParachuteManager::trigger()
+{
   this->_trigger = true;
   this->_timer = millis();
 }
 
-void ParachuteManager::altitude_trigger() {
+void ParachuteManager::altitude_trigger()
+{
+  // check if altitude already triggered
+  if (this->_altitude)
+  {
+    return;
+  }
+
   this->trigger();
   this->_altitude = true;
 }
 
-void ParachuteManager::orientation_trigger() {
+void ParachuteManager::orientation_trigger()
+{
+  // check if orientation already triggered
+  if (this->_orientation)
+  {
+    return;
+  }
+  
   this->trigger();
   this->_orientation = true;
 }
 
-bool ParachuteManager::is_altitude_triggered() {
+bool ParachuteManager::is_altitude_triggered()
+{
   return this->_altitude;
 }
 
-bool ParachuteManager::is_orientation_triggered() {
+bool ParachuteManager::is_orientation_triggered()
+{
   return this->_orientation;
-
 }

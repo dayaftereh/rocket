@@ -71,8 +71,19 @@ typedef struct
   float rotation_y;
   float rotation_z;
 
-  //
+  // launch condition values
+  float launch_angle;
   float launch_acceleration;
+
+  // apogee
+  float apogee_altitude_threshold;
+  float apogee_orientation_threshold;
+
+  // landing
+  float landing_acceleration;
+  float landing_altitude_threshold;
+  float landing_orientation_timeout;
+  float landing_orientation_threshold;
 
 } Config;
 

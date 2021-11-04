@@ -38,6 +38,12 @@ Vec3f Vec3f::add(Vec3f &n)
     return v;
 }
 
+Vec3f Vec3f::subtract(Vec3f &n)
+{
+    Vec3f v(this->x - n.x, this->y - n.y, this->z - n.z);
+    return v;
+}
+
 Vec3f Vec3f::multiply(Vec3f &n)
 {
     Vec3f v(this->x * n.x, this->y * n.y, this->z * n.z);
@@ -70,4 +76,22 @@ Vec3f Vec3f::clone()
 {
     Vec3f v(this->x, this->y, this->z);
     return v;
+}
+
+float Vec3f::dot(Vec3f &n)
+{
+    return this->x * n.x + this->y * n.y + this->z * n.z;
+}
+
+float Vec3f::angle_to(Vec3f &n)
+{
+    float denominator = sqrt(n.length_squared() * this->length_squared());
+    if (denominator < VEC_3F_LEN_ZERO_EPSILON)
+    {
+        return PI / 2.0;
+    }
+
+    float theta = this->dot(n) / denominator;
+    float a = acos(constrain(theta, -1.0, 1.0));
+    return a;
 }
