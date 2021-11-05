@@ -7,7 +7,7 @@ FlightObserver::FlightObserver()
 bool FlightObserver::setup(Config *config, StatusLeds *status_leds, IMU *imu, AltitudeManager *altitude_manager, DataLogger *data_logger, ParachuteManager *parachute_manager, Stats *stats)
 {
   this->_imu = imu;
-  this->_state = stats;
+  this->_stats = stats;
   this->_config = config;
   this->_status_leds = status_leds;
   this->_data_logger = data_logger;
@@ -198,8 +198,8 @@ bool FlightObserver::observe_parachute()
 
   // calculate the angle between world up and rocket direction
   Vec3f up(0.0, 0.0, 1.0);
-  Vec3f rocket_up = this->compute_rocket_direction();
-  float angle = acceleration->angle_to(rocket_up);
+  Vec3f rocket_up = this->compute_rocket_direction();  
+  float angle = up.angle_to(rocket_up);
   if (abs(angle) > this->_config->apogee_orientation_threshold)
   {
     triggered = true;

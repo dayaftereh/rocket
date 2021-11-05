@@ -14,7 +14,16 @@ export class UI {
     private async initConfigForm(): Promise<void> {
         const configParachuteTimeout: HTMLInputElement = document.querySelector("#configParachuteTimeout")
 
+        const configLaunchAngle: HTMLInputElement = document.querySelector("#configLaunchAngle")
         const configLaunchAcceleration: HTMLInputElement = document.querySelector("#configLaunchAcceleration")
+
+        const configApogeeAltitudeThreshold: HTMLInputElement = document.querySelector("#configApogeeAltitudeThreshold")
+        const configApogeeOrientationThreshold: HTMLInputElement = document.querySelector("#configApogeeOrientationThreshold")
+
+        const configLandingAcceleration: HTMLInputElement = document.querySelector("#configLandingAcceleration")
+        const configLandingAltitudeThreshold: HTMLInputElement = document.querySelector("#configLandingAltitudeThreshold")
+        const configLandingOrientationTimeout: HTMLInputElement = document.querySelector("#configLandingOrientationTimeout")
+        const configLandingOrientationThreshold: HTMLInputElement = document.querySelector("#configLandingOrientationThreshold")
 
         const configMadgwickKI: HTMLInputElement = document.querySelector("#configMadgwickKI")
         const configMadgwickKP: HTMLInputElement = document.querySelector("#configMadgwickKP")
@@ -31,11 +40,24 @@ export class UI {
             const config: Config = {
                 madgwickKI: +(configMadgwickKI.value),
                 madgwickKP: +(configMadgwickKP.value),
+
                 rotationX: +(configRotationX.value),
                 rotationY: +(configRotationY.value),
                 rotationZ: +(configRotationZ.value),
+
                 parachuteTimeout: +(configParachuteTimeout.value),
+
+                launchAngle: +(configLaunchAngle.value),
                 launchAcceleration: +(configLaunchAcceleration.value),
+
+                apogeeAltitudeThreshold: +(configApogeeAltitudeThreshold.value),
+                apogeeOrientationThreshold: +(configApogeeOrientationThreshold.value),
+
+                landingAcceleration: +(configLandingAcceleration.value),
+                landingAltitudeThreshold: +(configLandingAltitudeThreshold.value),
+                landingOrientationTimeout: +(configLandingOrientationTimeout.value),
+                landingOrientationThreshold: +(configLandingOrientationThreshold.value),
+
             }
 
             await this.api.setConfig(config)
@@ -52,7 +74,16 @@ export class UI {
         configRotationY.value = `${config.rotationY}`
         configRotationZ.value = `${config.rotationZ}`
 
+        configLaunchAngle.value = `${config.launchAngle}`
         configLaunchAcceleration.value = `${config.launchAcceleration}`
+
+        configApogeeAltitudeThreshold.value = `${config.apogeeAltitudeThreshold}`
+        configApogeeOrientationThreshold.value = `${config.apogeeOrientationThreshold}`
+
+        configLandingAcceleration.value = `${config.landingAcceleration}`
+        configLandingAltitudeThreshold.value = `${config.landingAltitudeThreshold}`
+        configLandingOrientationTimeout.value = `${config.landingOrientationTimeout}`
+        configLandingOrientationThreshold.value = `${config.landingOrientationThreshold}`
     }
 
     private liproS1VoltageLevelColor(voltage: number): string {

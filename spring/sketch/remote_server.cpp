@@ -34,9 +34,7 @@ bool RemoteServer::setup(ConfigManager *config_manager, DataLogger *data_logger,
 
   // add the websocket hook
   this->_web_server.addHook(this->_web_socket.hookForWebserver("/api/ws", [&](uint8_t num, WStype_t type, uint8_t *payload, size_t length)
-  {
-    this->handle_web_socket(num, type, payload, length);
-  }));
+                                                               { this->handle_web_socket(num, type, payload, length); }));
 
   delay(10);
 
@@ -142,9 +140,16 @@ void RemoteServer::handle_get_configuration()
   responseDoc["madgwickKI"] = config->madgwick_ki;
   responseDoc["madgwickKP"] = config->madgwick_kp;
 
-  responseDoc["rotationX"] = config->rotation_x;
-  responseDoc["rotationY"] = config->rotation_y;
-  responseDoc["rotationZ"] = config->rotation_z;
+  responseDoc["launchAngle"] = config->launch_angle;
+  responseDoc["launchAcceleration"] = config->launch_acceleration;
+
+  responseDoc["apogeeAltitudeThreshold"] = config->apogee_altitude_threshold;
+  responseDoc["apogeeOrientationThreshold"] = config->apogee_orientation_threshold;
+
+  responseDoc["landingAcceleration"] = config->landing_acceleration;
+  responseDoc["landingAltitudeThreshold"] = config->landing_altitude_threshold;
+  responseDoc["landingOrientationTimeout"] = config->landing_orientation_timeout;
+  responseDoc["landingOrientationThreshold"] = config->landing_orientation_threshold;
 
   // serialize the response
   String output;
@@ -182,12 +187,7 @@ void RemoteServer::handle_update_configuration()
     config->parachute_timeout = doc["parachuteTimeout"];
   }
 
-  bool has_launch_acceleration = doc.containsKey("launchAcceleration");
-  if (has_launch_acceleration)
-  {
-    config->launch_acceleration = doc["launchAcceleration"];
-  }
-
+  // madgwick
   bool has_madgwick_ki = doc.containsKey("madgwickKI");
   if (has_madgwick_ki)
   {
@@ -200,6 +200,7 @@ void RemoteServer::handle_update_configuration()
     config->madgwick_kp = doc["madgwickKP"];
   }
 
+  // rotation
   bool has_rotation_x = doc.containsKey("rotationX");
   if (has_rotation_x)
   {
@@ -216,6 +217,57 @@ void RemoteServer::handle_update_configuration()
   if (has_rotation_z)
   {
     config->rotation_z = doc["rotationZ"];
+  }
+
+  // launch
+  bool has_launch_angle = doc.containsKey("launchAngle");
+  if (has_launch_angle)
+  {
+    config->launch_angle = doc["launchAngle"];
+  }
+
+  bool has_launch_acceleration = doc.containsKey("launchAcceleration");
+  if (has_launch_acceleration)
+  {
+    config->launch_acceleration = doc["launchAcceleration"];
+  }
+
+  // apogee
+  bool has_apogee_altitude_threshold = doc.containsKey("apogeeAltitudeThreshold");
+  if (has_apogee_altitude_threshold)
+  {
+    config->apogee_altitude_threshold = doc["apogeeAltitudeThreshold"];
+  }
+
+  bool has_apogee_orientation_threshold = doc.containsKey("apogeeOrientationThreshold");
+  if (has_apogee_orientation_threshold)
+  {
+    config->apogee_orientation_threshold = doc["apogeeOrientationThreshold"];
+  }
+
+  // landing
+  bool has_landing_acceleration = doc.containsKey("landingAcceleration");
+  if (has_landing_acceleration)
+  {
+    config->landing_acceleration = doc["landingAcceleration"];
+  }
+
+  bool has_landing_altitude_threshold = doc.containsKey("landingAltitudeThreshold");
+  if (has_landing_altitude_threshold)
+  {
+    config->landing_altitude_threshold = doc["landingAltitudeThreshold"];
+  }
+
+  bool has_landing_orientation_timeout = doc.containsKey("landingOrientationTimeout");
+  if (has_landing_orientation_timeout)
+  {
+    config->landing_orientation_timeout = doc["landingOrientationTimeout"];
+  }
+
+  bool has_landing_orientation_threshold = doc.containsKey("landingOrientationThreshold");
+  if (has_landing_orientation_threshold)
+  {
+    config->landing_orientation_threshold = doc["landingOrientationThreshold"];
   }
 
   // write the new config to eeprom

@@ -142,7 +142,7 @@ void setup()
   statusLeds.progress();
 
   // FlightObserver
-  success = flightObserver.setup(config, &statusLeds, &imu, &altitudeManager, &dataLogger);
+  success = flightObserver.setup(config, &statusLeds, &imu, &altitudeManager, &dataLogger, &parachuteManager, &stats);
   if (!success)
   {
     Serial.println("fail to setup flight observer");

@@ -56,11 +56,12 @@ private:
   FlightState _state;
 
   IMU *_imu;
+  Stats *_stats;
   Config *_config;
   DataLogger *_data_logger;
   StatusLeds *_status_leds;
   AltitudeManager *_altitude_manager;
-  ParachuteManager *_parachute_manager
+  ParachuteManager *_parachute_manager;
 };
 
 #endif // _FLIGHT_OBSERVER_H
