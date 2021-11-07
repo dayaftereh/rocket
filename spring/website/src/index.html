@@ -8,9 +8,74 @@
     <meta charset=utf-8 />
     <meta name="viewport"
         content="user-scalable=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, minimal-ui">
+    <style>
+        .init-overlay {
+            height: 100%;
+            width: 100%;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            background-color: rgb(0, 0, 0);
+            background-color: rgba(0, 0, 0, 0.95);
+            overflow-x: hidden;
+            transition: 0.5s;
+        }
+
+        .init-overlay-content {
+            position: relative;
+            top: 50%;
+            width: 100%;
+            text-align: center;
+        }
+
+        .init-overlay-content-txt {
+            color: white;
+            font-size: 3.25rem;
+            font-weight: 400;
+            letter-spacing: 0.5rem;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        @keyframes blink {
+            0% {
+                opacity: .2;
+            }
+
+            20% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: .2;
+            }
+        }
+
+        .init-loading span {
+            animation-name: blink;
+            animation-duration: 1.4s;
+            animation-iteration-count: infinite;
+            animation-fill-mode: both;
+        }
+
+        .init-loading span:nth-child(2) {
+            animation-delay: .2s;
+        }
+
+        .init-loading span:nth-child(3) {
+            animation-delay: .4s;
+        }
+    </style>
 </head>
 
 <body>
+    <div id="loading" class="init-overlay">
+        <div class="init-overlay-content">
+            <div class="init-overlay-content-txt init-loading">
+                Loading <span>.</span><span>.</span><span>.</span></div>
+        </div>
+    </div>
+    </div>
     <div class="container mt-3 mb-5">
         <div class="row">
             <div class="col">
@@ -41,112 +106,167 @@
                                 <div class="row">
                                     <div class="col">
                                         <label for="currentTime" class="form-label">Time</label>
-                                        <input type="text" class="form-control" id="currentTime" disabled>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="currentTime" disabled>
+                                            <span class="input-group-text">ms</span>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <div class="row">
                                     <div class="col">
                                         <label for="currentElapsed" class="form-label">Elapsed</label>
-                                        <input type="text" class="form-control" id="currentElapsed" disabled>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="currentElapsed" disabled>
+                                            <span class="input-group-text">s</span>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <div class="row">
                                     <div class="col">
                                         <label for="currentVoltage" class="form-label">Voltage</label>
-                                        <input type="text" class="form-control" id="currentVoltage" disabled>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="currentVoltage" disabled>
+                                            <span class="input-group-text">V</span>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <div class="row">
                                     <div class="col">
                                         <label for="currentAltitude" class="form-label">Altitude</label>
-                                        <input type="text" class="form-control" id="currentAltitude" disabled>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="currentAltitude" disabled>
+                                            <span class="input-group-text">m</span>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <div class="row">
                                     <div class="col">
                                         <label for="currentGyroscopeX" class="form-label">GyroscopeX</label>
-                                        <input type="text" class="form-control" id="currentGyroscopeX" disabled>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="currentGyroscopeX" disabled>
+                                            <span class="input-group-text">&deg;/s</span>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <div class="row">
                                     <div class="col">
                                         <label for="currentGyroscopeY" class="form-label">GyroscopeY</label>
-                                        <input type="text" class="form-control" id="currentGyroscopeY" disabled>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="currentGyroscopeY" disabled>
+                                            <span class="input-group-text">&deg;/s</span>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <div class="row">
                                     <div class="col">
                                         <label for="currentGyroscopeZ" class="form-label">GyroscopeZ</label>
-                                        <input type="text" class="form-control" id="currentGyroscopeZ" disabled>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="currentGyroscopeZ" disabled>
+                                            <span class="input-group-text">&deg;/s</span>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <div class="row">
                                     <div class="col">
                                         <label for="currentAccelerationX" class="form-label">AccelerationX</label>
-                                        <input type="text" class="form-control" id="currentAccelerationX" disabled>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="currentAccelerationX" disabled>
+                                            <span class="input-group-text">m/s<sup>2</sup></span>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <div class="row">
                                     <div class="col">
                                         <label for="currentAccelerationY" class="form-label">AccelerationY</label>
-                                        <input type="text" class="form-control" id="currentAccelerationY" disabled>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="currentAccelerationY" disabled>
+                                            <span class="input-group-text">m/s<sup>2</sup></span>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <div class="row">
                                     <div class="col">
                                         <label for="currentAccelerationZ" class="form-label">AccelerationZ</label>
-                                        <input type="text" class="form-control" id="currentAccelerationZ" disabled>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="currentAccelerationZ" disabled>
+                                            <span class="input-group-text">m/s<sup>2</sup></span>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <div class="row">
                                     <div class="col">
                                         <label for="currentMagnetometerX" class="form-label">MagnetometerX</label>
-                                        <input type="text" class="form-control" id="currentMagnetometerX" disabled>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="currentMagnetometerX" disabled>
+                                            <span class="input-group-text">Gs</span>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <div class="row">
                                     <div class="col">
                                         <label for="currentMagnetometerY" class="form-label">MagnetometerY</label>
-                                        <input type="text" class="form-control" id="currentMagnetometerY" disabled>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="currentMagnetometerY" disabled>
+                                            <span class="input-group-text">Gs</span>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <div class="row">
                                     <div class="col">
                                         <label for="currentMagnetometerZ" class="form-label">MagnetometerZ</label>
-                                        <input type="text" class="form-control" id="currentMagnetometerZ" disabled>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="currentMagnetometerZ" disabled>
+                                            <span class="input-group-text">Gs</span>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <div class="row">
                                     <div class="col">
                                         <label for="currentRotationX" class="form-label">RotationX</label>
-                                        <input type="text" class="form-control" id="currentRotationX" disabled>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="currentRotationX" disabled>
+                                            <span class="input-group-text">&deg;</span>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <div class="row">
                                     <div class="col">
                                         <label for="currentRotationY" class="form-label">RotationY</label>
-                                        <input type="text" class="form-control" id="currentRotationY" disabled>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="currentRotationY" disabled>
+                                            <span class="input-group-text">&deg;</span>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <div class="row">
                                     <div class="col">
                                         <label for="currentRotationZ" class="form-label">RotationZ</label>
-                                        <input type="text" class="form-control" id="currentRotationZ" disabled>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="currentRotationZ" disabled>
+                                            <span class="input-group-text">&deg;</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col">
+                                        <input class="form-check-input" type="checkbox" id="parachuteGravity" disabled>
+                                        <label for="valve" class="form-label">ParachuteGravity</label>
                                     </div>
                                 </div>
 
@@ -176,9 +296,37 @@
                             <div class="tab-pane fade" id="config" role="tabpanel" aria-labelledby="config-tab">
                                 <form id="configForm">
 
+                                    <div class="form-check mb-3 mt-3">
+                                        <input class="form-check-input" type="checkbox" id="configParachuteServo">
+                                        <label for="configParachuteServo" class="form-label">ParachuteServo</label>
+                                    </div>
+
                                     <div class="mb-3">
                                         <label for="configParachuteTimeout" class="form-label">ParachuteTimeout</label>
-                                        <input type="number" class="form-control" id="configParachuteTimeout">
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="configParachuteTimeout">
+                                            <span class="input-group-text">ms</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="configParachuteServoOpenAngle"
+                                            class="form-label">ParachuteServoOpenAngle</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control"
+                                                id="configParachuteServoOpenAngle">
+                                            <span class="input-group-text">&deg;</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="configParachuteServoCloseAngle"
+                                            class="form-label">ParachuteServoCloseAngle</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control"
+                                                id="configParachuteServoCloseAngle">
+                                            <span class="input-group-text">&deg;</span>
+                                        </div>
                                     </div>
 
                                     <div class="mb-3">
@@ -195,68 +343,118 @@
 
                                     <div class="mb-3">
                                         <label for="configRotationX" class="form-label">RotationX</label>
-                                        <input type="number" class="form-control" min="-10000" max="10000" step="0.0001"
-                                            id="configRotationX">
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" min="-10000" max="10000"
+                                                step="0.0001" id="configRotationX">
+                                            <span class="input-group-text">&deg;</span>
+                                        </div>
                                     </div>
 
                                     <div class="mb-3">
                                         <label for="configRotationY" class="form-label">RotationY</label>
-                                        <input type="number" class="form-control" min="-10000" max="10000" step="0.0001"
-                                            id="configRotationY">
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" min="-10000" max="10000"
+                                                step="0.0001" id="configRotationY">
+                                            <span class="input-group-text">&deg;</span>
+                                        </div>
                                     </div>
 
                                     <div class="mb-3">
                                         <label for="configRotationZ" class="form-label">RotationZ</label>
-                                        <input type="number" class="form-control" min="-10000" max="10000" step="0.0001"
-                                            id="configRotationZ">
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" min="-10000" max="10000"
+                                                step="0.0001" id="configRotationZ">
+                                            <span class="input-group-text">&deg;</span>
+                                        </div>
                                     </div>
 
                                     <div class="mb-3">
                                         <label for="configLaunchAngle" class="form-label">LaunchAngle</label>
-                                        <input type="number" class="form-control" min="-10000" max="10000" step="0.0001"
-                                            id="configLaunchAngle">
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" min="-10000" max="10000"
+                                                step="0.0001" id="configLaunchAngle">
+                                            <span class="input-group-text">&deg;</span>
+                                        </div>
                                     </div>
 
                                     <div class="mb-3">
-                                        <label for="configLaunchAcceleration" class="form-label">LaunchAcceleration</label>
-                                        <input type="number" class="form-control" min="-10000" max="10000" step="0.0001"
-                                            id="configLaunchAcceleration">
+                                        <label for="configLaunchAcceleration"
+                                            class="form-label">LaunchAcceleration</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" min="-10000" max="10000"
+                                                step="0.0001" id="configLaunchAcceleration">
+                                            <span class="input-group-text">m/s<sup>2</sup></span>
+                                        </div>
                                     </div>
 
                                     <div class="mb-3">
-                                        <label for="configApogeeAltitudeThreshold" class="form-label">ApogeeAltitudeThreshold</label>
-                                        <input type="number" class="form-control" min="-10000" max="10000" step="0.0001"
-                                            id="configApogeeAltitudeThreshold">
+                                        <label for="configApogeeGravityThreshold"
+                                            class="form-label">ApogeeGravityThreshold</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" min="-10000" max="10000"
+                                                step="0.0001" id="configApogeeGravityThreshold">
+                                            <span class="input-group-text">m/s<sup>2</sup></span>
+                                        </div>
                                     </div>
 
                                     <div class="mb-3">
-                                        <label for="configApogeeOrientationThreshold" class="form-label">ApogeeOrientationThreshold</label>
-                                        <input type="number" class="form-control" min="-10000" max="10000" step="0.0001"
-                                            id="configApogeeOrientationThreshold">
+                                        <label for="configApogeeAltitudeThreshold"
+                                            class="form-label">ApogeeAltitudeThreshold</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" min="-10000" max="10000"
+                                                step="0.0001" id="configApogeeAltitudeThreshold">
+                                            <span class="input-group-text">m</span>
+                                        </div>
                                     </div>
 
                                     <div class="mb-3">
-                                        <label for="configLandingAcceleration" class="form-label">LandingAcceleration</label>
-                                        <input type="number" class="form-control" min="-10000" max="10000" step="0.0001"
-                                            id="configLandingAcceleration">
+                                        <label for="configApogeeOrientationThreshold"
+                                            class="form-label">ApogeeOrientationThreshold</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" min="-10000" max="10000"
+                                                step="0.0001" id="configApogeeOrientationThreshold">
+                                            <span class="input-group-text">&deg;</span>
+                                        </div>
                                     </div>
 
                                     <div class="mb-3">
-                                        <label for="configLandingAltitudeThreshold" class="form-label">LandingAltitudeThreshold</label>
-                                        <input type="number" class="form-control" min="-10000" max="10000" step="0.0001"
-                                            id="configLandingAltitudeThreshold">
+                                        <label for="configLandingAcceleration"
+                                            class="form-label">LandingAcceleration</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" min="-10000" max="10000"
+                                                step="0.0001" id="configLandingAcceleration">
+                                            <span class="input-group-text">m/s<sup>2</sup></span>
+                                        </div>
                                     </div>
 
                                     <div class="mb-3">
-                                        <label for="configLandingOrientationTimeout" class="form-label">LandingOrientationTimeout</label>
-                                        <input type="number" class="form-control" min="-10000" max="10000" step="0.0001"
-                                            id="configLandingOrientationTimeout">
+                                        <label for="configLandingAltitudeThreshold"
+                                            class="form-label">LandingAltitudeThreshold</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" min="-10000" max="10000"
+                                                step="0.0001" id="configLandingAltitudeThreshold">
+                                            <span class="input-group-text">m</span>
+                                        </div>
                                     </div>
 
                                     <div class="mb-3">
-                                        <label for="configLandingOrientationThreshold" class="form-label">LandingOrientationThreshold</label>
-                                        <input type="number" class="form-control" min="-10000" max="10000" step="0.0001"
-                                            id="configLandingOrientationThreshold">
+                                        <label for="configLandingOrientationTimeout"
+                                            class="form-label">LandingOrientationTimeout</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" min="-10000" max="10000"
+                                                step="0.0001" id="configLandingOrientationTimeout">
+                                            <span class="input-group-text">s</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="configLandingOrientationThreshold"
+                                            class="form-label">LandingOrientationThreshold</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" min="-10000" max="10000"
+                                                step="0.0001" id="configLandingOrientationThreshold">
+                                            <span class="input-group-text">&deg;</span>
+                                        </div>
                                     </div>
 
                                     <button type="submit" class="btn btn-primary">Submit</button>

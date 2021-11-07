@@ -131,11 +131,18 @@ void RemoteServer::handle_get_configuration()
   Config *config = this->_config_manager->get_config();
 
   // create the json document
-  DynamicJsonDocument responseDoc(1024);
+  DynamicJsonDocument responseDoc(2048);
 
+  responseDoc["parachuteServo"] = config->parachute_servo;
   responseDoc["parachuteTimeout"] = config->parachute_timeout;
+  responseDoc["parachuteServoOpenAngle"] = config->parachute_servo_open_angle;
+  responseDoc["parachuteServoCloseAngle"] = config->parachute_servo_close_angle;
 
   responseDoc["launchAcceleration"] = config->launch_acceleration;
+
+  responseDoc["rotationX"] = config->rotation_x;
+  responseDoc["rotationY"] = config->rotation_y;
+  responseDoc["rotationZ"] = config->rotation_z;
 
   responseDoc["madgwickKI"] = config->madgwick_ki;
   responseDoc["madgwickKP"] = config->madgwick_kp;
@@ -143,6 +150,7 @@ void RemoteServer::handle_get_configuration()
   responseDoc["launchAngle"] = config->launch_angle;
   responseDoc["launchAcceleration"] = config->launch_acceleration;
 
+  responseDoc["apogeeGravityThreshold"] = config->apogee_gravity_threshold;
   responseDoc["apogeeAltitudeThreshold"] = config->apogee_altitude_threshold;
   responseDoc["apogeeOrientationThreshold"] = config->apogee_orientation_threshold;
 
@@ -166,7 +174,7 @@ void RemoteServer::handle_update_configuration()
   String body = this->read_request_body();
 
   // create the response doc
-  DynamicJsonDocument responseDoc(1024);
+  DynamicJsonDocument responseDoc(2048);
 
   // deserialize incoming body
   DynamicJsonDocument doc(1024);
@@ -181,10 +189,29 @@ void RemoteServer::handle_update_configuration()
   // get the current configuration
   Config *config = this->_config_manager->get_config();
 
+  // parachute
+  bool has_parachute_servo = doc.containsKey("parachuteServo");
+  if (has_parachute_servo)
+  {
+    config->parachute_servo = doc["parachuteServo"];
+  }
+
   bool has_parachute_timeout = doc.containsKey("parachuteTimeout");
   if (has_parachute_timeout)
   {
     config->parachute_timeout = doc["parachuteTimeout"];
+  }
+
+  bool has_parachute_servo_open_angle = doc.containsKey("parachuteServoOpenAngle");
+  if (has_parachute_servo_open_angle)
+  {
+    config->parachute_servo_open_angle = doc["parachuteServoOpenAngle"];
+  }
+
+  bool has_parachute_servo_close_angle = doc.containsKey("parachuteServoCloseAngle");
+  if (has_parachute_servo_close_angle)
+  {
+    config->parachute_servo_close_angle = doc["parachuteServoCloseAngle"];
   }
 
   // madgwick
@@ -233,6 +260,12 @@ void RemoteServer::handle_update_configuration()
   }
 
   // apogee
+  bool has_apogee_gravity_threshold = doc.containsKey("apogeeGravityThreshold");
+  if (has_apogee_gravity_threshold)
+  {
+    config->apogee_gravity_threshold = doc["apogeeGravityThreshold"];
+  }
+
   bool has_apogee_altitude_threshold = doc.containsKey("apogeeAltitudeThreshold");
   if (has_apogee_altitude_threshold)
   {

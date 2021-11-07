@@ -154,7 +154,8 @@ void FlightObserver::wait_for_landing()
   this->_landing_orientation = orientation;
 
   float changed = delta.length();
-  if(changed > this->_config->landing_orientation_threshold){
+  if (changed > this->_config->landing_orientation_threshold)
+  {
     return;
   }
 
@@ -198,12 +199,21 @@ bool FlightObserver::observe_parachute()
 
   // calculate the angle between world up and rocket direction
   Vec3f up(0.0, 0.0, 1.0);
-  Vec3f rocket_up = this->compute_rocket_direction();  
+  Vec3f rocket_up = this->compute_rocket_direction();
   float angle = up.angle_to(rocket_up);
   if (abs(angle) > this->_config->apogee_orientation_threshold)
   {
     triggered = true;
     this->_parachute_manager->orientation_trigger();
+  }
+
+  // check if only gravity is acting on the rocket
+  Vec3f *acceleration = this->_imu->get_world_acceleration();
+  float acceleration_length = acceleration->length();
+  if (acceleration_length < this->_config->apogee_gravity_threshold)
+  {
+    triggered = true;
+    this->_parachute_manager->gravity_trigger();
   }
 
   return triggered;

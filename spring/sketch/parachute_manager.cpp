@@ -4,12 +4,32 @@ ParachuteManager::ParachuteManager()
 {
 }
 
-bool ParachuteManager::setup(Config *config)
+bool ParachuteManager::setup(Config *config, StatusLeds *status_leds)
 {
   // set the config
   this->_config = config;
-  // set the pin as output
-  pinMode(PARACHUTE_MANAGER_PIN, OUTPUT);
+  this->_status_leds = status_leds;
+
+  // check if the servo is configured
+  if (this->_config->parachute_servo)
+  {
+    // attach the servo to pin
+    this->_servo.attach(PARACHUTE_MANAGER_PIN);
+    Serial.println("parachute manager is using servo");
+  }
+  else
+  {
+    // set the pin as output
+    pinMode(PARACHUTE_MANAGER_PIN, OUTPUT);
+    Serial.println("parachute manager is using output flag");
+  }
+
+  this->_status_leds->progress();
+
+  // wait for servo setup
+  delay(100);
+
+  this->_status_leds->progress();
 
   // reset the bools
   this->reset();
@@ -19,8 +39,12 @@ bool ParachuteManager::setup(Config *config)
 
 void ParachuteManager::update()
 {
-  // write the digital output
-  digitalWrite(PARACHUTE_MANAGER_PIN, this->_trigger);
+  if (!this->_config->parachute_servo)
+  {
+    // write the digital output
+    digitalWrite(PARACHUTE_MANAGER_PIN, this->_trigger);
+  }
+
   // check if a trigger running
   if (!this->_trigger)
   {
@@ -42,36 +66,57 @@ void ParachuteManager::reset()
 {
   this->_trigger = false;
   this->_timer = millis();
+  // move the servo back
+  if (this->_config->parachute_servo)
+  {
+    this->_servo.write(this->_config->parachute_servo_close_angle);
+  }
 }
 
 void ParachuteManager::trigger()
 {
   this->_trigger = true;
+  this->_completed = true;
+
   this->_timer = millis();
+
+  // open the servo
+  if (this->_config->parachute_servo)
+  {
+    this->_servo.write(this->_config->parachute_servo_open_angle);
+  }
 }
 
 void ParachuteManager::altitude_trigger()
 {
-  // check if altitude already triggered
-  if (this->_altitude)
-  {
-    return;
-  }
-
-  this->trigger();
   this->_altitude = true;
+  if (!this->_completed)
+  {
+    this->trigger();
+  }
 }
 
 void ParachuteManager::orientation_trigger()
 {
-  // check if orientation already triggered
-  if (this->_orientation)
-  {
-    return;
-  }
-  
-  this->trigger();
   this->_orientation = true;
+  if (!this->_completed)
+  {
+    this->trigger();
+  }
+}
+
+void ParachuteManager::gravity_trigger()
+{
+  this->_gravity = true;
+  if (!this->_completed)
+  {
+    this->trigger();
+  }
+}
+
+bool ParachuteManager::is_gravity_triggered()
+{
+  return this->_gravity;
 }
 
 bool ParachuteManager::is_altitude_triggered()

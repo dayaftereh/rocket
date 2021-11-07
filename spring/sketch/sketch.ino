@@ -66,7 +66,7 @@ void setup()
   statusLeds.progress();
 
   // ParachuteManager
-  success = parachuteManager.setup(config);
+  success = parachuteManager.setup(config, &statusLeds);
   if (!success)
   {
     Serial.println("fail to setup parachute manager");
@@ -89,7 +89,8 @@ void setup()
 
   // AltitudeManager
   success = altitudeManager.setup(&statusLeds);
-  if (!success) {
+  if (!success)
+  {
     Serial.println("fail to setup altitude manager");
     errorManager.error(ERROR_ALTITUDE_MANAGER);
   }

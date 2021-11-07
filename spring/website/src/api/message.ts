@@ -20,7 +20,8 @@ export interface Message {
     rotationX: number
     rotationY: number
     rotationZ: number
-
+    
+    parachuteGravity: boolean
     parachuteAltitude: boolean
     parachuteOrientation: boolean
 }

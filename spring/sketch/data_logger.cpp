@@ -228,7 +228,7 @@ bool DataLogger::flash_memory_speed_test()
     if (!success)
     {
       Serial.print(i);
-      Serial.println( this->_flash->error());
+      Serial.println(this->_flash->error());
       Serial.println("fail to write to flash memory");
       return false;
     }
@@ -251,12 +251,14 @@ bool DataLogger::flash_memory_speed_test()
     bool success = this->_flash->readByteArray(address, &buf2[0], length);
     if (!success)
     {
-      Serial.println( this->_flash->error());
+      Serial.println(this->_flash->error());
       Serial.println("fail to read from flash memory");
       return false;
     }
-    for (int j = 0; j < length; j++) {
-      if (buf[j] != buf2[j]) {
+    for (int j = 0; j < length; j++)
+    {
+      if (buf[j] != buf2[j])
+      {
         Serial.print(i);
         Serial.print(j);
         Serial.println("flash memory read missmatch");
@@ -303,8 +305,8 @@ void DataLogger::load_data_logger_entry(DataLoggerEntry &entry)
   entry.rotation_x = rotation->x;
   entry.rotation_y = rotation->y;
   entry.rotation_z = rotation->z;
-  //entry.rotationZ = 0.0;
 
+  entry.parachuteGravity = this->_parachute_manager->is_gravity_triggered();
   entry.parachuteAltitude = this->_parachute_manager->is_altitude_triggered();
   entry.parachuteOrientation = this->_parachute_manager->is_orientation_triggered();
 }

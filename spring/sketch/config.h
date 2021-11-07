@@ -59,8 +59,11 @@ enum IMUUpAxes
 // Config struct for the eeprom
 typedef struct
 {
-  // timeout for the parachute opening
+  // parachute
+  bool parachute_servo;
   int parachute_timeout;
+  int parachute_servo_open_angle;
+  int parachute_servo_close_angle;
 
   // ki and kp for madgwick update
   float madgwick_ki;
@@ -76,6 +79,7 @@ typedef struct
   float launch_acceleration;
 
   // apogee
+  float apogee_gravity_threshold;
   float apogee_altitude_threshold;
   float apogee_orientation_threshold;
 

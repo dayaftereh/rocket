@@ -30,8 +30,17 @@ void ConfigManager::print_config()
 {
   Serial.print("config from eeprom");
 
-  Serial.print(" [ parachute_timeout: ");
+  Serial.print(" [ parachute_servo: ");
+  Serial.print(this->_config.parachute_servo);
+
+  Serial.print(", parachute_timeout: ");
   Serial.print(this->_config.parachute_timeout);
+
+  Serial.print(", parachute_servo_open_angle: ");
+  Serial.print(this->_config.parachute_servo_open_angle);
+
+  Serial.print(", parachute_servo_close_angle: ");
+  Serial.print(this->_config.parachute_servo_close_angle);
 
   Serial.print(", madgwick_kp: ");
   Serial.print(this->_config.madgwick_kp);
@@ -48,8 +57,32 @@ void ConfigManager::print_config()
   Serial.print(", rotation_z: ");
   Serial.print(this->_config.rotation_z);
 
+  Serial.print(", launch_angle: ");
+  Serial.print(this->_config.launch_angle);
+
   Serial.print(", launch_acceleration: ");
   Serial.print(this->_config.launch_acceleration);
+
+  Serial.print(", apogee_gravity_threshold: ");
+  Serial.print(this->_config.apogee_gravity_threshold);
+
+  Serial.print(", apogee_altitude_threshold: ");
+  Serial.print(this->_config.apogee_altitude_threshold);
+
+  Serial.print(", apogee_orientation_threshold: ");
+  Serial.print(this->_config.apogee_orientation_threshold);
+  
+  Serial.print(", landing_acceleration: ");
+  Serial.print(this->_config.landing_acceleration);
+
+  Serial.print(", landing_altitude_threshold: ");
+  Serial.print(this->_config.landing_altitude_threshold);
+
+  Serial.print(", landing_orientation_timeout: ");
+  Serial.print(this->_config.landing_orientation_timeout);
+
+  Serial.print(", landing_orientation_threshold: ");
+  Serial.print(this->_config.landing_orientation_threshold);
 
   Serial.println(" ]");
 }

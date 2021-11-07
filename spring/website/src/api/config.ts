@@ -1,5 +1,8 @@
 export interface Config {
+    parachuteServo: boolean
     parachuteTimeout: number
+    parachuteServoOpenAngle: number
+    parachuteServoCloseAngle: number
 
     rotationX: number
     rotationY: number
@@ -8,6 +11,7 @@ export interface Config {
     launchAngle: number
     launchAcceleration: number
 
+    apogeeGravityThreshold: number
     apogeeAltitudeThreshold: number
     apogeeOrientationThreshold: number
 

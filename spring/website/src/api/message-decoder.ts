@@ -14,8 +14,8 @@ export class MessageDecoder {
 
         let index: number = 0
 
-        message.time = dataView.getUint16(index, this.littleEndian)
-        index += 2
+        message.time = dataView.getUint32(index, this.littleEndian)
+        index += 4
 
         message.elapsed = dataView.getFloat32(index, this.littleEndian)
         index += 4
@@ -65,6 +65,10 @@ export class MessageDecoder {
 
         message.rotationZ = dataView.getFloat32(index, this.littleEndian)
         index += 4
+
+        // parachute
+        message.parachuteGravity = dataView.getInt8(index) !== 0
+        index += 1
 
         // parachute
         message.parachuteAltitude = dataView.getInt8(index) !== 0

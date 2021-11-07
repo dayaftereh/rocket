@@ -1,89 +1,17 @@
 import { API } from "../api/api";
 import { Config } from "../api/config";
 import { Message } from "../api/message";
+import { ConfigForm } from "./config-form";
 import { Viewer3D } from "./viewer-3d";
 
 export class UI {
 
     private viewer3d: Viewer3D
+    private configForm: ConfigForm
 
     constructor(private readonly api: API) {
         this.viewer3d = new Viewer3D(api)
-    }
-
-    private async initConfigForm(): Promise<void> {
-        const configParachuteTimeout: HTMLInputElement = document.querySelector("#configParachuteTimeout")
-
-        const configLaunchAngle: HTMLInputElement = document.querySelector("#configLaunchAngle")
-        const configLaunchAcceleration: HTMLInputElement = document.querySelector("#configLaunchAcceleration")
-
-        const configApogeeAltitudeThreshold: HTMLInputElement = document.querySelector("#configApogeeAltitudeThreshold")
-        const configApogeeOrientationThreshold: HTMLInputElement = document.querySelector("#configApogeeOrientationThreshold")
-
-        const configLandingAcceleration: HTMLInputElement = document.querySelector("#configLandingAcceleration")
-        const configLandingAltitudeThreshold: HTMLInputElement = document.querySelector("#configLandingAltitudeThreshold")
-        const configLandingOrientationTimeout: HTMLInputElement = document.querySelector("#configLandingOrientationTimeout")
-        const configLandingOrientationThreshold: HTMLInputElement = document.querySelector("#configLandingOrientationThreshold")
-
-        const configMadgwickKI: HTMLInputElement = document.querySelector("#configMadgwickKI")
-        const configMadgwickKP: HTMLInputElement = document.querySelector("#configMadgwickKP")
-
-        const configRotationX: HTMLInputElement = document.querySelector("#configRotationX")
-        const configRotationY: HTMLInputElement = document.querySelector("#configRotationY")
-        const configRotationZ: HTMLInputElement = document.querySelector("#configRotationZ")
-
-        const configForm: HTMLFormElement = document.querySelector("#configForm")
-
-        configForm.addEventListener('submit', async (ev: Event) => {
-            ev.preventDefault()
-
-            const config: Config = {
-                madgwickKI: +(configMadgwickKI.value),
-                madgwickKP: +(configMadgwickKP.value),
-
-                rotationX: +(configRotationX.value),
-                rotationY: +(configRotationY.value),
-                rotationZ: +(configRotationZ.value),
-
-                parachuteTimeout: +(configParachuteTimeout.value),
-
-                launchAngle: +(configLaunchAngle.value),
-                launchAcceleration: +(configLaunchAcceleration.value),
-
-                apogeeAltitudeThreshold: +(configApogeeAltitudeThreshold.value),
-                apogeeOrientationThreshold: +(configApogeeOrientationThreshold.value),
-
-                landingAcceleration: +(configLandingAcceleration.value),
-                landingAltitudeThreshold: +(configLandingAltitudeThreshold.value),
-                landingOrientationTimeout: +(configLandingOrientationTimeout.value),
-                landingOrientationThreshold: +(configLandingOrientationThreshold.value),
-
-            }
-
-            await this.api.setConfig(config)
-        })
-
-        const config: Config = await this.api.getConfig()
-
-        configParachuteTimeout.value = `${config.parachuteTimeout}`
-
-        configMadgwickKI.value = `${config.madgwickKI}`
-        configMadgwickKP.value = `${config.madgwickKP}`
-
-        configRotationX.value = `${config.rotationX}`
-        configRotationY.value = `${config.rotationY}`
-        configRotationZ.value = `${config.rotationZ}`
-
-        configLaunchAngle.value = `${config.launchAngle}`
-        configLaunchAcceleration.value = `${config.launchAcceleration}`
-
-        configApogeeAltitudeThreshold.value = `${config.apogeeAltitudeThreshold}`
-        configApogeeOrientationThreshold.value = `${config.apogeeOrientationThreshold}`
-
-        configLandingAcceleration.value = `${config.landingAcceleration}`
-        configLandingAltitudeThreshold.value = `${config.landingAltitudeThreshold}`
-        configLandingOrientationTimeout.value = `${config.landingOrientationTimeout}`
-        configLandingOrientationThreshold.value = `${config.landingOrientationThreshold}`
+        this.configForm = new ConfigForm(api)
     }
 
     private liproS1VoltageLevelColor(voltage: number): string {
@@ -117,6 +45,7 @@ export class UI {
         const currentRotationY: HTMLInputElement = document.querySelector("#currentRotationY")
         const currentRotationZ: HTMLInputElement = document.querySelector("#currentRotationZ")
 
+        const parachuteGravity: HTMLInputElement = document.querySelector("#parachuteGravity")
         const parachuteAltitude: HTMLInputElement = document.querySelector("#parachuteAltitude")
         const parachuteOrientation: HTMLInputElement = document.querySelector("#parachuteOrientation")
 
@@ -142,6 +71,7 @@ export class UI {
             currentRotationY.value = this.formatNumber(message.rotationY)
             currentRotationZ.value = this.formatNumber(message.rotationZ)
 
+            parachuteGravity.checked = message.parachuteGravity
             parachuteAltitude.checked = message.parachuteAltitude
             parachuteOrientation.checked = message.parachuteOrientation
 
@@ -160,13 +90,23 @@ export class UI {
         })
     }
 
+    private removeLoading(): void {
+        const loading: HTMLButtonElement = document.querySelector("#loading")
+
+        setTimeout(() => {
+            loading.hidden = true
+        }, 1000)
+    }
+
     async init(): Promise<void> {
         this.initParachuteTrigger()
 
-        await this.initConfigForm()
+        await this.configForm.init()
         await this.initWebSocketMessage()
 
         await this.viewer3d.init()
+
+        this.removeLoading()
     }
 
 }
