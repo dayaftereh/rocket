@@ -150,6 +150,8 @@ void RemoteServer::handle_get_configuration()
   responseDoc["launchAngle"] = config->launch_angle;
   responseDoc["launchAcceleration"] = config->launch_acceleration;
 
+  responseDoc["liftOffVelocityThreshold"] = config->lift_off_velocity_threshold;
+
   responseDoc["apogeeVelocityThreshold"] = config->apogee_velocity_threshold;
   responseDoc["apogeeAltitudeThreshold"] = config->apogee_altitude_threshold;
   responseDoc["apogeeOrientationThreshold"] = config->apogee_orientation_threshold;
@@ -257,6 +259,13 @@ void RemoteServer::handle_update_configuration()
   if (has_launch_acceleration)
   {
     config->launch_acceleration = doc["launchAcceleration"];
+  }
+
+  // Lift Off
+  bool has_lift_off_velocity_threshold = doc.containsKey("liftOffVelocityThreshold");
+  if (has_lift_off_velocity_threshold)
+  {
+    config->lift_off_velocity_threshold = doc["liftOffVelocityThreshold"];
   }
 
   // apogee

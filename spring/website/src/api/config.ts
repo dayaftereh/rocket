@@ -11,6 +11,8 @@ export interface Config {
     launchAngle: number
     launchAcceleration: number
 
+    liftOffVelocityThreshold: number
+
     apogeeVelocityThreshold: number
     apogeeAltitudeThreshold: number
     apogeeOrientationThreshold: number

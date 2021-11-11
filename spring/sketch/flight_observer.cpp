@@ -36,8 +36,15 @@ void FlightObserver::update()
     case FLIGHT_STATE_LAUNCHED:
       this->launched();
       break;
+    case FLIGHT_STATE_WAIT_LIFT_OFF:
+      this->wait_for_lift_off();
+      break;
+    case FLIGHT_STATE_LIFT_OFF:
+      this->lift_off();
+      break;
     case FLIGHT_STATE_WAIT_FOR_APOGEE:
       this->wait_for_apogee();
+      break;
     case FLIGHT_STATE_APOGEE:
       this->apogee();
       break;
@@ -79,8 +86,8 @@ void FlightObserver::wait_for_launch()
     return;
   }
 
-  Serial.print("acceleration->z: ");
-  Serial.print(acceleration->z);
+  Serial.print("acceleration_normalize->z: ");
+  Serial.print(acceleration_normalize->z);
   Serial.print(" launch_acceleration: ");
   Serial.print(this->_config->launch_acceleration);
   Serial.print(", angle: ");
@@ -93,6 +100,39 @@ void FlightObserver::wait_for_launch()
 
 void FlightObserver::launched()
 {
+  this->_status_leds->off();
+
+  this->_data_logger->start();
+
+
+  // set launched to true
+  this->_launched = true;
+  this->_launch_time = millis();
+
+  this->_state = FLIGHT_STATE_WAIT_LIFT_OFF;
+}
+
+void FlightObserver::wait_for_lift_off()
+{
+  this->update_velocity();
+
+  // check fir lift of speed
+  float velocity = this->_velocity.length();
+  if (velocity < this->_config->lift_off_velocity_threshold) {
+    return;
+  }
+
+  Serial.print("velocity:");
+  Serial.print(velocity);
+  Serial.println(" => lift-off!");
+
+  this->_status_leds->on();
+  this->_state = FLIGHT_STATE_LIFT_OFF;
+}
+
+void FlightObserver::lift_off()
+{
+  this->update_velocity();
   this->_status_leds->off();
 
   this->_state = FLIGHT_STATE_WAIT_FOR_APOGEE;
@@ -112,6 +152,8 @@ void FlightObserver::wait_for_apogee()
     return;
   }
 
+  this->_status_leds->on();
+
   Serial.print("maximum_altitude: ");
   Serial.print(this->_maximum_altitude);
   Serial.println(" => apogee!");
@@ -122,18 +164,21 @@ void FlightObserver::wait_for_apogee()
 void FlightObserver::apogee()
 {
   this->update_velocity();
+  this->_status_leds->off();
+
   this->_state = FLIGHT_STATE_WAIT_FOR_LANDING;
 }
 
 void FlightObserver::wait_for_landing()
 {
+
   this->update_velocity();
   // still observe parachute
   this->observe_parachute();
 
   Vec3f *acceleration = this->_imu->get_world_acceleration_normalized();
   // check if the z acceleration lower landing acceleration
-  if (abs(acceleration->z) < this->_config->landing_acceleration)
+  if (abs(acceleration->z) > this->_config->landing_acceleration)
   {
     return;
   }
@@ -185,6 +230,8 @@ void FlightObserver::landed()
 {
   // turn the led back on
   this->_status_leds->on();
+  // complete the data logger
+  this->_data_logger->done();
 
   this->_state = FLIGHT_STATE_IDLE;
 }
@@ -220,7 +267,7 @@ bool FlightObserver::observe_parachute()
   // calculate the angle between world up and rocket direction
   Vec3f up(0.0, 0.0, 1.0);
   Vec3f rocket_up = this->compute_rocket_direction();
-  float angle = up.angle_to(rocket_up);
+  float angle = up.angle_to(rocket_up) * RAD_2_DEG;
 
   if (abs(angle) > this->_config->apogee_orientation_threshold)
   {
@@ -229,21 +276,22 @@ bool FlightObserver::observe_parachute()
   }
 
   // check if velocity close to zero
-  Vec3f *acceleration = this->_imu->get_world_acceleration_normalized();
   float velocity = this->_velocity.length();
-  if (velocity < this->_config->apogee_velocity_threshold && acceleration->z > 5.0)
+  if (velocity < this->_config->apogee_velocity_threshold)
   {
     triggered = true;
     this->_parachute_manager->velocity_trigger();
   }
 
-  Serial.print("altitude_delta: ");
-  Serial.print(altitude_delta);
-  Serial.print(" angle: ");
-  Serial.print(angle);
-  Serial.print(" velocity: ");
-  Serial.print(velocity);
-  Serial.println("");
+  /*Serial.print("altitude_delta: ");
+    Serial.print(altitude_delta);
+    Serial.print(" angle: ");
+    Serial.print(angle);
+    Serial.print(" velocity: ");
+    Serial.print(velocity);
+    Serial.print(" triggered: ");
+    Serial.print(triggered);
+    Serial.println("");*/
 
   return triggered;
 }
@@ -254,4 +302,22 @@ void FlightObserver::update_velocity()
   Vec3f *acceleration = this->_imu->get_world_acceleration_normalized();
   Vec3f vd = acceleration->scale_scalar(dt);
   this->_velocity = this->_velocity.add(vd);
+}
+
+void FlightObserver::update_flight_termination() {
+  if (!this->_launched) {
+    return;
+  }
+
+  // check if the flight over timed
+  unsigned long delta = this->_launch_time - millis();
+  if (delta < FLIGHT_OBSERVER_TERMINATION_TIMEOUT) {
+    return;
+  }
+  // open the parachute
+  this->_parachute_manager->trigger();
+  // set to landed state
+  this->_state = FLIGHT_STATE_LANDED;
+
+  Serial.println(" => flight terminated");
 }

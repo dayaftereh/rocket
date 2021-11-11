@@ -63,6 +63,9 @@ void ConfigManager::print_config()
   Serial.print(", launch_acceleration: ");
   Serial.print(this->_config.launch_acceleration);
 
+  Serial.print(", lift_off_velocity_threshold: ");
+  Serial.print(this->_config.lift_off_velocity_threshold);
+
   Serial.print(", apogee_velocity_threshold: ");
   Serial.print(this->_config.apogee_velocity_threshold);
 

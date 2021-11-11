@@ -11,6 +11,9 @@
 #define ACCESS_POINT_PASSWD "123456789"
 #define ACCESS_POINT_CHANNEL 7
 
+// FlightObserver -----------------------------------------------
+#define FLIGHT_OBSERVER_TERMINATION_TIMEOUT (30000)
+
 // RemoteServer -----------------------------------------------
 #define REMOTE_SERVER_PORT 80
 #define REMOTE_SERVER_ADDRESS "192.168.10.1"
@@ -77,6 +80,9 @@ typedef struct
   // launch condition values
   float launch_angle;
   float launch_acceleration;
+
+  // lift off
+  float lift_off_velocity_threshold;
 
   // apogee
   float apogee_velocity_threshold;
