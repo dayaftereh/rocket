@@ -46,6 +46,18 @@ export class MenuComponent implements OnInit {
                         icon: 'pi pi-play'
                     }
                 ]
+            },
+            {
+                label: 'Flight Data',
+                items: [
+                    {
+                        label: "Analyzer",
+                        command: () => {
+                            this.navigate(['analyzer'])
+                        },
+                        icon: 'pi pi-chart-line'
+                    }
+                ]
             }
         )
 

@@ -1,0 +1,30 @@
+<div class="grid">
+    <div class="col">
+        <p-card header="Data">
+            <div class="grid">
+                <div class="col">
+                    <p-fileUpload [customUpload]="true" (uploadHandler)="onUpload($event)"></p-fileUpload>
+                </div>
+            </div>
+        </p-card>
+    </div>
+</div>
+
+<div class="grid">
+    <div class="col">
+        <p-card header="Chart">
+            <div class="grid">
+                <div class="col">
+                    <p-chart #chart width="98%" height="70vh" type="line" [data]="analyzerChart.data"
+                        [plugins]="analyzerChart.plugins" [options]="analyzerChart.options"></p-chart>
+                </div>
+            </div>
+            <div class="grid text-right">
+                <div class="col">
+                    <button pButton type="button" label="Reset" class="p-button-info" icon="pi pi-times"
+                        (click)="onResetChart()"></button>
+                </div>
+            </div>
+        </p-card>
+    </div>
+</div>

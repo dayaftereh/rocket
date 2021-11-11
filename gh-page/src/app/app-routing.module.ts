@@ -1,5 +1,6 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
+import { AnalyzerComponent } from "./views/analyzer/analyzer.component";
 import { ConstantsSettingsComponent } from "./views/settings/constants/constants-settings.component";
 import { SettingsComponent } from "./views/settings/settings.component";
 import { SimulationComponent } from "./views/simulation/simulation.component";
@@ -19,6 +20,9 @@ const routes: Routes = [
                 path: 'single', component: SingleSimulationComponent
             }
         ]
+    },
+    {
+        path: 'analyzer', component: AnalyzerComponent
     },
 ]
 
