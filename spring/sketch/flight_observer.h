@@ -44,12 +44,15 @@ private:
 
   Vec3f compute_rocket_direction();
 
+  void update_velocity();
   bool observe_parachute();
-
+  
   float _maximum_altitude;
 
   float _landing_timer;
   int _landing_counter;
+
+  Vec3f _velocity;
   Vec3f _landing_orientation;
   Vec3f _landing_cumulate_orientation;
 

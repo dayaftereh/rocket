@@ -29,7 +29,7 @@ typedef struct __attribute__((packed)) DataLoggerEntry
   float rotation_y; // 4
   float rotation_z; // 4
 
-  bool parachuteGravity;     // 1
+  bool parachuteVelocity;     // 1
   bool parachuteAltitude;    // 1
   bool parachuteOrientation; // 1
 };

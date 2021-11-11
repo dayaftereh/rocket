@@ -67,7 +67,7 @@ export class MessageDecoder {
         index += 4
 
         // parachute
-        message.parachuteGravity = dataView.getInt8(index) !== 0
+        message.parachuteVelocity = dataView.getInt8(index) !== 0
         index += 1
 
         // parachute

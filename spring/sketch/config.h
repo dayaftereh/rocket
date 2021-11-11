@@ -79,7 +79,7 @@ typedef struct
   float launch_acceleration;
 
   // apogee
-  float apogee_gravity_threshold;
+  float apogee_velocity_threshold;
   float apogee_altitude_threshold;
   float apogee_orientation_threshold;
 

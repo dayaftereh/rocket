@@ -105,18 +105,18 @@ void ParachuteManager::orientation_trigger()
   }
 }
 
-void ParachuteManager::gravity_trigger()
+void ParachuteManager::velocity_trigger()
 {
-  this->_gravity = true;
+  this->_velocity = true;
   if (!this->_completed)
   {
     this->trigger();
   }
 }
 
-bool ParachuteManager::is_gravity_triggered()
+bool ParachuteManager::is_velocity_triggered()
 {
-  return this->_gravity;
+  return this->_velocity;
 }
 
 bool ParachuteManager::is_altitude_triggered()

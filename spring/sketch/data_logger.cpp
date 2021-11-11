@@ -291,7 +291,7 @@ void DataLogger::load_data_logger_entry(DataLoggerEntry &entry)
   entry.gyroscope_y = gyroscope->y;
   entry.gyroscope_z = gyroscope->z;
 
-  Vec3f *acceleration = this->_imu->get_world_acceleration();
+  Vec3f *acceleration = this->_imu->get_world_acceleration_normalized();
   entry.acceleration_x = acceleration->x;
   entry.acceleration_y = acceleration->y;
   entry.acceleration_z = acceleration->z;
@@ -306,7 +306,7 @@ void DataLogger::load_data_logger_entry(DataLoggerEntry &entry)
   entry.rotation_y = rotation->y;
   entry.rotation_z = rotation->z;
 
-  entry.parachuteGravity = this->_parachute_manager->is_gravity_triggered();
+  entry.parachuteVelocity = this->_parachute_manager->is_velocity_triggered();
   entry.parachuteAltitude = this->_parachute_manager->is_altitude_triggered();
   entry.parachuteOrientation = this->_parachute_manager->is_orientation_triggered();
 }

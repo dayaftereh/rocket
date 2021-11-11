@@ -68,7 +68,7 @@ void IMU::update()
   Quaternion *q = this->_madgwick.get_quaternion();
   Quaternion q1 = q->clone();
   this->_orientation = q1.multiply(this->_q);
-  
+
   // calculate the rotation
   this->_rotation = this->_orientation.get_euler().scale_scalar(RAD_2_DEG);
 
@@ -76,6 +76,16 @@ void IMU::update()
   Vec3f v = acceleration->clone();
   v = q1.multiply_vec(v).invert();
   this->_world_acceleration = v;
+
+  // calculate world acceleration normalized
+  v = this->_world_acceleration.clone();
+  // add the world gravity
+  v.z += GRAVITY_OF_EARTH;
+  // invert becaue
+  v = v.invert();
+  // remove the world gravity
+  //v.z -= GRAVITY_OF_EARTH;
+  this->_world_acceleration_normalized = v;
 }
 
 Vec3f *IMU::get_rotation()
@@ -106,4 +116,9 @@ Vec3f *IMU::get_world_acceleration()
 Quaternion *IMU::get_orientation()
 {
   return &this->_orientation;
+}
+
+Vec3f *IMU::get_world_acceleration_normalized()
+{
+  return &this->_world_acceleration_normalized;
 }

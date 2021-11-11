@@ -17,11 +17,11 @@ public:
 
     void trigger();
 
-    void gravity_trigger();
+    void velocity_trigger();
     void altitude_trigger();
     void orientation_trigger();
 
-    bool is_gravity_triggered();
+    bool is_velocity_triggered();
     bool is_altitude_triggered();
     bool is_orientation_triggered();
 
@@ -32,7 +32,7 @@ private:
 
     bool _completed;
 
-    bool _gravity;
+    bool _velocity;
     bool _altitude;
     bool _orientation;
 

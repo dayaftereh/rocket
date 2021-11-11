@@ -27,6 +27,7 @@ public:
   Vec3f *get_magnetometer();
   Quaternion *get_orientation();
   Vec3f *get_world_acceleration();
+  Vec3f *get_world_acceleration_normalized();
 
 private:
   MPU6050 _mpu_6050;
@@ -38,6 +39,7 @@ private:
 
   Vec3f _rotation;
   Vec3f _world_acceleration;
+  Vec3f _world_acceleration_normalized;
 
   TwoWire *_wire;
 

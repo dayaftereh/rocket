@@ -150,7 +150,7 @@ void RemoteServer::handle_get_configuration()
   responseDoc["launchAngle"] = config->launch_angle;
   responseDoc["launchAcceleration"] = config->launch_acceleration;
 
-  responseDoc["apogeeGravityThreshold"] = config->apogee_gravity_threshold;
+  responseDoc["apogeeVelocityThreshold"] = config->apogee_velocity_threshold;
   responseDoc["apogeeAltitudeThreshold"] = config->apogee_altitude_threshold;
   responseDoc["apogeeOrientationThreshold"] = config->apogee_orientation_threshold;
 
@@ -260,10 +260,10 @@ void RemoteServer::handle_update_configuration()
   }
 
   // apogee
-  bool has_apogee_gravity_threshold = doc.containsKey("apogeeGravityThreshold");
-  if (has_apogee_gravity_threshold)
+  bool has_apogee_velocity_threshold = doc.containsKey("apogeeVelocityThreshold");
+  if (has_apogee_velocity_threshold)
   {
-    config->apogee_gravity_threshold = doc["apogeeGravityThreshold"];
+    config->apogee_velocity_threshold = doc["apogeeVelocityThreshold"];
   }
 
   bool has_apogee_altitude_threshold = doc.containsKey("apogeeAltitudeThreshold");

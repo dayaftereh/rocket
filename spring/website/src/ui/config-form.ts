@@ -16,7 +16,7 @@ export class ConfigForm {
         const configLaunchAngle: HTMLInputElement = document.querySelector("#configLaunchAngle")
         const configLaunchAcceleration: HTMLInputElement = document.querySelector("#configLaunchAcceleration")
 
-        const configApogeeGravityThreshold: HTMLInputElement = document.querySelector("#configApogeeGravityThreshold")
+        const configApogeeVelocityThreshold: HTMLInputElement = document.querySelector("#configApogeeVelocityThreshold")
         const configApogeeAltitudeThreshold: HTMLInputElement = document.querySelector("#configApogeeAltitudeThreshold")
         const configApogeeOrientationThreshold: HTMLInputElement = document.querySelector("#configApogeeOrientationThreshold")
 
@@ -53,7 +53,7 @@ export class ConfigForm {
                 launchAngle: +(configLaunchAngle.value),
                 launchAcceleration: +(configLaunchAcceleration.value),
 
-                apogeeGravityThreshold: +(configApogeeGravityThreshold.value),
+                apogeeVelocityThreshold: +(configApogeeVelocityThreshold.value),
                 apogeeAltitudeThreshold: +(configApogeeAltitudeThreshold.value),
                 apogeeOrientationThreshold: +(configApogeeOrientationThreshold.value),
 
@@ -84,7 +84,7 @@ export class ConfigForm {
         configLaunchAngle.value = `${config.launchAngle}`
         configLaunchAcceleration.value = `${config.launchAcceleration}`
 
-        configApogeeGravityThreshold.value = `${config.apogeeGravityThreshold}`
+        configApogeeVelocityThreshold.value = `${config.apogeeVelocityThreshold}`
         configApogeeAltitudeThreshold.value = `${config.apogeeAltitudeThreshold}`
         configApogeeOrientationThreshold.value = `${config.apogeeOrientationThreshold}`
 

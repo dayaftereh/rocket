@@ -45,7 +45,7 @@ export class UI {
         const currentRotationY: HTMLInputElement = document.querySelector("#currentRotationY")
         const currentRotationZ: HTMLInputElement = document.querySelector("#currentRotationZ")
 
-        const parachuteGravity: HTMLInputElement = document.querySelector("#parachuteGravity")
+        const parachuteVelocity: HTMLInputElement = document.querySelector("#parachuteVelocity")
         const parachuteAltitude: HTMLInputElement = document.querySelector("#parachuteAltitude")
         const parachuteOrientation: HTMLInputElement = document.querySelector("#parachuteOrientation")
 
@@ -71,7 +71,7 @@ export class UI {
             currentRotationY.value = this.formatNumber(message.rotationY)
             currentRotationZ.value = this.formatNumber(message.rotationZ)
 
-            parachuteGravity.checked = message.parachuteGravity
+            parachuteVelocity.checked = message.parachuteVelocity
             parachuteAltitude.checked = message.parachuteAltitude
             parachuteOrientation.checked = message.parachuteOrientation
 
