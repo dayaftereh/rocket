@@ -10,6 +10,8 @@ bool ParachuteManager::setup(Config *config, StatusLeds *status_leds)
   this->_config = config;
   this->_status_leds = status_leds;
 
+  this->_completed = false;
+
   // check if the servo is configured
   if (this->_config->parachute_servo)
   {
@@ -76,8 +78,6 @@ void ParachuteManager::reset()
 void ParachuteManager::trigger()
 {
   this->_trigger = true;
-  this->_completed = true;
-
   this->_timer = millis();
 
   // open the servo
@@ -93,6 +93,7 @@ void ParachuteManager::altitude_trigger()
   if (!this->_completed)
   {
     this->trigger();
+    this->_completed = true;
   }
 }
 
@@ -102,6 +103,7 @@ void ParachuteManager::orientation_trigger()
   if (!this->_completed)
   {
     this->trigger();
+    this->_completed = true;
   }
 }
 
@@ -111,6 +113,7 @@ void ParachuteManager::velocity_trigger()
   if (!this->_completed)
   {
     this->trigger();
+    this->_completed = true;
   }
 }
 
