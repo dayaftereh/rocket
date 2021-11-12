@@ -7,10 +7,13 @@ export class AnalyzerChart extends Chart {
         super()
     }
 
+    private datasetState: any
+
     private datasetElapsed: any
 
     private datasetVoltage: any
     private datasetAltitude: any
+    private datasetMaximumAltitude: any
 
     private datasetParachuteVelocity: any
     private datasetParachuteAltitude: any
@@ -68,10 +71,13 @@ export class AnalyzerChart extends Chart {
 
         this.plugins = this.createDefaultPlugins()
 
+        this.datasetState = this.createDataset('State', '#fff', this.xAxisId, this.yAxisId)
+
         this.datasetElapsed = this.createDataset('Elapsed (s)', '#f0f', this.xAxisId, this.yAxisId)
 
         this.datasetVoltage = this.createDataset('Volt (V)', '#ff0', this.xAxisId, this.yAxisId)
         this.datasetAltitude = this.createDataset('Alt (m)', '#0ff', this.xAxisId, this.yAxisId)
+        this.datasetMaximumAltitude = this.createDataset('M_Alt', 'hsl(80, 100%, 50%)', this.xAxisId, this.yAxisId)
 
         this.datasetParachuteVelocity = this.createDataset('P_Velo', '#f00', this.xAxisId, this.yAxisId)
         this.datasetParachuteAltitude = this.createDataset('P_Alt', '#0f0', this.xAxisId, this.yAxisId)
@@ -91,15 +97,27 @@ export class AnalyzerChart extends Chart {
         this.datasetVelocityY = this.createDataset('Velo_Y', 'hsl(300, 100%, 50%)', this.xAxisId, this.yAxisId)
         this.datasetVelocityZ = this.createDataset('Velo_Z', 'hsl(160, 100%, 50%)', this.xAxisId, this.yAxisId)
 
+        this.datasetState.hidden = true
         this.datasetElapsed.hidden = true
         this.datasetVoltage.hidden = true
+        this.datasetMaximumAltitude.hidden = true
+
+        this.datasetVelocityX.hidden = true
+        this.datasetVelocityY.hidden = true
+        this.datasetVelocityZ.hidden = true
+
+        this.datasetAccelerationX.hidden = true
+        this.datasetAccelerationY.hidden = true
+        this.datasetAccelerationZ.hidden = true
 
         this.data = {
             datasets: [
+                this.datasetState ,
                 this.datasetElapsed,
 
                 this.datasetVoltage,
                 this.datasetAltitude,
+                this.datasetMaximumAltitude,
 
                 this.datasetParachuteVelocity,
                 this.datasetParachuteAltitude,
@@ -126,9 +144,13 @@ export class AnalyzerChart extends Chart {
 
     load(entities: AvionicsDataEntry[]): void {
 
+        this.datasetState.data = []
+
         this.datasetElapsed.data = []
         this.datasetVoltage.data = []
+
         this.datasetAltitude.data = []
+        this.datasetMaximumAltitude.data = []
 
         this.datasetParachuteVelocity.data = []
         this.datasetParachuteAltitude.data = []
@@ -148,12 +170,13 @@ export class AnalyzerChart extends Chart {
 
         this.datasetVelocity.data = []
 
-        let velocityX: number = 0;
-        let velocityY: number = 0;
-        let velocityZ: number = 0;
-
         entities.forEach((entry: AvionicsDataEntry) => {
             const time: number = entry.time / 1000.0
+
+            this.datasetState.data.push({
+                x: time,
+                y: entry.state
+            })
 
             this.datasetElapsed.data.push({
                 x: time,
@@ -168,6 +191,11 @@ export class AnalyzerChart extends Chart {
             this.datasetAltitude.data.push({
                 x: time,
                 y: entry.altitude
+            })
+
+            this.datasetMaximumAltitude.data.push({
+                x: time,
+                y: entry.maximumAltitude
             })
 
             this.datasetParachuteVelocity.data.push({
@@ -217,29 +245,30 @@ export class AnalyzerChart extends Chart {
 
             this.datasetVelocityX.data.push({
                 x: time,
-                y: velocityX
+                y: entry.velocityX
             })
 
             this.datasetVelocityY.data.push({
                 x: time,
-                y: velocityY
+                y: entry.velocityY
             })
 
             this.datasetVelocityZ.data.push({
                 x: time,
-                y: velocityZ
+                y: entry.velocityZ
             })
 
-            const velocity: number = Math.sqrt(velocityX * velocityX + velocityY * velocityY + velocityZ * velocityZ)
+            const velocity: number = Math.sqrt(
+                entry.velocityX * entry.velocityX
+                + entry.velocityY * entry.velocityY
+                + entry.velocityZ * entry.velocityZ
+            )
+
             this.datasetVelocity.data.push({
                 x: time,
                 y: velocity
             })
 
-
-            velocityX += entry.accelerationX * entry.elapsed
-            velocityY += entry.accelerationY * entry.elapsed
-            velocityZ += entry.accelerationZ * entry.elapsed
         })
     }
 }

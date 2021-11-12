@@ -4,13 +4,15 @@ DataLogger::DataLogger()
 {
 }
 
-bool DataLogger::setup(Stats *stats, StatusLeds *status_leds, AltitudeManager *altitude_manager, VoltageMeasurement *voltage_measurement, IMU *imu, ParachuteManager *parachute_manager)
+bool DataLogger::setup(Stats *stats, StatusLeds *status_leds, AltitudeManager *altitude_manager, VoltageMeasurement *voltage_measurement, IMU *imu, ParachuteManager *parachute_manager, FlightObserver *flight_observer)
 {
+  this->_flushed = false;
   this->_started = false;
 
   this->_imu = imu;
   this->_stats = stats;
   this->_status_leds = status_leds;
+  this->_flight_observer = flight_observer;
   this->_altitude_manager = altitude_manager;
   this->_parachute_manager = parachute_manager;
   this->_voltage_measurement = voltage_measurement;
@@ -286,20 +288,18 @@ void DataLogger::load_data_logger_entry(DataLoggerEntry &entry)
   entry.voltage = this->_voltage_measurement->get_voltage();
   entry.altitude = this->_altitude_manager->get_altitude_delta();
 
-  Vec3f *gyroscope = this->_imu->get_gyroscope();
-  entry.gyroscope_x = gyroscope->x;
-  entry.gyroscope_y = gyroscope->y;
-  entry.gyroscope_z = gyroscope->z;
+  entry.state = this->_flight_observer->get_state();
+  entry.maximum_altitude = this->_flight_observer->get_maximum_altitude();
+
+  Vec3f *velocity = this->_flight_observer->get_velocity();
+  entry.velocity_x = velocity->x;
+  entry.velocity_y = velocity->y;
+  entry.velocity_z = velocity->z;
 
   Vec3f *acceleration = this->_imu->get_world_acceleration_normalized();
   entry.acceleration_x = acceleration->x;
   entry.acceleration_y = acceleration->y;
   entry.acceleration_z = acceleration->z;
-
-  Vec3f *magnetometer = this->_imu->get_magnetometer();
-  entry.magnetometer_x = magnetometer->x;
-  entry.magnetometer_y = magnetometer->y;
-  entry.magnetometer_z = magnetometer->z;
 
   Vec3f *rotation = this->_imu->get_rotation();
   entry.rotation_x = rotation->x;
@@ -309,6 +309,41 @@ void DataLogger::load_data_logger_entry(DataLoggerEntry &entry)
   entry.parachuteVelocity = this->_parachute_manager->is_velocity_triggered();
   entry.parachuteAltitude = this->_parachute_manager->is_altitude_triggered();
   entry.parachuteOrientation = this->_parachute_manager->is_orientation_triggered();
+}
+
+void DataLogger::load_remote_message(RemoteMessage &message)
+{
+  message.time = millis();
+  message.elapsed = this->_stats->get_delta();
+
+  message.voltage = this->_voltage_measurement->get_voltage();
+  message.altitude = this->_altitude_manager->get_altitude_delta();
+  
+  Vec3f *gyroscope = this->_imu->get_gyroscope();
+  message.gyroscope_x = gyroscope->x;
+  message.gyroscope_y = gyroscope->y;
+  message.gyroscope_z = gyroscope->z;
+
+  Vec3f *acceleration = this->_imu->get_world_acceleration();
+  message.acceleration_x = acceleration->x;
+  message.acceleration_y = acceleration->y;
+  message.acceleration_z = acceleration->z;
+
+  Vec3f *magnetometer = this->_imu->get_magnetometer();
+  message.magnetometer_x = magnetometer->x;
+  message.magnetometer_y = magnetometer->y;
+  message.magnetometer_z = magnetometer->z;
+
+  Vec3f *rotation = this->_imu->get_rotation();
+  message.rotation_x = rotation->x;
+  message.rotation_y = rotation->y;
+  message.rotation_z = rotation->z;
+
+  message.locked = this->_flight_observer->is_locked();
+
+  message.parachuteVelocity = this->_parachute_manager->is_velocity_triggered();
+  message.parachuteAltitude = this->_parachute_manager->is_altitude_triggered();
+  message.parachuteOrientation = this->_parachute_manager->is_orientation_triggered();
 }
 
 void DataLogger::write_entry_2_data_file(byte *data, uint32_t length)
@@ -339,10 +374,17 @@ void DataLogger::write_entry_2_flash_memory(byte *data, uint32_t length)
 void DataLogger::update()
 {
   // check if data logger started
-  if (!this->_started)
+  if (!this->_flight_observer->is_launched())
   {
+    // check if started, but not jet flushed
+    if (this->_started && !this->_flushed)
+    {
+      this->done();
+    }
     return;
   }
+  // set started to true
+  this->_started = true;
 
   // load the data logger entry
   DataLoggerEntry entry;
@@ -366,12 +408,6 @@ void DataLogger::update()
   }
 }
 
-void DataLogger::start()
-{
-  this->_started = true;
-  this->_entities = 0;
-}
-
 void DataLogger::write_entities_count_2_file()
 {
   // convert the entities to byte pointer
@@ -384,7 +420,7 @@ void DataLogger::write_entities_count_2_file()
 
 bool DataLogger::done()
 {
-  this->_started = false;
+  this->_flushed = true;
 
   // check if flash memory enabled
   if (!DATA_LOGGER_USE_FLASH)

@@ -6,13 +6,13 @@
 #include "imu.h"
 #include "stats.h"
 #include "config.h"
-#include "data_logger.h"
 #include "status_leds.h"
 #include "altitude_manager.h"
 #include "parachute_manager.h"
 
 enum FlightState
 {
+  FLIGHT_STATE_LOCKED,
   FLIGHT_STATE_INIT,
   FLIGHT_STATE_WAIT_FOR_LANUCH,
   FLIGHT_STATE_LAUNCHED,
@@ -27,53 +27,61 @@ enum FlightState
 
 class FlightObserver
 {
-  public:
-    FlightObserver();
+public:
+  FlightObserver();
 
-    bool setup(Config *config, StatusLeds *status_leds, IMU *imu, AltitudeManager *altitude_manager, DataLogger *data_logger, ParachuteManager *parachute_manager, Stats *stats);
-    void update();
+  bool setup(Config *config, StatusLeds *status_leds, IMU *imu, AltitudeManager *altitude_manager, ParachuteManager *parachute_manager, Stats *stats);
+  void update();
 
-  private:
-    void wait_for_apogee();
-    void wait_for_launch();
-    void wait_for_landing();
-    void wait_for_lift_off();
+  void unlock();
 
-    void idle();
-    void init();
-    void apogee();
-    void landed();
-    void lift_off();
-    void launched();
+  bool is_locked();
+  bool is_launched();
 
-    Vec3f compute_rocket_direction();
+  Vec3f *get_velocity();
+  FlightState get_state();
+  float get_maximum_altitude();
 
-    void update_velocity();
-    bool observe_parachute();
+private:
+  void wait_for_apogee();
+  void wait_for_launch();
+  void wait_for_landing();
+  void wait_for_lift_off();
 
-    void update_flight_termination();
-    
-    bool _launched;
-    unsigned long _launch_time;
+  void idle();
+  void init();
+  void apogee();
+  void landed();
+  void lift_off();
+  void launched();
 
-    float _maximum_altitude;
+  Vec3f compute_rocket_direction();
 
-    float _landing_timer;
-    int _landing_counter;
+  void update_velocity();
+  bool observe_parachute();
 
-    Vec3f _velocity;
-    Vec3f _landing_orientation;
-    Vec3f _landing_cumulate_orientation;
+  void update_flight_termination();
 
-    FlightState _state;
+  bool _launched;
+  unsigned long _launch_time;
 
-    IMU *_imu;
-    Stats *_stats;
-    Config *_config;
-    DataLogger *_data_logger;
-    StatusLeds *_status_leds;
-    AltitudeManager *_altitude_manager;
-    ParachuteManager *_parachute_manager;
+  float _maximum_altitude;
+
+  float _landing_timer;
+  int _landing_counter;
+
+  Vec3f _velocity;
+  Vec3f _landing_orientation;
+  Vec3f _landing_cumulate_orientation;
+
+  FlightState _state;
+
+  IMU *_imu;
+  Stats *_stats;
+  Config *_config;
+  StatusLeds *_status_leds;
+  AltitudeManager *_altitude_manager;
+  ParachuteManager *_parachute_manager;
 };
 
 #endif // _FLIGHT_OBSERVER_H

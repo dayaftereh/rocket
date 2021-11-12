@@ -3,7 +3,7 @@ import { Message } from "./message";
 export class MessageDecoder {
 
     private littleEndian: boolean = true
-    
+
     constructor() {
 
     }
@@ -65,6 +65,10 @@ export class MessageDecoder {
 
         message.rotationZ = dataView.getFloat32(index, this.littleEndian)
         index += 4
+
+        // locked
+        message.locked = dataView.getInt8(index) !== 0
+        index += 1
 
         // parachute
         message.parachuteVelocity = dataView.getInt8(index) !== 0

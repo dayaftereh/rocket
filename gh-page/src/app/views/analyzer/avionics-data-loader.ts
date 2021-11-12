@@ -10,7 +10,7 @@ export class AvionicsDataLoader {
     constructor() {
         this.index = 0
         this.littleEndian = true
-        this.entryLength = (16 * 4) + (3 * 1)
+        this.entryLength = (2 * 1) + (14 * 4) + (3 * 1)
     }
 
     private async loadArrayBuffer(file: File): Promise<ArrayBuffer> {
@@ -69,6 +69,9 @@ export class AvionicsDataLoader {
         entry.time = dataView.getUint32(this.index, this.littleEndian)
         this.index += 4
 
+        entry.state = dataView.getUint16(this.index, this.littleEndian)
+        this.index += 2
+
         entry.elapsed = dataView.getFloat32(this.index, this.littleEndian)
         this.index += 4
 
@@ -78,14 +81,17 @@ export class AvionicsDataLoader {
         entry.altitude = dataView.getFloat32(this.index, this.littleEndian)
         this.index += 4
 
-        // gyroscope
-        entry.gyroscopeX = dataView.getFloat32(this.index, this.littleEndian)
+        entry.maximumAltitude = dataView.getFloat32(this.index, this.littleEndian)
         this.index += 4
 
-        entry.gyroscopeY = dataView.getFloat32(this.index, this.littleEndian)
+        // velocity
+        entry.velocityX = dataView.getFloat32(this.index, this.littleEndian)
         this.index += 4
 
-        entry.gyroscopeZ = dataView.getFloat32(this.index, this.littleEndian)
+        entry.velocityY = dataView.getFloat32(this.index, this.littleEndian)
+        this.index += 4
+
+        entry.velocityZ = dataView.getFloat32(this.index, this.littleEndian)
         this.index += 4
 
         // acceleration
@@ -96,16 +102,6 @@ export class AvionicsDataLoader {
         this.index += 4
 
         entry.accelerationZ = dataView.getFloat32(this.index, this.littleEndian)
-        this.index += 4
-
-        // magnetometer
-        entry.magnetometerX = dataView.getFloat32(this.index, this.littleEndian)
-        this.index += 4
-
-        entry.magnetometerY = dataView.getFloat32(this.index, this.littleEndian)
-        this.index += 4
-
-        entry.magnetometerZ = dataView.getFloat32(this.index, this.littleEndian)
         this.index += 4
 
         // rotation

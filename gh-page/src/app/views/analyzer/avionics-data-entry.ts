@@ -2,20 +2,19 @@ export interface AvionicsDataEntry {
     time: number
     elapsed: number
 
+    state: number
+
     voltage: number
     altitude: number
+    maximumAltitude: number
 
-    gyroscopeX: number
-    gyroscopeY: number
-    gyroscopeZ: number
+    velocityX: number
+    velocityY: number
+    velocityZ: number
 
     accelerationX: number
     accelerationY: number
     accelerationZ: number
-
-    magnetometerX: number
-    magnetometerY: number
-    magnetometerZ: number
 
     rotationX: number
     rotationY: number

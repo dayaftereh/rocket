@@ -8,7 +8,9 @@
 #include <WebSockets4WebServer.h>
 
 #include "data_logger.h"
+#include "remote_message.h"
 #include "config_manager.h"
+#include "flight_observer.h"
 #include "parachute_manager.h"
 
 class RemoteServer
@@ -16,7 +18,7 @@ class RemoteServer
 public:
   RemoteServer();
 
-  bool setup(ConfigManager *config_manager, DataLogger *data_logger, ParachuteManager *parachute_manager);
+  bool setup(ConfigManager *config_manager, DataLogger *data_logger, ParachuteManager *parachute_manager, FlightObserver *flight_observer);
 
   void update();
 
@@ -39,6 +41,9 @@ private:
   // parachute
   void handle_trigger_parachute();
 
+  // unlock
+  void handle_unlock();
+
   bool _active;
   unsigned long _last_broadcast;
 
@@ -47,6 +52,7 @@ private:
 
   DataLogger *_data_logger;
   ConfigManager *_config_manager;
+  FlightObserver *_flight_observer;
   ParachuteManager *_parachute_manager;
 };
 

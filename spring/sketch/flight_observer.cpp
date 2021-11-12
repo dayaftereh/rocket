@@ -4,21 +4,22 @@ FlightObserver::FlightObserver()
 {
 }
 
-bool FlightObserver::setup(Config *config, StatusLeds *status_leds, IMU *imu, AltitudeManager *altitude_manager, DataLogger *data_logger, ParachuteManager *parachute_manager, Stats *stats)
+bool FlightObserver::setup(Config *config, StatusLeds *status_leds, IMU *imu, AltitudeManager *altitude_manager, ParachuteManager *parachute_manager, Stats *stats)
 {
   this->_imu = imu;
   this->_stats = stats;
   this->_config = config;
   this->_status_leds = status_leds;
-  this->_data_logger = data_logger;
   this->_altitude_manager = altitude_manager;
   this->_parachute_manager = parachute_manager;
 
-  this->_state = FLIGHT_STATE_INIT;
+  this->_state = FLIGHT_STATE_LOCKED;
 
   this->_landing_timer = 0.0;
   this->_landing_counter = 0;
   this->_maximum_altitude = 0.0;
+
+  this->_launched = false;
 
   return true;
 }
@@ -27,37 +28,42 @@ void FlightObserver::update()
 {
   switch (this->_state)
   {
-    case FLIGHT_STATE_INIT:
-      this->init();
-      break;
-    case FLIGHT_STATE_WAIT_FOR_LANUCH:
-      this->wait_for_launch();
-      break;
-    case FLIGHT_STATE_LAUNCHED:
-      this->launched();
-      break;
-    case FLIGHT_STATE_WAIT_LIFT_OFF:
-      this->wait_for_lift_off();
-      break;
-    case FLIGHT_STATE_LIFT_OFF:
-      this->lift_off();
-      break;
-    case FLIGHT_STATE_WAIT_FOR_APOGEE:
-      this->wait_for_apogee();
-      break;
-    case FLIGHT_STATE_APOGEE:
-      this->apogee();
-      break;
-    case FLIGHT_STATE_WAIT_FOR_LANDING:
-      this->wait_for_landing();
-      break;
-    case FLIGHT_STATE_LANDED:
-      this->landed();
-      break;
-    case FLIGHT_STATE_IDLE:
-      this->idle();
-      break;
+  case FLIGHT_STATE_INIT:
+    this->init();
+    break;
+  case FLIGHT_STATE_WAIT_FOR_LANUCH:
+    this->wait_for_launch();
+    break;
+  case FLIGHT_STATE_LAUNCHED:
+    this->launched();
+    break;
+  case FLIGHT_STATE_WAIT_LIFT_OFF:
+    this->wait_for_lift_off();
+    break;
+  case FLIGHT_STATE_LIFT_OFF:
+    this->lift_off();
+    break;
+  case FLIGHT_STATE_WAIT_FOR_APOGEE:
+    this->wait_for_apogee();
+    break;
+  case FLIGHT_STATE_APOGEE:
+    this->apogee();
+    break;
+  case FLIGHT_STATE_WAIT_FOR_LANDING:
+    this->wait_for_landing();
+    break;
+  case FLIGHT_STATE_LANDED:
+    this->landed();
+    break;
+  case FLIGHT_STATE_IDLE:
+    this->idle();
+    break;
   }
+}
+
+void FlightObserver::unlock()
+{
+  this->_state = FLIGHT_STATE_INIT;
 }
 
 void FlightObserver::init()
@@ -102,9 +108,6 @@ void FlightObserver::launched()
 {
   this->_status_leds->off();
 
-  this->_data_logger->start();
-
-
   // set launched to true
   this->_launched = true;
   this->_launch_time = millis();
@@ -118,7 +121,8 @@ void FlightObserver::wait_for_lift_off()
 
   // check fir lift of speed
   float velocity = this->_velocity.length();
-  if (velocity < this->_config->lift_off_velocity_threshold) {
+  if (velocity < this->_config->lift_off_velocity_threshold)
+  {
     return;
   }
 
@@ -223,6 +227,8 @@ void FlightObserver::wait_for_landing()
     return;
   }
 
+  Serial.println(" => landed!");
+
   this->_state = FLIGHT_STATE_LANDED;
 }
 
@@ -230,8 +236,9 @@ void FlightObserver::landed()
 {
   // turn the led back on
   this->_status_leds->on();
-  // complete the data logger
-  this->_data_logger->done();
+
+  // set launched back to false
+  this->_launched = false;
 
   this->_state = FLIGHT_STATE_IDLE;
 }
@@ -304,14 +311,17 @@ void FlightObserver::update_velocity()
   this->_velocity = this->_velocity.add(vd);
 }
 
-void FlightObserver::update_flight_termination() {
-  if (!this->_launched) {
+void FlightObserver::update_flight_termination()
+{
+  if (!this->_launched)
+  {
     return;
   }
 
   // check if the flight over timed
   unsigned long delta = this->_launch_time - millis();
-  if (delta < FLIGHT_OBSERVER_TERMINATION_TIMEOUT) {
+  if (delta < FLIGHT_OBSERVER_TERMINATION_TIMEOUT)
+  {
     return;
   }
   // open the parachute
@@ -320,4 +330,28 @@ void FlightObserver::update_flight_termination() {
   this->_state = FLIGHT_STATE_LANDED;
 
   Serial.println(" => flight terminated");
+}
+
+Vec3f *FlightObserver::get_velocity()
+{
+  return &this->_velocity;
+}
+
+float FlightObserver::get_maximum_altitude()
+{
+  return this->_maximum_altitude;
+}
+
+FlightState FlightObserver::get_state()
+{
+  return this->_state;
+}
+
+bool FlightObserver::is_launched()
+{
+  return this->_launched;
+}
+
+bool FlightObserver::is_locked() {
+  return this->_state == FLIGHT_STATE_LOCKED;
 }

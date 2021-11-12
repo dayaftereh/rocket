@@ -121,7 +121,7 @@ void setup()
   statusLeds.progress();
 
   // DataLogger
-  success = dataLogger.setup(&stats, &statusLeds, &altitudeManager, &voltageMeasurement, &imu, &parachuteManager);
+  success = dataLogger.setup(&stats, &statusLeds, &altitudeManager, &voltageMeasurement, &imu, &parachuteManager, &flightObserver);
   if (!success)
   {
     Serial.println("fail to setup data logger");
@@ -132,7 +132,7 @@ void setup()
   statusLeds.progress();
 
   // RemoteServer
-  success = remoteServer.setup(&configManager, &dataLogger, &parachuteManager);
+  success = remoteServer.setup(&configManager, &dataLogger, &parachuteManager, &flightObserver);
   if (!success)
   {
     Serial.println("fail to setup remote server");
@@ -143,7 +143,7 @@ void setup()
   statusLeds.progress();
 
   // FlightObserver
-  success = flightObserver.setup(config, &statusLeds, &imu, &altitudeManager, &dataLogger, &parachuteManager, &stats);
+  success = flightObserver.setup(config, &statusLeds, &imu, &altitudeManager, &parachuteManager, &stats);
   if (!success)
   {
     Serial.println("fail to setup flight observer");

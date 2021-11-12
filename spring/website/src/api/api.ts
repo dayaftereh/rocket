@@ -184,4 +184,15 @@ export class API {
         return response.ok
     }
 
+    async unlock(): Promise<boolean> {
+        const url: string = this.getApiPath('unlock')
+        const response: Response = await fetch(url, {
+            method: 'GET',
+            cache: 'no-cache',
+            redirect: 'manual',
+            referrerPolicy: 'no-referrer'
+        })
+        return response.ok
+    }
+
 }

@@ -4,12 +4,13 @@ RemoteServer::RemoteServer() : _web_server(REMOTE_SERVER_PORT)
 {
 }
 
-bool RemoteServer::setup(ConfigManager *config_manager, DataLogger *data_logger, ParachuteManager *parachute_manager)
+bool RemoteServer::setup(ConfigManager *config_manager, DataLogger *data_logger, ParachuteManager *parachute_manager, FlightObserver *flight_observer)
 {
   Serial.println("starting remote server...");
 
   this->_data_logger = data_logger;
   this->_config_manager = config_manager;
+  this->_flight_observer = flight_observer;
   this->_parachute_manager = parachute_manager;
 
   // set active for startup
@@ -28,6 +29,7 @@ bool RemoteServer::setup(ConfigManager *config_manager, DataLogger *data_logger,
 
   // setup the web-server
   this->_web_server.onNotFound(std::bind(&RemoteServer::handle_not_found, this));
+  this->_web_server.on("/api/unlock", HTTP_GET, std::bind(&RemoteServer::handle_unlock, this));
   this->_web_server.on("/api/config", HTTP_GET, std::bind(&RemoteServer::handle_get_configuration, this));
   this->_web_server.on("/api/config", HTTP_POST, std::bind(&RemoteServer::handle_update_configuration, this));
   this->_web_server.on("/api/trigger", HTTP_GET, std::bind(&RemoteServer::handle_trigger_parachute, this));
@@ -69,15 +71,15 @@ void RemoteServer::broadcast_update()
   // update last broadcast
   this->_last_broadcast = now;
 
-  DataLoggerEntry entry;
-  // load the data logger entry
-  this->_data_logger->load_data_logger_entry(entry);
+  RemoteMessage message;
+  // load the remote message
+  this->_data_logger->load_remote_message(message);
 
-  // get the size of the struct
-  size_t struct_size = sizeof(entry);
-  // get the struct as pointer
-  byte *pointer = (byte *)&entry;
-  // broadcast the data logger entry
+  // get the size of the message
+  size_t struct_size = sizeof(message);
+  // get the message as pointer
+  byte *pointer = (byte *)&message;
+  // broadcast the remote message
   this->_web_socket.broadcastBIN(pointer, struct_size);
 }
 
@@ -328,6 +330,13 @@ void RemoteServer::handle_trigger_parachute()
 {
   // trigger the parachute
   this->_parachute_manager->trigger();
+  // send ok back
+  this->_web_server.send(200, "text/plain", "200: OK");
+}
+
+void RemoteServer::handle_unlock()
+{
+  this->_flight_observer->unlock();
   // send ok back
   this->_web_server.send(200, "text/plain", "200: OK");
 }

@@ -24,6 +24,8 @@ export class UI {
     }
 
     private initWebSocketMessage(): void {
+        const unlock: HTMLButtonElement = document.querySelector("#unlock")
+
         const currentTime: HTMLInputElement = document.querySelector("#currentTime")
         const currentElapsed: HTMLInputElement = document.querySelector("#currentElapsed")
         const currentVoltage: HTMLInputElement = document.querySelector("#currentVoltage")
@@ -75,6 +77,8 @@ export class UI {
             parachuteAltitude.checked = message.parachuteAltitude
             parachuteOrientation.checked = message.parachuteOrientation
 
+            unlock.disabled = !message.locked;
+
             currentVoltage.style.background = this.liproS1VoltageLevelColor(message.voltage)
         })
     }
@@ -90,6 +94,13 @@ export class UI {
         })
     }
 
+    private initUnlock(): void {
+        const unlock: HTMLButtonElement = document.querySelector("#unlock")
+        unlock.addEventListener('click', async () => {
+            await this.api.unlock()
+        })
+    }
+
     private removeLoading(): void {
         const loading: HTMLButtonElement = document.querySelector("#loading")
 
@@ -100,9 +111,11 @@ export class UI {
 
     async init(): Promise<void> {
         this.initParachuteTrigger()
+        this.initUnlock();
 
         await this.configForm.init()
         await this.initWebSocketMessage()
+        
 
         await this.viewer3d.init()
 
