@@ -88,7 +88,7 @@ void setup()
   statusLeds.progress();
 
   // AltitudeManager
-  success = altitudeManager.setup(&statusLeds);
+  /*success = altitudeManager.setup(&statusLeds);
   if (!success)
   {
     Serial.println("fail to setup altitude manager");
@@ -107,7 +107,7 @@ void setup()
   }
 
   // update the status progress
-  statusLeds.progress();
+  statusLeds.progress();*/
 
   // VoltageMeasurement
   success = voltageMeasurement.setup(config);
@@ -163,8 +163,8 @@ void loop()
   float delta = stats.update();
 
   // update other components
-  imu.update();
-  altitudeManager.update();
+  //imu.update();
+  //altitudeManager.update();
 
   dataLogger.update();
   remoteServer.update();

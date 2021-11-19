@@ -1,6 +1,6 @@
 #include "data_logger.h"
 
-DataLogger::DataLogger()
+DataLogger::DataLogger() : _flash(DATA_LOGGER_FLASH_CS)
 {
 }
 
@@ -16,6 +16,8 @@ bool DataLogger::setup(Stats *stats, StatusLeds *status_leds, AltitudeManager *a
   this->_altitude_manager = altitude_manager;
   this->_parachute_manager = parachute_manager;
   this->_voltage_measurement = voltage_measurement;
+
+  SPI.begin();
 
   bool success = SD.begin(DATA_LOGGER_SD_CS);
   if (!success)
@@ -47,19 +49,19 @@ bool DataLogger::setup(Stats *stats, StatusLeds *status_leds, AltitudeManager *a
 
   Serial.println("configuring flash memory");
 
-  // create the memory flash
-  this->_flash = new SPIFlash(DATA_LOGGER_FLASH_CS);
-
   // start the memory flash
-  success = this->_flash->begin();
+  success = this->_flash.begin(MB(16));
   if (!success)
   {
+    Serial.println(this->_flash.error(true));
     Serial.println("fail to initialize flash memory.");
     return false;
   }
 
   // update the led status for initialize
   this->_status_leds->progress();
+
+  
 
   // verify the flash memory
   success = this->verify_flash_memory();
@@ -69,7 +71,7 @@ bool DataLogger::setup(Stats *stats, StatusLeds *status_leds, AltitudeManager *a
     return false;
   }
 
-  success = this->_flash->eraseSection(1, 100000);
+  success = this->_flash.eraseSection(0, 1000);
   if (!success)
   {
     Serial.println("fail to erase flash memory.");
@@ -182,7 +184,7 @@ bool DataLogger::open_data_file()
 bool DataLogger::verify_flash_memory()
 {
   // get the id
-  uint32_t JEDEC = this->_flash->getJEDECID();
+  uint32_t JEDEC = this->_flash.getJEDECID();
   if (!JEDEC)
   {
     Serial.println("No comms. Check wiring. Is the memory flash chip supported?");
@@ -196,12 +198,12 @@ bool DataLogger::verify_flash_memory()
   Serial.println(uint8_t(JEDEC >> 8), HEX);
 
   Serial.print("Capacity: ");
-  Serial.println(this->_flash->getCapacity());
+  Serial.println(this->_flash.getCapacity());
 
   Serial.print("Max Pages: ");
-  Serial.println(this->_flash->getMaxPage());
+  Serial.println(this->_flash.getMaxPage());
 
-  long long uniqueID = this->_flash->getUniqueID();
+  long long uniqueID = this->_flash.getUniqueID();
   Serial.print("UniqueID: 0x");
   Serial.print(uint32_t(uniqueID >> 32), HEX);
   Serial.println(uint32_t(uniqueID), HEX);
@@ -226,14 +228,13 @@ bool DataLogger::flash_memory_speed_test()
   for (int i = 0; i < writes; i++)
   {
     uint32_t address = i * length + 1;
-    bool success = this->_flash->writeByteArray(address, &buf[0], length);
-    if (!success)
+    bool success = this->_flash.writeByteArray(address, &buf[0], length);
+    /*if (!success)
     {
-      Serial.print(i);
-      Serial.println(this->_flash->error());
+      Serial.println(this->_flash.error(true));
       Serial.println("fail to write to flash memory");
       return false;
-    }
+    }*/
     this->_status_leds->progress();
   }
 
@@ -250,10 +251,10 @@ bool DataLogger::flash_memory_speed_test()
   for (int i = 0; i < reads; i++)
   {
     uint32_t address = i * length + 1;
-    bool success = this->_flash->readByteArray(address, &buf2[0], length);
+    bool success = this->_flash.readByteArray(address, &buf2[0], length);
     if (!success)
     {
-      Serial.println(this->_flash->error());
+      Serial.println(this->_flash.error());
       Serial.println("fail to read from flash memory");
       return false;
     }
@@ -318,7 +319,7 @@ void DataLogger::load_remote_message(RemoteMessage &message)
 
   message.voltage = this->_voltage_measurement->get_voltage();
   message.altitude = this->_altitude_manager->get_altitude_delta();
-  
+
   Vec3f *gyroscope = this->_imu->get_gyroscope();
   message.gyroscope_x = gyroscope->x;
   message.gyroscope_y = gyroscope->y;
@@ -361,12 +362,12 @@ void DataLogger::write_entry_2_flash_memory(byte *data, uint32_t length)
   uint32_t memory_filled = address + length;
 
   // check if the flash memory full
-  if (memory_filled > this->_flash->getCapacity())
+  if (memory_filled > this->_flash.getCapacity())
   {
     return;
   }
   // write the entry to flash memory
-  bool success = this->_flash->writeByteArray(address, data, length);
+  bool success = this->_flash.writeByteArray(address, data, length);
 
   this->_entities++;
 }
@@ -447,7 +448,7 @@ bool DataLogger::done()
     // update the status led
     this->_status_leds->finalize();
     // read the data from flash memory
-    this->_flash->readByteArray(i, buf, buf_length);
+    this->_flash.readByteArray(i, buf, buf_length);
 
     // write the buffer to sd file
     uint32_t n = this->_data_file.write(buf, buf_length);

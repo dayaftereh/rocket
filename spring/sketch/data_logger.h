@@ -45,7 +45,7 @@ private:
   uint32_t _entities;
 
   File _data_file;
-  SPIFlash *_flash;
+  SPIFlash _flash;
 
   IMU *_imu;
   Stats *_stats;

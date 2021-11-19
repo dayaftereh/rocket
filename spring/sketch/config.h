@@ -1,6 +1,8 @@
 #ifndef _CONFIG_H
 #define _CONFIG_H
 
+#define RUNDIAGNOSTIC
+
 #include <Arduino.h>
 
 // Serial -----------------------------------------------
@@ -27,9 +29,9 @@
 #define STATUS_FINALIZE_LED_TIMEOUT 200
 
 // DataLogger -----------------------------------------------
-#define DATA_LOGGER_USE_FLASH false
-#define DATA_LOGGER_SD_CS D8
-#define DATA_LOGGER_FLASH_CS D0
+#define DATA_LOGGER_USE_FLASH true
+#define DATA_LOGGER_SD_CS D0
+#define DATA_LOGGER_FLASH_CS D8
 
 // ConfigManager -----------------------------------------------
 #define EEPROM_CONFIG_SIZE 512
