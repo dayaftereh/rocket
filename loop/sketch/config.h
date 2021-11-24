@@ -24,20 +24,20 @@
 #define REMOTE_SERVER_BROADCAST_TIMEOUT (100)
 
 // Status -----------------------------------------------
-#define STATUS_LED_1_PIN D3
+#define STATUS_LED_1_PIN 4
 #define STATUS_INIT_LED_TIMEOUT 500
 #define STATUS_FINALIZE_LED_TIMEOUT 200
 
 // DataLogger -----------------------------------------------
 #define DATA_LOGGER_USE_FLASH true
-#define DATA_LOGGER_SD_CS D0
-#define DATA_LOGGER_FLASH_CS D8
+#define DATA_LOGGER_SD_CS 17
+#define DATA_LOGGER_FLASH_CS 5
 
 // ConfigManager -----------------------------------------------
 #define EEPROM_CONFIG_SIZE 512
 
 // VoltageMeasurement -----------------------------------------------
-#define VOLTAGE_MEASUREMENT_PIN A0
+#define VOLTAGE_MEASUREMENT_PIN 34
 
 // AltitudeManager -----------------------------------------------
 #define ALTITUDE_MANAGER_ZERO_READINGS 500
@@ -47,7 +47,7 @@
 #define MOTION_MANAGER_CALIBRATION_READS 500
 
 // ParachuteManager -----------------------------------------------
-#define PARACHUTE_MANAGER_PIN D4
+#define PARACHUTE_MANAGER_PIN 27
 
 // Constants -----------------------------------------------
 #define GRAVITY_OF_EARTH (9.80665F)

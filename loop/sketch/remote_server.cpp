@@ -1,6 +1,6 @@
 #include "remote_server.h"
 
-RemoteServer::RemoteServer() : _web_server(REMOTE_SERVER_PORT), _websocket("/api/ws")
+RemoteServer::RemoteServer() : _web_server(REMOTE_SERVER_PORT), _web_socket("/api/ws")
 {
 }
 
@@ -27,16 +27,30 @@ bool RemoteServer::setup(ConfigManager *config_manager, DataLogger *data_logger,
 
   delay(10);
 
-  this->_web_socket.onEvent(std::bind(&RemoteServer::handle_web_socket, this));
+  this->_web_socket.onEvent([&](AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len)
+                            { this->handle_web_socket(server, client, type, arg, data, len); });
 
   // setup the web-server
-  this->_web_server.onNotFound(std::bind(&RemoteServer::handle_not_found, this));
-  this->_web_server.on("/api/unlock", HTTP_GET, std::bind(&RemoteServer::handle_unlock, this));
-  this->_web_server.on("/api/config", HTTP_GET, std::bind(&RemoteServer::handle_get_configuration, this));
-  this->_web_server.on("/api/config", HTTP_POST, std::bind(&RemoteServer::handle_update_configuration, this));
-  this->_web_server.on("/api/trigger", HTTP_GET, std::bind(&RemoteServer::handle_trigger_parachute, this));
+  this->_web_server.onNotFound([this](AsyncWebServerRequest *request)
+                               { this->handle_not_found(request); });
 
-  this->_web_server.addHandler(this->_web_socket);
+  this->_web_server.on("/api/unlock", HTTP_GET, [this](AsyncWebServerRequest *request)
+                       { this->handle_unlock(request); });
+
+  this->_web_server.on("/api/config", HTTP_GET, [this](AsyncWebServerRequest *request)
+                       { this->handle_get_configuration(request); });
+
+  this->_web_server.on("/api/trigger", HTTP_GET, [this](AsyncWebServerRequest *request)
+                       { this->handle_trigger_parachute(request); });
+
+  this->_web_server.addHandler(new AsyncCallbackJsonWebHandler(
+      "/api/config",
+      [this](AsyncWebServerRequest *request, JsonVariant &json)
+      {
+        this->handle_update_configuration(request, json);
+      }));
+
+  this->_web_server.addHandler(&this->_web_socket);
 
   delay(10);
 
@@ -54,7 +68,7 @@ void RemoteServer::update()
   }
 
   this->_web_socket.cleanupClients();
-  
+
   this->broadcast_update();
 }
 
@@ -77,9 +91,9 @@ void RemoteServer::broadcast_update()
   // get the size of the message
   size_t struct_size = sizeof(message);
   // get the message as pointer
-  byte *pointer = (byte *)&message;
+  const char *pointer = (const char *)(&message);
   // broadcast the remote message
-  this->_web_socket.broadcastBIN(pointer, struct_size);
+  this->_web_socket.binary(pointer, struct_size);
 }
 
 void RemoteServer::enable()
@@ -92,7 +106,7 @@ void RemoteServer::disable()
   this->_active = false;
 }
 
-void RemoteServer::send_result(int16_t t)
+void RemoteServer::send_result(AsyncWebServerRequest *request, int16_t t)
 {
   // create the json document
   DynamicJsonDocument responseDoc(1024);
@@ -104,29 +118,19 @@ void RemoteServer::send_result(int16_t t)
   String output;
   serializeJson(responseDoc, output);
   // send the response back
-  this->_web_server.send(200, "application/json", output);
+  request->send(200, "application/json", output);
 }
 
-String RemoteServer::read_request_body()
-{
-  if (!this->_web_server.hasArg("plain"))
-  {
-    return "";
-  }
-  String plain = this->_web_server.arg("plain");
-  return plain;
-}
-
-void RemoteServer::handle_web_socket(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len)
+void RemoteServer::handle_web_socket(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len)
 {
 }
 
-void RemoteServer::handle_not_found()
+void RemoteServer::handle_not_found(AsyncWebServerRequest *request)
 {
-  this->_web_server.send(404, "text/plain", "404: Not found");
+  request->send(404, "text/plain", "404: Not found");
 }
 
-void RemoteServer::handle_get_configuration()
+void RemoteServer::handle_get_configuration(AsyncWebServerRequest *request)
 {
   // get the current configuration
   Config *config = this->_config_manager->get_config();
@@ -166,28 +170,14 @@ void RemoteServer::handle_get_configuration()
   String output;
   serializeJson(responseDoc, output);
   // send the response back
-  this->_web_server.send(200, "application/json", output);
+  request->send(200, "application/json", output);
 }
 
-void RemoteServer::handle_update_configuration()
+void RemoteServer::handle_update_configuration(AsyncWebServerRequest *request, JsonVariant &json)
 {
   int16_t t = millis();
 
-  // read the body
-  String body = this->read_request_body();
-
-  // create the response doc
-  DynamicJsonDocument responseDoc(2048);
-
-  // deserialize incoming body
-  DynamicJsonDocument doc(1024);
-  DeserializationError error = deserializeJson(doc, body);
-  // check if failed
-  if (error)
-  {
-    this->_web_server.send(400, "text/plain", error.f_str());
-    return;
-  }
+  JsonObject &doc = json.as<JsonObject>();
 
   // get the current configuration
   Config *config = this->_config_manager->get_config();
@@ -317,25 +307,25 @@ void RemoteServer::handle_update_configuration()
   bool success = this->_config_manager->write();
   if (!success)
   {
-    this->_web_server.send(400, "text/plain", "fail to commit config");
+    request->send(400, "text/plain", "fail to commit config");
     return;
   }
 
   // send result back
-  this->send_result(t);
+  this->send_result(request, t);
 }
 
-void RemoteServer::handle_trigger_parachute()
+void RemoteServer::handle_trigger_parachute(AsyncWebServerRequest *request)
 {
   // trigger the parachute
   this->_parachute_manager->trigger();
   // send ok back
-  this->_web_server.send(200, "text/plain", "200: OK");
+  request->send(200, "text/plain", "200: OK");
 }
 
-void RemoteServer::handle_unlock()
+void RemoteServer::handle_unlock(AsyncWebServerRequest *request)
 {
   this->_flight_observer->unlock();
   // send ok back
-  this->_web_server.send(200, "text/plain", "200: OK");
+  request->send(200, "text/plain", "200: OK");
 }

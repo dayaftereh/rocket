@@ -5,6 +5,7 @@
 #include <SPIFFS.h>
 #include <Arduino.h>
 #include <AsyncTCP.h>
+#include <AsyncJson.h>
 #include <ArduinoJson.h>
 #include <ESPAsyncWebServer.h>
 
@@ -29,21 +30,20 @@ public:
 private:
   void broadcast_update();
 
-  String read_request_body();
-  void send_result(int16_t t);
+  void send_result(AsyncWebServerRequest *request, int16_t t);
 
-  void handle_not_found();
+  void handle_not_found(AsyncWebServerRequest *request);
   void handle_web_socket(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len);
 
   // configuration
-  void handle_get_configuration();
-  void handle_update_configuration();
+  void handle_get_configuration(AsyncWebServerRequest *request);
+  void handle_update_configuration(AsyncWebServerRequest *request, JsonVariant &json);
 
   // parachute
-  void handle_trigger_parachute();
+  void handle_trigger_parachute(AsyncWebServerRequest *request);
 
   // unlock
-  void handle_unlock();
+  void handle_unlock(AsyncWebServerRequest *request);
 
   bool _active;
   unsigned long _last_broadcast;
