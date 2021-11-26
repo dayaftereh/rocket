@@ -109,7 +109,7 @@ bool DataLogger::sd_card_speed_test()
 
   // open the speedtest file
   File speedtest = SD.open(filename, FILE_WRITE);
-  // get back to the begining
+  /*// get back to the begining
   bool success = speedtest.seek(0);
   if (!success)
   {
@@ -117,7 +117,7 @@ bool DataLogger::sd_card_speed_test()
     speedtest.close();
     Serial.println("fail to seek to the start of the speedtest file.");
     return false;
-  }
+  }*/
 
   int length = 128;
   byte buf[length];

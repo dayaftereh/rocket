@@ -27,29 +27,40 @@ bool RemoteServer::setup(ConfigManager *config_manager, DataLogger *data_logger,
 
   delay(10);
 
-  this->_web_socket.onEvent([&](AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len)
-                            { this->handle_web_socket(server, client, type, arg, data, len); });
+  this->_web_socket.onEvent([&](AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void *arg, uint8_t *data, size_t len)
+  {
+    this->handle_web_socket(server, client, type, arg, data, len);
+  });
 
   // setup the web-server
-  this->_web_server.onNotFound([this](AsyncWebServerRequest *request)
-                               { this->handle_not_found(request); });
+  this->_web_server.onNotFound([this](AsyncWebServerRequest * request)
+  {
+    this->handle_not_found(request);
+  });
 
-  this->_web_server.on("/api/unlock", HTTP_GET, [this](AsyncWebServerRequest *request)
-                       { this->handle_unlock(request); });
+  this->_web_server.on("/api/unlock", HTTP_GET, [this](AsyncWebServerRequest * request)
+  {
+    this->handle_unlock(request);
+  });
 
-  this->_web_server.on("/api/config", HTTP_GET, [this](AsyncWebServerRequest *request)
-                       { this->handle_get_configuration(request); });
+  this->_web_server.on("/api/config", HTTP_GET, [this](AsyncWebServerRequest * request)
+  {
+    this->handle_get_configuration(request);
+  });
 
-  this->_web_server.on("/api/trigger", HTTP_GET, [this](AsyncWebServerRequest *request)
-                       { this->handle_trigger_parachute(request); });
+  this->_web_server.on("/api/trigger", HTTP_GET, [this](AsyncWebServerRequest * request)
+  {
+    this->handle_trigger_parachute(request);
+  });
 
-  this->_web_server.addHandler(new AsyncCallbackJsonWebHandler(
-      "/api/config",
-      [this](AsyncWebServerRequest *request, JsonVariant &json)
-      {
-        this->handle_update_configuration(request, json);
-      }));
+  AsyncCallbackJsonWebHandler *config_update = new AsyncCallbackJsonWebHandler(
+    "/api/config",
+    [this](AsyncWebServerRequest * request, JsonVariant & json)
+  {
+    this->handle_update_configuration(request, json);
+  });
 
+  this->_web_server.addHandler(config_update);
   this->_web_server.addHandler(&this->_web_socket);
 
   delay(10);
@@ -91,9 +102,9 @@ void RemoteServer::broadcast_update()
   // get the size of the message
   size_t struct_size = sizeof(message);
   // get the message as pointer
-  const char *pointer = (const char *)(&message);
+  uint8_t *pointer = (uint8_t *)(&message);
   // broadcast the remote message
-  this->_web_socket.binary(pointer, struct_size);
+  this->_web_socket.binaryAll(pointer, struct_size);
 }
 
 void RemoteServer::enable()
@@ -177,7 +188,7 @@ void RemoteServer::handle_update_configuration(AsyncWebServerRequest *request, J
 {
   int16_t t = millis();
 
-  JsonObject &doc = json.as<JsonObject>();
+  JsonObject doc = json.as<JsonObject>();
 
   // get the current configuration
   Config *config = this->_config_manager->get_config();

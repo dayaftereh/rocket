@@ -9,7 +9,7 @@
 #define SERIAL_BAUD_RATE 9600
 
 // AccessPoint -----------------------------------------------
-#define ACCESS_POINT_SSID "Spring"
+#define ACCESS_POINT_SSID "Loop"
 #define ACCESS_POINT_PASSWD "123456789"
 #define ACCESS_POINT_CHANNEL 7
 
@@ -29,9 +29,9 @@
 #define STATUS_FINALIZE_LED_TIMEOUT 200
 
 // DataLogger -----------------------------------------------
-#define DATA_LOGGER_USE_FLASH true
-#define DATA_LOGGER_SD_CS 17
-#define DATA_LOGGER_FLASH_CS 5
+#define DATA_LOGGER_USE_FLASH false
+#define DATA_LOGGER_SD_CS 5
+#define DATA_LOGGER_FLASH_CS 17
 
 // ConfigManager -----------------------------------------------
 #define EEPROM_CONFIG_SIZE 512
