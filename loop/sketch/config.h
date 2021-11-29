@@ -18,20 +18,22 @@
 
 // RemoteServer -----------------------------------------------
 #define REMOTE_SERVER_PORT 80
+#define REMOTE_SERVER_HOSTNAME "loop"
 #define REMOTE_SERVER_ADDRESS "192.168.10.1"
 #define REMOTE_SERVER_GATEWAY "192.168.10.1"
 #define REMOTE_SERVER_SUBNET_MASK "255.255.255.0"
 #define REMOTE_SERVER_BROADCAST_TIMEOUT (100)
 
 // Status -----------------------------------------------
-#define STATUS_LED_1_PIN 4
+#define STATUS_LED_1_PIN 2
+#define STATUS_LED_2_PIN 4
 #define STATUS_INIT_LED_TIMEOUT 500
 #define STATUS_FINALIZE_LED_TIMEOUT 200
 
 // DataLogger -----------------------------------------------
-#define DATA_LOGGER_USE_FLASH false
-#define DATA_LOGGER_SD_CS 5
-#define DATA_LOGGER_FLASH_CS 17
+#define DATA_LOGGER_USE_FLASH true
+#define DATA_LOGGER_SD_CS 17
+#define DATA_LOGGER_FLASH_CS 5
 
 // ConfigManager -----------------------------------------------
 #define EEPROM_CONFIG_SIZE 512

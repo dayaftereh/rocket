@@ -19,6 +19,8 @@ bool DataLogger::setup(Stats *stats, StatusLeds *status_leds, AltitudeManager *a
 
   SPI.begin();
 
+  delay(100);
+
   bool success = SD.begin(DATA_LOGGER_SD_CS);
   if (!success)
   {
@@ -50,7 +52,7 @@ bool DataLogger::setup(Stats *stats, StatusLeds *status_leds, AltitudeManager *a
   Serial.println("configuring flash memory");
 
   // start the memory flash
-  success = this->_flash.begin(MB(16));
+  success = this->_flash.begin();
   if (!success)
   {
     Serial.println(this->_flash.error(true));
@@ -59,9 +61,7 @@ bool DataLogger::setup(Stats *stats, StatusLeds *status_leds, AltitudeManager *a
   }
 
   // update the led status for initialize
-  this->_status_leds->progress();
-
-  
+  this->_status_leds->progress();  
 
   // verify the flash memory
   success = this->verify_flash_memory();

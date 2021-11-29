@@ -7,6 +7,7 @@ StatusLeds::StatusLeds() {
 void StatusLeds::setup() {
   // set the pin mode
   pinMode(STATUS_LED_1_PIN, OUTPUT);
+  pinMode(STATUS_LED_2_PIN, OUTPUT);
 
   this->off();
 
@@ -17,14 +18,16 @@ void StatusLeds::setup() {
 
 void StatusLeds::on() {
   this->_led1 = true;
-  pinMode(STATUS_LED_1_PIN, OUTPUT);
+  //pinMode(STATUS_LED_1_PIN, OUTPUT);
   digitalWrite(STATUS_LED_1_PIN, HIGH);
+  digitalWrite(STATUS_LED_2_PIN, HIGH);
 }
 
 void StatusLeds::off() {
   this->_led1 = false;
-  pinMode(STATUS_LED_1_PIN, OUTPUT);
+  //pinMode(STATUS_LED_1_PIN, OUTPUT);
   digitalWrite(STATUS_LED_1_PIN, LOW);
+  digitalWrite(STATUS_LED_2_PIN, LOW);
 }
 
 void StatusLeds::toggle() {

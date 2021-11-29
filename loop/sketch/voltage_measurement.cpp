@@ -10,7 +10,7 @@ bool VoltageMeasurement::setup(Config *config) {
 
 void VoltageMeasurement::update() {
   float voltage = (float)analogRead(VOLTAGE_MEASUREMENT_PIN);
-  this->_voltage = ((voltage / 1024.0) * 3.3) * 2.0;
+  this->_voltage = ((voltage / 4094.0) * 3.3) * 2.0;
 }
 
 float VoltageMeasurement::get_voltage() {
