@@ -4,21 +4,23 @@
 #include <Arduino.h>
 #include <Wire.h>
 
-#include "vec3f.h"
-#include "stats.h"
-#include "config.h"
 #include "mpu_6050.h"
 #include "madgwick.h"
 #include "qmc_5883l.h"
-#include "quaternion.h"
-#include "status_leds.h"
+
+#include "../utils/leds.h"
+#include "../utils/stats.h"
+
+#include "../math/vec3f.h"
+#include "../config/config.h"
+#include "../math/quaternion.h"
 
 class IMU
 {
 public:
   IMU();
 
-  bool setup(Config *config, Stats *stats, StatusLeds *status_leds);
+  bool setup(Config *config, Stats *stats, LEDs *leds);
   void update();
 
   Vec3f *get_rotation();
@@ -43,9 +45,9 @@ private:
 
   TwoWire *_wire;
 
+  LEDs *_leds;
   Stats *_stats;
   Config *_config;
-  StatusLeds *_status_leds;
 };
 
 #endif // _IMU_H

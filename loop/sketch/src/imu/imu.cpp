@@ -4,11 +4,11 @@ IMU::IMU()
 {
 }
 
-bool IMU::setup(Config *config, Stats *stats, StatusLeds *status_leds)
+bool IMU::setup(Config *config, Stats *stats, LEDs *leds)
 {
+  this->_leds = leds;
   this->_stats = stats;
   this->_config = config;
-  this->_status_leds = status_leds;
 
   TwoWire *wire = &Wire;
 
@@ -24,18 +24,16 @@ bool IMU::setup(Config *config, Stats *stats, StatusLeds *status_leds)
     return false;
   }
 
-  success = this->_mpu_6050.setup(config, wire, status_leds);
+  success = this->_mpu_6050.setup(config, wire, leds);
   if (!success)
   {
     Serial.println("fail to setup mpu6050");
     return false;
   }
 
-  delay(10);
+  this->_leds->delay(10);
 
-  this->_status_leds->progress();
-
-  success = this->_qmc_5883l.setup(config, wire, status_leds);
+  success = this->_qmc_5883l.setup(config, wire, leds);
   if (!success)
   {
     Serial.println("fail to setup hmc5883l");

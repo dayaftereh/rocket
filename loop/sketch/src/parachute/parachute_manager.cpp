@@ -4,11 +4,10 @@ ParachuteManager::ParachuteManager()
 {
 }
 
-bool ParachuteManager::setup(Config *config, StatusLeds *status_leds)
+bool ParachuteManager::setup(Config *config, LEDs *leds)
 {
-  // set the config
+  this->_leds = leds;
   this->_config = config;
-  this->_status_leds = status_leds;
 
   this->_completed = false;
 
@@ -26,12 +25,8 @@ bool ParachuteManager::setup(Config *config, StatusLeds *status_leds)
     Serial.println("parachute manager is using output flag");
   }
 
-  this->_status_leds->progress();
-
-  // wait for servo setup
-  delay(100);
-
-  this->_status_leds->progress();
+  // wait a short time
+  this->_leds->delay(100);
 
   // reset the bools
   this->reset();
@@ -39,14 +34,32 @@ bool ParachuteManager::setup(Config *config, StatusLeds *status_leds)
   return true;
 }
 
+void ParachuteManager::open()
+{
+  if (this->_config->parachute_servo)
+  {
+    this->_servo.write(this->_config->parachute_servo_open_angle);
+  }
+  else
+  {
+    digitalWrite(PARACHUTE_MANAGER_PIN, HIGH);
+  }
+}
+
+void ParachuteManager::close()
+{
+  if (this->_config->parachute_servo)
+  {
+    this->_servo.write(this->_config->parachute_servo_close_angle);
+  }
+  else
+  {
+    digitalWrite(PARACHUTE_MANAGER_PIN, LOW);
+  }
+}
+
 void ParachuteManager::update()
 {
-  if (!this->_config->parachute_servo)
-  {
-    // write the digital output
-    digitalWrite(PARACHUTE_MANAGER_PIN, this->_trigger);
-  }
-
   // check if a trigger running
   if (!this->_trigger)
   {
@@ -66,25 +79,16 @@ void ParachuteManager::update()
 
 void ParachuteManager::reset()
 {
+  this->close();
   this->_trigger = false;
   this->_timer = millis();
-  // move the servo back
-  if (this->_config->parachute_servo)
-  {
-    this->_servo.write(this->_config->parachute_servo_close_angle);
-  }
 }
 
 void ParachuteManager::trigger()
 {
+  this->open();
   this->_trigger = true;
   this->_timer = millis();
-
-  // open the servo
-  if (this->_config->parachute_servo)
-  {
-    this->_servo.write(this->_config->parachute_servo_open_angle);
-  }
 }
 
 void ParachuteManager::altitude_trigger()

@@ -4,11 +4,11 @@ QMC5883L::QMC5883L()
 {
 }
 
-bool QMC5883L::setup(Config *config, TwoWire *wire, StatusLeds *status_leds)
+bool QMC5883L::setup(Config *config, TwoWire *wire, LEDs *leds)
 {
+  this->_leds = leds;
   this->_wire = wire;
   this->_config = config;
-  this->_status_leds = status_leds;
 
   // Initialize
   this->_address = QMC5883L_I2C_ADDRESS;
@@ -84,9 +84,6 @@ bool QMC5883L::calibrate()
 
   for (int i = 0; i < MOTION_MANAGER_CALIBRATION_READS; i++)
   {
-
-    this->_status_leds->progress();
-
     bool success = this->read();
     if (!success)
     {
@@ -103,7 +100,7 @@ bool QMC5883L::calibrate()
     min_bias.z = min(min_bias.z, this->_raw_magnetometer.z);
     max_bias.z = max(max_bias.z, this->_raw_magnetometer.z);
 
-    delay(2);
+    this->_leds->delay(2);
   }
 
   this->_magnetometer_offset.x = 0.0;

@@ -2,19 +2,21 @@
 #define _PARACHUTE_MANAGER_H
 
 #include <Arduino.h>
-#include <ESP32Servo.h> 
+#include <ESP32Servo.h>
 
-#include "config.h"
-#include "status_leds.h"
+#include "../utils/leds.h"
+#include "../config/config.h"
 
 class ParachuteManager
 {
 public:
     ParachuteManager();
 
-    bool setup(Config *config, StatusLeds *status_leds);
+    bool setup(Config *config, LEDs *leds);
     void update();
 
+    void open();
+    void close();
     void trigger();
 
     void velocity_trigger();
@@ -36,11 +38,11 @@ private:
     bool _altitude;
     bool _orientation;
 
-    unsigned long _timer;
+    uint32_t _timer;
 
+    LEDs *_leds;
     Servo _servo;
     Config *_config;
-    StatusLeds *_status_leds;
 };
 
 #endif // _PARACHUTE_MANAGER_H

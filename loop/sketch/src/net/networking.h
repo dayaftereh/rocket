@@ -4,16 +4,18 @@
 #include <WiFi.h>
 #include <ESPmDNS.h>
 
-#include "config.h"
+#include "../utils/leds.h"
+#include "../config/config.h"
 
 class Networking
 {
 public:
     Networking();
 
-    bool setup();
+    bool setup(LEDs *leds);
 
 private:
+    LEDs *_leds;
 };
 
 #endif // _NETWORKING_H

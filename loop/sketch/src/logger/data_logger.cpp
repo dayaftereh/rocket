@@ -4,14 +4,14 @@ DataLogger::DataLogger() : _flash(DATA_LOGGER_FLASH_CS)
 {
 }
 
-bool DataLogger::setup(Stats *stats, StatusLeds *status_leds, AltitudeManager *altitude_manager, VoltageMeasurement *voltage_measurement, IMU *imu, ParachuteManager *parachute_manager, FlightObserver *flight_observer)
+bool DataLogger::setup(Stats *stats, LEDs *leds, AltitudeManager *altitude_manager, VoltageMeasurement *voltage_measurement, IMU *imu, ParachuteManager *parachute_manager, FlightObserver *flight_observer)
 {
   this->_flushed = false;
   this->_started = false;
 
   this->_imu = imu;
+  this->_leds = leds;
   this->_stats = stats;
-  this->_status_leds = status_leds;
   this->_flight_observer = flight_observer;
   this->_altitude_manager = altitude_manager;
   this->_parachute_manager = parachute_manager;
@@ -19,7 +19,7 @@ bool DataLogger::setup(Stats *stats, StatusLeds *status_leds, AltitudeManager *a
 
   SPI.begin();
 
-  delay(100);
+  this->_leds->delay(100);
 
   bool success = SD.begin(DATA_LOGGER_SD_CS);
   if (!success)
@@ -61,7 +61,7 @@ bool DataLogger::setup(Stats *stats, StatusLeds *status_leds, AltitudeManager *a
   }
 
   // update the led status for initialize
-  this->_status_leds->progress();  
+  this->_leds->delay(10);
 
   // verify the flash memory
   success = this->verify_flash_memory();
@@ -123,7 +123,7 @@ bool DataLogger::sd_card_speed_test()
   byte buf[length];
   for (int i = 0; i < length; i++)
   {
-    this->_status_leds->progress();
+    this->_leds->update();
     buf[i] = random(0, 255);
   }
 
@@ -132,7 +132,7 @@ bool DataLogger::sd_card_speed_test()
   for (int i = 0; i < writes; i++)
   {
     speedtest.write(buf, length);
-    this->_status_leds->progress();
+    this->_leds->update();
   }
 
   float elapsed = ((float)(millis() - start)) / 1000.0;
@@ -156,7 +156,7 @@ bool DataLogger::open_data_file()
     filename = filename + ".dat";
 
     // update the led status for initialize
-    this->_status_leds->progress();
+    this->_leds->update();
 
     // check if the data file already exists
     bool exists = SD.exists(filename);
@@ -219,7 +219,7 @@ bool DataLogger::flash_memory_speed_test()
   byte buf[length];
   for (int i = 0; i < length; i++)
   {
-    this->_status_leds->progress();
+    this->_leds->update();
     buf[i] = random(0, 255);
   }
 
@@ -235,7 +235,7 @@ bool DataLogger::flash_memory_speed_test()
       Serial.println("fail to write to flash memory");
       return false;
     }*/
-    this->_status_leds->progress();
+    this->_leds->update();
   }
 
   float elapsed = ((float)(millis() - start)) / 1000.0;
@@ -268,7 +268,7 @@ bool DataLogger::flash_memory_speed_test()
         return false;
       }
     }
-    this->_status_leds->progress();
+    this->_leds->update();
   }
 
   elapsed = ((float)(millis() - start)) / 1000.0;

@@ -4,8 +4,10 @@ Networking::Networking()
 {
 }
 
-bool Networking::setup()
+bool Networking::setup(LEDs *leds)
 {
+  this->_leds = leds;
+
   Serial.println("starting networking...");
 
   // parse server ip
@@ -63,7 +65,7 @@ bool Networking::setup()
   Serial.print(WiFi.softAPIP());
   Serial.println(" ]");
 
-  delay(10);
+  this->_leds->delay(10);
 
   // Start the mDNS responder for spring.local
   success = MDNS.begin("spring");

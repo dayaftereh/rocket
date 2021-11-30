@@ -5,25 +5,25 @@
 #include <SPI.h>
 #include <SPIMemory.h>
 
-#include "imu.h"
-#include "stats.h"
-#include "config.h"
-#include "status_leds.h"
-#include "remote_message.h"
-#include "flight_observer.h"
-#include "altitude_manager.h"
+#include "../imu/imu.h"
+#include "../utils/leds.h"
+#include "../utils/stats.h"
+#include "../config/config.h"
 #include "data_logger_entry.h"
-#include "parachute_manager.h"
-#include "voltage_measurement.h"
+#include "../net/remote_server.h"
+#include "../flight_observer.h"
+#include "../altitude/altitude_manager.h"
+#include "../parachute/parachute_manager.h"
+#include "../voltage/voltage_measurement.h"
 
 class DataLogger
 {
 public:
   DataLogger();
 
-  bool setup(Stats *stats, StatusLeds *status_leds, AltitudeManager *altitude_manager, VoltageMeasurement *voltage_measurement, IMU *imu, ParachuteManager *parachute_manager, FlightObserver *flight_observer);
+  bool setup(Stats *stats, LEDs *leds, AltitudeManager *altitude_manager, VoltageMeasurement *voltage_measurement, IMU *imu, ParachuteManager *parachute_manager, FlightObserver *flight_observer);
   void update();
-  
+
   bool done();
 
   void load_remote_message(RemoteMessage &message);
@@ -48,8 +48,8 @@ private:
   SPIFlash _flash;
 
   IMU *_imu;
+  LEDs *_leds;
   Stats *_stats;
-  StatusLeds *_status_leds;
   FlightObserver *_flight_observer;
   AltitudeManager *_altitude_manager;
   ParachuteManager *_parachute_manager;

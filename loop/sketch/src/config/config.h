@@ -25,8 +25,8 @@
 #define REMOTE_SERVER_BROADCAST_TIMEOUT (100)
 
 // Status -----------------------------------------------
-#define STATUS_LED_1_PIN 2
-#define STATUS_LED_2_PIN 4
+#define STATUS_LED_RED_PIN 2
+#define STATUS_LED_GREEN_PIN 4
 #define STATUS_INIT_LED_TIMEOUT 500
 #define STATUS_FINALIZE_LED_TIMEOUT 200
 

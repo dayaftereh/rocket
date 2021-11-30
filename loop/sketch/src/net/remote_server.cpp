@@ -4,10 +4,11 @@ RemoteServer::RemoteServer() : _web_server(REMOTE_SERVER_PORT), _web_socket("/ap
 {
 }
 
-bool RemoteServer::setup(ConfigManager *config_manager, DataLogger *data_logger, ParachuteManager *parachute_manager, FlightObserver *flight_observer)
+bool RemoteServer::setup(ConfigManager *config_manager, LEDs *leds, DataLogger *data_logger, ParachuteManager *parachute_manager, FlightObserver *flight_observer)
 {
   Serial.println("starting remote server...");
 
+  this->_leds = leds;
   this->_data_logger = data_logger;
   this->_config_manager = config_manager;
   this->_flight_observer = flight_observer;
@@ -25,45 +26,35 @@ bool RemoteServer::setup(ConfigManager *config_manager, DataLogger *data_logger,
     return false;
   }
 
-  delay(10);
+  this->_leds->delay(10);
 
-  this->_web_socket.onEvent([&](AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void *arg, uint8_t *data, size_t len)
-  {
-    this->handle_web_socket(server, client, type, arg, data, len);
-  });
+  this->_web_socket.onEvent([&](AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len)
+                            { this->handle_web_socket(server, client, type, arg, data, len); });
 
   // setup the web-server
-  this->_web_server.onNotFound([this](AsyncWebServerRequest * request)
-  {
-    this->handle_not_found(request);
-  });
+  this->_web_server.onNotFound([this](AsyncWebServerRequest *request)
+                               { this->handle_not_found(request); });
 
-  this->_web_server.on("/api/unlock", HTTP_GET, [this](AsyncWebServerRequest * request)
-  {
-    this->handle_unlock(request);
-  });
+  this->_web_server.on("/api/unlock", HTTP_GET, [this](AsyncWebServerRequest *request)
+                       { this->handle_unlock(request); });
 
-  this->_web_server.on("/api/config", HTTP_GET, [this](AsyncWebServerRequest * request)
-  {
-    this->handle_get_configuration(request);
-  });
+  this->_web_server.on("/api/config", HTTP_GET, [this](AsyncWebServerRequest *request)
+                       { this->handle_get_configuration(request); });
 
-  this->_web_server.on("/api/trigger", HTTP_GET, [this](AsyncWebServerRequest * request)
-  {
-    this->handle_trigger_parachute(request);
-  });
+  this->_web_server.on("/api/trigger", HTTP_GET, [this](AsyncWebServerRequest *request)
+                       { this->handle_trigger_parachute(request); });
 
   AsyncCallbackJsonWebHandler *config_update = new AsyncCallbackJsonWebHandler(
-    "/api/config",
-    [this](AsyncWebServerRequest * request, JsonVariant & json)
-  {
-    this->handle_update_configuration(request, json);
-  });
+      "/api/config",
+      [this](AsyncWebServerRequest *request, JsonVariant &json)
+      {
+        this->handle_update_configuration(request, json);
+      });
 
   this->_web_server.addHandler(config_update);
   this->_web_server.addHandler(&this->_web_socket);
 
-  delay(10);
+  this->_leds->delay(10);
 
   this->_web_server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
   this->_web_server.begin();

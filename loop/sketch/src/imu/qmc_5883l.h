@@ -4,9 +4,9 @@
 #include <Arduino.h>
 #include <Wire.h>
 
-#include "vec3f.h"
-#include "config.h"
-#include "status_leds.h"
+#include "../math/vec3f.h"
+#include "../utils/leds.h"
+#include "../config/config.h"
 
 #define QMC5883L_I2C_ADDRESS 0x0D
 
@@ -48,7 +48,7 @@ class QMC5883L
 public:
     QMC5883L();
 
-    bool setup(Config *config, TwoWire *wire, StatusLeds *status_leds);
+    bool setup(Config *config, TwoWire *wire, LEDs *leds);
 
     void update();
 
@@ -71,9 +71,9 @@ private:
     Vec3f _raw_magnetometer;
     Vec3f _magnetometer_offset;
 
+    LEDs *_leds;
     TwoWire *_wire;
     Config *_config;
-    StatusLeds *_status_leds;
 };
 
 #endif // _QMC5883L_H

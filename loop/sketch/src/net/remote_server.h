@@ -9,18 +9,20 @@
 #include <ArduinoJson.h>
 #include <ESPAsyncWebServer.h>
 
-#include "data_logger.h"
 #include "remote_message.h"
-#include "config_manager.h"
-#include "flight_observer.h"
-#include "parachute_manager.h"
+#include "../utils/leds.h"
+#include "../config/config.h"
+#include "../flight_observer.h"
+#include "../logger/data_logger.h"
+#include "../config/config_manager.h"
+#include "../parachute/parachute_manager.h"
 
 class RemoteServer
 {
 public:
   RemoteServer();
 
-  bool setup(ConfigManager *config_manager, DataLogger *data_logger, ParachuteManager *parachute_manager, FlightObserver *flight_observer);
+  bool setup(ConfigManager *config_manager, LEDs *leds, DataLogger *data_logger, ParachuteManager *parachute_manager, FlightObserver *flight_observer);
 
   void update();
 
@@ -33,7 +35,7 @@ private:
   void send_result(AsyncWebServerRequest *request, int16_t t);
 
   void handle_not_found(AsyncWebServerRequest *request);
-  void handle_web_socket(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len);
+  void handle_web_socket(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len);
 
   // configuration
   void handle_get_configuration(AsyncWebServerRequest *request);
@@ -51,6 +53,7 @@ private:
   AsyncWebSocket _web_socket;
   AsyncWebServer _web_server;
 
+  LEDs *_leds;
   DataLogger *_data_logger;
   ConfigManager *_config_manager;
   FlightObserver *_flight_observer;

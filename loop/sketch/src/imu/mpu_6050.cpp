@@ -4,11 +4,11 @@ MPU6050::MPU6050()
 {
 }
 
-bool MPU6050::setup(Config *config, TwoWire *wire, StatusLeds *status_leds)
+bool MPU6050::setup(Config *config, TwoWire *wire, LEDs *leds)
 {
+  this->_leds = leds;
   this->_wire = wire;
   this->_config = config;
-  this->_status_leds = status_leds;
 
   // Initialize
   this->_address = MPU6050_I2C_ADDRESS;
@@ -49,11 +49,7 @@ bool MPU6050::setup(Config *config, TwoWire *wire, StatusLeds *status_leds)
     return false;
   }
 
-  this->_status_leds->progress();
-
-  delay(10);
-
-  this->_status_leds->progress();
+  this->_leds->delay(10);
 
   success = this->calibrate();
   if (!success)
@@ -152,8 +148,6 @@ bool MPU6050::calibrate()
 
   for (int i = 0; i < MOTION_MANAGER_CALIBRATION_READS; i++)
   {
-    this->_status_leds->progress();
-
     bool success = this->read();
     if (!success)
     {
@@ -164,7 +158,7 @@ bool MPU6050::calibrate()
     gyroscope_offset = gyroscope_offset.add(_raw_gyroscope);
     acceleration_offset = acceleration_offset.add(_raw_acceleration);
 
-    delay(2);
+    this->_leds->delay(2);
   }
 
   this->_gyroscope_offset = gyroscope_offset.divide_scalar(MOTION_MANAGER_CALIBRATION_READS).invert();

@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 
-#include "config.h"
+#include "../config/config.h"
 
 class Stats
 {
