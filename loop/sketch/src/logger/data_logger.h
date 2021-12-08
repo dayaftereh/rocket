@@ -9,12 +9,13 @@
 #include "../utils/leds.h"
 #include "../utils/stats.h"
 #include "../config/config.h"
-#include "data_logger_entry.h"
-#include "../net/remote_server.h"
 #include "../flight_observer.h"
+#include "../net/remote_message.h"
 #include "../altitude/altitude_manager.h"
 #include "../parachute/parachute_manager.h"
 #include "../voltage/voltage_measurement.h"
+
+#include "data_logger_entry.h"
 
 class DataLogger
 {

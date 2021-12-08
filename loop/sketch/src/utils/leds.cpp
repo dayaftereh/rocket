@@ -11,11 +11,8 @@ void LEDs::setup()
   pinMode(STATUS_LED_GREEN_PIN, OUTPUT);
 
   // set all leds off
-  this->red_off();
-  this->green_off();
-
-  // start the init flashing
-  this->green_blink(1000);
+  this->red_on();
+  this->green_on();
 }
 
 void LEDs::red_on()
@@ -155,7 +152,7 @@ void LEDs::delay(int timeout)
     this->update();
 
     // delay for a short time
-    int delay_time = min(left, 10);
+    int delay_time = min(left, (int64_t)10);
     delay(delay_time);
 
     // update left

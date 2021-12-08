@@ -1,8 +1,6 @@
 #ifndef _CONFIG_H
 #define _CONFIG_H
 
-#define RUNDIAGNOSTIC
-
 #include <Arduino.h>
 
 // Serial -----------------------------------------------
@@ -51,10 +49,18 @@
 // ParachuteManager -----------------------------------------------
 #define PARACHUTE_MANAGER_PIN 27
 
+// TVC -----------------------------------------------
+#define TVC_X_PIN 25
+#define TVC_Y_PIN 26
+
+// TriggerManager -----------------------------------------------
+#define TRIGGER_MANAGER_L1_PIN 32
+#define TRIGGER_MANAGER_L2_PIN 33
+
 // Constants -----------------------------------------------
-#define GRAVITY_OF_EARTH (9.80665F)
 #define RAD_2_DEG (180.0 / PI)
 #define DEG_2_RAD (PI / 180.0)
+#define GRAVITY_OF_EARTH (9.80665F)
 
 enum IMUUpAxes
 {

@@ -3,23 +3,22 @@
 
 #include <Arduino.h>
 
-#include "config.h"
+#include "../config/config.h"
 
 class VoltageMeasurement
 {
-  public:
-    VoltageMeasurement();
+public:
+  VoltageMeasurement();
 
-    bool setup(Config *config);
+  bool setup(Config *config);
 
-    void update();
+  void update();
 
-    float get_voltage();
+  float get_voltage();
 
-  private:
-
-    float _voltage;
-    Config *_config;
+private:
+  float _voltage;
+  Config *_config;
 };
 
 #endif // _VOLTAGE_MEASUREMENT_H

@@ -3,12 +3,13 @@
 
 #include <Arduino.h>
 
-#include "imu.h"
-#include "stats.h"
-#include "config.h"
-#include "status_leds.h"
-#include "altitude_manager.h"
-#include "parachute_manager.h"
+#include "tvc/tvc.h"
+#include "imu/imu.h"
+#include "utils/leds.h"
+#include "utils/stats.h"
+#include "config/config.h"
+#include "altitude/altitude_manager.h"
+#include "parachute/parachute_manager.h"
 
 enum FlightState
 {
@@ -30,7 +31,7 @@ class FlightObserver
 public:
   FlightObserver();
 
-  bool setup(Config *config, StatusLeds *status_leds, IMU *imu, AltitudeManager *altitude_manager, ParachuteManager *parachute_manager, Stats *stats);
+  bool setup(Config *config, LEDs *leds, IMU *imu, TVC *tvc, AltitudeManager *altitude_manager, ParachuteManager *parachute_manager, Stats *stats);
   void update();
 
   void unlock();
@@ -77,9 +78,10 @@ private:
   FlightState _state;
 
   IMU *_imu;
+  TVC *_tvc;
+  LEDs *_leds;
   Stats *_stats;
   Config *_config;
-  StatusLeds *_status_leds;
   AltitudeManager *_altitude_manager;
   ParachuteManager *_parachute_manager;
 };

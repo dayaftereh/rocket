@@ -3,30 +3,29 @@
 
 #include <Adafruit_BMP280.h>
 
-#include "config.h"
-#include "status_leds.h"
+#include "../utils/leds.h"
+#include "../config/config.h"
 
 class AltitudeManager
 {
-  public:
-    AltitudeManager();
+public:
+  AltitudeManager();
 
-    bool setup(StatusLeds *status_leds);
-    void update();
+  bool setup(LEDs *leds);
+  void update();
 
-    void zero();
-    float get_altitude();
-    float get_altitude_delta();
+  void zero();
+  float get_altitude();
+  float get_altitude_delta();
 
-  private:
+private:
+  bool zero_altitude();
 
-    bool zero_altitude();
+  float _altitude;
+  float _zero_altitude;
 
-    float _altitude;
-    float _zero_altitude;
-
-    Adafruit_BMP280 _bmp280;
-    StatusLeds *_status_leds;
+  LEDs *_leds;
+  Adafruit_BMP280 _bmp280;
 };
 
 #endif // _ALTITUDE_MANAGER_H

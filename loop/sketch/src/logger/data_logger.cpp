@@ -446,7 +446,7 @@ bool DataLogger::done()
   for (uint32_t i = 0; i < data_size; i += buf_length)
   {
     // update the status led
-    this->_status_leds->finalize();
+    this->_leds->update();
     // read the data from flash memory
     this->_flash.readByteArray(i, buf, buf_length);
 

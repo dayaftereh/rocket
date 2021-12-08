@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include <EEPROM.h>
 
-#include "config.h"
+#include "../config/config.h"
 
 class ConfigManager
 {

@@ -4,12 +4,13 @@ FlightObserver::FlightObserver()
 {
 }
 
-bool FlightObserver::setup(Config *config, StatusLeds *status_leds, IMU *imu, AltitudeManager *altitude_manager, ParachuteManager *parachute_manager, Stats *stats)
+bool FlightObserver::setup(Config *config, LEDs *leds, IMU *imu, TVC *tvc, AltitudeManager *altitude_manager, ParachuteManager *parachute_manager, Stats *stats)
 {
   this->_imu = imu;
+  this->_tvc = tvc;
+  this->_leds = leds;
   this->_stats = stats;
   this->_config = config;
-  this->_status_leds = status_leds;
   this->_altitude_manager = altitude_manager;
   this->_parachute_manager = parachute_manager;
 
@@ -63,17 +64,18 @@ void FlightObserver::update()
 
 void FlightObserver::unlock()
 {
+  this->_leds->red_on();
   this->_state = FLIGHT_STATE_INIT;
 }
 
 void FlightObserver::init()
 {
+  this->_leds->red_off();
   this->_state = FLIGHT_STATE_WAIT_FOR_LANUCH;
 }
 
 void FlightObserver::wait_for_launch()
 {
-
   Vec3f *acceleration_normalize = this->_imu->get_world_acceleration_normalized();
 
   // check if the z acceleration above launch
@@ -106,7 +108,7 @@ void FlightObserver::wait_for_launch()
 
 void FlightObserver::launched()
 {
-  this->_status_leds->off();
+  this->_leds->green_off();
 
   // set launched to true
   this->_launched = true;
@@ -130,14 +132,14 @@ void FlightObserver::wait_for_lift_off()
   Serial.print(velocity);
   Serial.println(" => lift-off!");
 
-  this->_status_leds->on();
+  this->_leds->red_on();
   this->_state = FLIGHT_STATE_LIFT_OFF;
 }
 
 void FlightObserver::lift_off()
 {
   this->update_velocity();
-  this->_status_leds->off();
+  this->_leds->red_off();
 
   this->_state = FLIGHT_STATE_WAIT_FOR_APOGEE;
 }
@@ -156,7 +158,7 @@ void FlightObserver::wait_for_apogee()
     return;
   }
 
-  this->_status_leds->on();
+  this->_leds->red_on();
 
   Serial.print("maximum_altitude: ");
   Serial.print(this->_maximum_altitude);
@@ -168,7 +170,7 @@ void FlightObserver::wait_for_apogee()
 void FlightObserver::apogee()
 {
   this->update_velocity();
-  this->_status_leds->off();
+  this->_leds->red_off();
 
   this->_state = FLIGHT_STATE_WAIT_FOR_LANDING;
 }
@@ -229,13 +231,15 @@ void FlightObserver::wait_for_landing()
 
   Serial.println(" => landed!");
 
+  this->_leds->red_on();
   this->_state = FLIGHT_STATE_LANDED;
 }
 
 void FlightObserver::landed()
 {
+  this->_leds->red_off();
   // turn the led back on
-  this->_status_leds->on();
+  this->_leds->green_blink(250);
 
   // set launched back to false
   this->_launched = false;
@@ -352,6 +356,7 @@ bool FlightObserver::is_launched()
   return this->_launched;
 }
 
-bool FlightObserver::is_locked() {
+bool FlightObserver::is_locked()
+{
   return this->_state == FLIGHT_STATE_LOCKED;
 }

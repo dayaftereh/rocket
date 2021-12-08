@@ -9,13 +9,14 @@
 #include <ArduinoJson.h>
 #include <ESPAsyncWebServer.h>
 
-#include "remote_message.h"
 #include "../utils/leds.h"
 #include "../config/config.h"
 #include "../flight_observer.h"
 #include "../logger/data_logger.h"
 #include "../config/config_manager.h"
 #include "../parachute/parachute_manager.h"
+
+#include "remote_message.h"
 
 class RemoteServer
 {

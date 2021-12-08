@@ -3,10 +3,10 @@
 
 #include <math.h>
 
-#include "vec3f.h"
-#include "stats.h"
-#include "config.h"
-#include "quaternion.h"
+#include "../math/vec3f.h"
+#include "../utils/stats.h"
+#include "../config/config.h"
+#include "../math/quaternion.h"
 
 //=====================================================================================================
 // Description:
