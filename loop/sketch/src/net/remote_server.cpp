@@ -34,15 +34,13 @@ bool RemoteServer::setup(ConfigManager *config_manager, LEDs *leds, DataLogger *
   // setup the web-server
   this->_web_server.onNotFound([this](AsyncWebServerRequest *request)
                                { this->handle_not_found(request); });
-
+  // Unlock
   this->_web_server.on("/api/unlock", HTTP_GET, [this](AsyncWebServerRequest *request)
                        { this->handle_unlock(request); });
 
+  // Config
   this->_web_server.on("/api/config", HTTP_GET, [this](AsyncWebServerRequest *request)
                        { this->handle_get_configuration(request); });
-
-  this->_web_server.on("/api/trigger", HTTP_GET, [this](AsyncWebServerRequest *request)
-                       { this->handle_trigger_parachute(request); });
 
   AsyncCallbackJsonWebHandler *config_update = new AsyncCallbackJsonWebHandler(
       "/api/config",
@@ -50,8 +48,17 @@ bool RemoteServer::setup(ConfigManager *config_manager, LEDs *leds, DataLogger *
       {
         this->handle_update_configuration(request, json);
       });
-
   this->_web_server.addHandler(config_update);
+
+  // Parachute
+  this->_web_server.on("/api/parachute/open", HTTP_GET, [this](AsyncWebServerRequest *request)
+                       { this->handle_open_parachute(request); });
+  this->_web_server.on("/api/parachute/close", HTTP_GET, [this](AsyncWebServerRequest *request)
+                       { this->handle_close_parachute(request); });
+  this->_web_server.on("/api/parachute/trigger", HTTP_GET, [this](AsyncWebServerRequest *request)
+                       { this->handle_trigger_parachute(request); });
+
+  // WebSocket
   this->_web_server.addHandler(&this->_web_socket);
 
   this->_leds->delay(10);
@@ -315,6 +322,19 @@ void RemoteServer::handle_update_configuration(AsyncWebServerRequest *request, J
 
   // send result back
   this->send_result(request, t);
+}
+
+void RemoteServer::handle_open_parachute(AsyncWebServerRequest *request)
+{
+  this->_parachute_manager->open();
+  // send ok back
+  request->send(200, "text/plain", "200: OK");
+}
+void RemoteServer::handle_close_parachute(AsyncWebServerRequest *request)
+{
+  this->_parachute_manager->close();
+  // send ok back
+  request->send(200, "text/plain", "200: OK");
 }
 
 void RemoteServer::handle_trigger_parachute(AsyncWebServerRequest *request)

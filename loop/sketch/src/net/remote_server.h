@@ -43,6 +43,8 @@ private:
   void handle_update_configuration(AsyncWebServerRequest *request, JsonVariant &json);
 
   // parachute
+  void handle_open_parachute(AsyncWebServerRequest *request);
+  void handle_close_parachute(AsyncWebServerRequest *request);
   void handle_trigger_parachute(AsyncWebServerRequest *request);
 
   // unlock

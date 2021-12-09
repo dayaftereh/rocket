@@ -19,7 +19,7 @@ export class API {
     }
 
     async init(): Promise<void> {
-        await this.connect()
+        //await this.connect()
     }
 
     private getRoot(): URL {
@@ -31,9 +31,9 @@ export class API {
         return paths.join('/').replace(/\/{2,}/, '/')
     }
 
-    private getApiPath(path: string): string {
+    private getApiPath(...paths: string[]): string {
         const root: URL = this.getRoot()
-        root.pathname = this.join('api', path)
+        root.pathname = this.join('api', ...paths)
         return root.toString()
     }
 
@@ -121,7 +121,6 @@ export class API {
     }
 
     asObservable(): Observable<Message> {
-
         return this.subject.pipe(
             share(),
             map((data: ArrayBuffer) => {
@@ -149,32 +148,30 @@ export class API {
         return result
     }
 
-    private async get<T>(url: string): Promise<T> {
+    private async get(url: string): Promise<Response> {
         const response: Response = await fetch(url, {
             method: 'GET',
             cache: 'no-cache',
             redirect: 'manual',
             referrerPolicy: 'no-referrer'
         })
+        return response
+    }
 
+    private async getAsJson<T>(url: string): Promise<T> {
+        const response: Response = await this.get(url)
         const result: T = await response.json()
         return result
     }
 
     private async getOk(url: string): Promise<boolean> {
-        const response: Response = await fetch(url, {
-            method: 'GET',
-            cache: 'no-cache',
-            redirect: 'manual',
-            referrerPolicy: 'no-referrer'
-        })
-       
+        const response: Response = await this.get(url)
         return response.ok
     }
 
     async getConfig(): Promise<Config> {
         const url: string = this.getApiPath('config')
-        const config: Config = await this.get(url)
+        const config: Config = await this.getAsJson(url)
         return config
     }
 
@@ -185,19 +182,19 @@ export class API {
     }
 
     async openParachute(): Promise<boolean> {
-        const url: string = this.getApiPath('trigger')
+        const url: string = this.getApiPath('parachute', 'open')
         const ok: boolean = await this.getOk(url)
         return ok
     }
 
     async closeParachute(): Promise<boolean> {
-        const url: string = this.getApiPath('trigger')
+        const url: string = this.getApiPath('parachute', 'close')
         const ok: boolean = await this.getOk(url)
         return ok
     }
 
     async triggerParachute(): Promise<boolean> {
-        const url: string = this.getApiPath('trigger')
+        const url: string = this.getApiPath('parachute', 'trigger')
         const ok: boolean = await this.getOk(url)
         return ok
     }

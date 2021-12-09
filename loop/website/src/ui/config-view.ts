@@ -1,7 +1,7 @@
 import { API } from "../api/api"
 import { Config } from "../api/config"
 
-export class ConfigForm {
+export class ConfigView {
 
     constructor(private readonly api: API) {
 

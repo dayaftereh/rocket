@@ -5,7 +5,7 @@ import { API } from "../api/api";
 import { Message } from "../api/message";
 import { UIUtils } from "./ui-utils";
 
-export class Viewer3D {
+export class D3View {
 
     private scene: Scene | undefined
     private camera: PerspectiveCamera | undefined
