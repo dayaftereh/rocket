@@ -109,7 +109,7 @@ void Loop::setup()
     }
 
     // RemoteServer
-    success = this->_remote_server.setup(&this->_config_manager, &this->_leds, &this->_data_logger, &this->_parachute_manager, &this->_flight_observer);
+    success = this->_remote_server.setup(&this->_config_manager, &this->_leds, &this->_data_logger, &this->_parachute_manager, &this->_flight_observer, &this->_trigger_manager);
     if (!success)
     {
         Serial.println("fail to setup remote server");

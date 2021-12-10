@@ -19,6 +19,9 @@ public:
     void l2_on();
     void l2_off();
 
+    bool is_l1();
+    bool is_l2();
+
     void update();
 
 private:

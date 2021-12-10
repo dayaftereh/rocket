@@ -1,6 +1,9 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const InlineChunkHtmlPlugin = require('react-dev-utils/InlineChunkHtmlPlugin');
+const TerserPlugin = require("terser-webpack-plugin");
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const HTMLInlineCSSWebpackPlugin = require("html-inline-css-webpack-plugin").default
 
 const srcDir = path.resolve(__dirname, './src')
 const distDir = path.resolve(__dirname, '../sketch/data')
@@ -16,6 +19,7 @@ module.exports = {
         },
         compress: true,
         port: 9000,
+        liveReload: false,
     },
     module: {
         rules: [
@@ -27,11 +31,11 @@ module.exports = {
             {
                 test: /\.s[ac]ss$/i,
                 use: [
-                    "style-loader",
+                    MiniCssExtractPlugin.loader,
                     "css-loader",
                     "sass-loader",
                 ],
-            },
+            },           
         ],
     },
     resolve: {
@@ -46,7 +50,11 @@ module.exports = {
             inject: 'body',
             template: path.join(srcDir, 'index.html'),
         }),
-        new InlineChunkHtmlPlugin(HtmlWebpackPlugin, [/bundle/])
+        new MiniCssExtractPlugin({
+            filename: "bundle.[name].css"
+        }),
+        new InlineChunkHtmlPlugin(HtmlWebpackPlugin, [/bundle/]),
+        new HTMLInlineCSSWebpackPlugin(),
     ],
     output: {
         path: distDir,
@@ -55,5 +63,9 @@ module.exports = {
     },
     performance: {
         hints: false,
+    },
+    optimization: {
+        minimize: true,
+        minimizer: [new TerserPlugin()],
     },
 };

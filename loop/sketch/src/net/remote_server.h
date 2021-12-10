@@ -14,6 +14,7 @@
 #include "../flight_observer.h"
 #include "../logger/data_logger.h"
 #include "../config/config_manager.h"
+#include "../trigger/trigger_manager.h"
 #include "../parachute/parachute_manager.h"
 
 #include "remote_message.h"
@@ -23,7 +24,7 @@ class RemoteServer
 public:
   RemoteServer();
 
-  bool setup(ConfigManager *config_manager, LEDs *leds, DataLogger *data_logger, ParachuteManager *parachute_manager, FlightObserver *flight_observer);
+  bool setup(ConfigManager *config_manager, LEDs *leds, DataLogger *data_logger, ParachuteManager *parachute_manager, FlightObserver *flight_observer, TriggerManager *trigger_manager);
 
   void update();
 
@@ -47,6 +48,10 @@ private:
   void handle_close_parachute(AsyncWebServerRequest *request);
   void handle_trigger_parachute(AsyncWebServerRequest *request);
 
+  // trigger
+  void handle_get_trigger(AsyncWebServerRequest *request);
+  void handle_update_trigger(AsyncWebServerRequest *request, JsonVariant &json);
+
   // unlock
   void handle_unlock(AsyncWebServerRequest *request);
 
@@ -60,6 +65,7 @@ private:
   DataLogger *_data_logger;
   ConfigManager *_config_manager;
   FlightObserver *_flight_observer;
+  TriggerManager *_trigger_manager;
   ParachuteManager *_parachute_manager;
 };
 

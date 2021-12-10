@@ -3,6 +3,7 @@ import { Config } from "./config"
 import { Message } from "./message"
 import { MessageDecoder } from "./message-decoder"
 import { Result } from "./result"
+import { Trigger } from "./trigger"
 
 export class API {
 
@@ -19,7 +20,7 @@ export class API {
     }
 
     async init(): Promise<void> {
-        //await this.connect()
+        await this.connect()
     }
 
     private getRoot(): URL {
@@ -203,6 +204,18 @@ export class API {
         const url: string = this.getApiPath('unlock')
         const ok: boolean = await this.getOk(url)
         return ok
+    }
+
+    async getTrigger(): Promise<Trigger> {
+        const url: string = this.getApiPath('trigger')
+        const trigger: Trigger = await this.getAsJson(url)
+        return trigger
+    }
+
+    async setTrigger(trigger: Trigger): Promise<Result> {
+        const url: string = this.getApiPath('trigger')
+        const result: Result = await this.post(url, trigger)
+        return result
     }
 
 }

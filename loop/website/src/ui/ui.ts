@@ -27,6 +27,7 @@ export class UI {
     }
 
     async init(): Promise<void> {
+
         try {
             await this.d3View.init()
             await this.liveView.init()

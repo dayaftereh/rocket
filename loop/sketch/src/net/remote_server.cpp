@@ -4,7 +4,7 @@ RemoteServer::RemoteServer() : _web_server(REMOTE_SERVER_PORT), _web_socket("/ap
 {
 }
 
-bool RemoteServer::setup(ConfigManager *config_manager, LEDs *leds, DataLogger *data_logger, ParachuteManager *parachute_manager, FlightObserver *flight_observer)
+bool RemoteServer::setup(ConfigManager *config_manager, LEDs *leds, DataLogger *data_logger, ParachuteManager *parachute_manager, FlightObserver *flight_observer, TriggerManager *trigger_manager)
 {
   Serial.println("starting remote server...");
 
@@ -12,6 +12,7 @@ bool RemoteServer::setup(ConfigManager *config_manager, LEDs *leds, DataLogger *
   this->_data_logger = data_logger;
   this->_config_manager = config_manager;
   this->_flight_observer = flight_observer;
+  this->_trigger_manager = trigger_manager;
   this->_parachute_manager = parachute_manager;
 
   // set active for startup
@@ -57,6 +58,18 @@ bool RemoteServer::setup(ConfigManager *config_manager, LEDs *leds, DataLogger *
                        { this->handle_close_parachute(request); });
   this->_web_server.on("/api/parachute/trigger", HTTP_GET, [this](AsyncWebServerRequest *request)
                        { this->handle_trigger_parachute(request); });
+
+  // Trigger
+  this->_web_server.on("/api/trigger", HTTP_GET, [this](AsyncWebServerRequest *request)
+                       { this->handle_get_trigger(request); });
+
+  AsyncCallbackJsonWebHandler *trigger = new AsyncCallbackJsonWebHandler(
+      "/api/trigger",
+      [this](AsyncWebServerRequest *request, JsonVariant &json)
+      {
+        this->handle_update_trigger(request, json);
+      });
+  this->_web_server.addHandler(trigger);
 
   // WebSocket
   this->_web_server.addHandler(&this->_web_socket);
@@ -350,4 +363,58 @@ void RemoteServer::handle_unlock(AsyncWebServerRequest *request)
   this->_flight_observer->unlock();
   // send ok back
   request->send(200, "text/plain", "200: OK");
+}
+
+void RemoteServer::handle_get_trigger(AsyncWebServerRequest *request)
+{
+  // create the json document
+  DynamicJsonDocument responseDoc(512);
+
+  responseDoc["l1"] = this->_trigger_manager->is_l1();
+  responseDoc["l2"] = this->_trigger_manager->is_l2();
+
+  // serialize the response
+  String output;
+  serializeJson(responseDoc, output);
+  // send the response back
+  request->send(200, "application/json", output);
+}
+
+void RemoteServer::handle_update_trigger(AsyncWebServerRequest *request, JsonVariant &json)
+{
+  int16_t t = millis();
+  JsonObject doc = json.as<JsonObject>();
+
+  // l1
+  bool has_l1 = doc.containsKey("l1");
+  if (has_l1)
+  {
+    bool l1 = doc["l1"];
+    if (l1)
+    {
+      this->_trigger_manager->l1_on();
+    }
+    else
+    {
+      this->_trigger_manager->l1_off();
+    }
+  }
+
+  // l2
+  bool has_l2 = doc.containsKey("l2");
+  if (has_l2)
+  {
+    bool l2 = doc["l2"];
+    if (l2)
+    {
+      this->_trigger_manager->l2_on();
+    }
+    else
+    {
+      this->_trigger_manager->l2_off();
+    }
+  }
+
+  // send result back
+  this->send_result(request, t);
 }

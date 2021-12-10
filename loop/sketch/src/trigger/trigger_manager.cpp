@@ -12,7 +12,7 @@ bool TriggerManager::setup(LEDs *leds)
     pinMode(TRIGGER_MANAGER_L2_PIN, OUTPUT);
 
     this->_leds->delay(10);
-    
+
     digitalWrite(TRIGGER_MANAGER_L1_PIN, LOW);
     digitalWrite(TRIGGER_MANAGER_L2_PIN, LOW);
 
@@ -48,4 +48,14 @@ void TriggerManager::update()
 {
     digitalWrite(TRIGGER_MANAGER_L1_PIN, this->_l1);
     digitalWrite(TRIGGER_MANAGER_L2_PIN, this->_l2);
+}
+
+bool TriggerManager::is_l1()
+{
+    return this->_l1;
+}
+
+bool TriggerManager::is_l2()
+{
+    return this->_l2;
 }

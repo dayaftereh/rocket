@@ -1,6 +1,8 @@
 #ifndef _LOOP_H
 #define _LOOP_H
 
+#include <Arduino.h>
+
 #include "config/config.h"
 
 #include "tvc/tvc.h"
