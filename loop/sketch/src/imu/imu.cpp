@@ -31,7 +31,7 @@ bool IMU::setup(Config *config, Stats *stats, LEDs *leds)
     return false;
   }
 
-  this->_leds->delay(10);
+  this->_leds->sleep(10);
 
   success = this->_qmc_5883l.setup(config, wire, leds);
   if (!success)

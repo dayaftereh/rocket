@@ -100,7 +100,7 @@ bool QMC5883L::calibrate()
     min_bias.z = min(min_bias.z, this->_raw_magnetometer.z);
     max_bias.z = max(max_bias.z, this->_raw_magnetometer.z);
 
-    this->_leds->delay(2);
+    this->_leds->sleep(2);
   }
 
   this->_magnetometer_offset.x = 0.0;

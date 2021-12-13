@@ -27,7 +27,7 @@ bool RemoteServer::setup(ConfigManager *config_manager, LEDs *leds, DataLogger *
     return false;
   }
 
-  this->_leds->delay(10);
+  this->_leds->sleep(10);
 
   this->_web_socket.onEvent([&](AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len)
                             { this->handle_web_socket(server, client, type, arg, data, len); });
@@ -74,7 +74,7 @@ bool RemoteServer::setup(ConfigManager *config_manager, LEDs *leds, DataLogger *
   // WebSocket
   this->_web_server.addHandler(&this->_web_socket);
 
-  this->_leds->delay(10);
+  this->_leds->sleep(10);
 
   this->_web_server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
   this->_web_server.begin();

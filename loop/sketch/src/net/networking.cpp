@@ -65,7 +65,7 @@ bool Networking::setup(LEDs *leds)
   Serial.print(WiFi.softAPIP());
   Serial.println(" ]");
 
-  this->_leds->delay(10);
+  this->_leds->sleep(10);
 
   // Start the mDNS responder for spring.local
   success = MDNS.begin("spring");

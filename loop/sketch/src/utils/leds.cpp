@@ -140,7 +140,7 @@ void LEDs::flash(int pin, int count, int timeout)
   }
 }
 
-void LEDs::delay(int timeout)
+void LEDs::sleep(int timeout)
 {
   int64_t start = millis();
   int64_t left = timeout;

@@ -19,7 +19,7 @@ bool DataLogger::setup(Stats *stats, LEDs *leds, AltitudeManager *altitude_manag
 
   SPI.begin();
 
-  this->_leds->delay(100);
+  this->_leds->sleep(100);
 
   bool success = SD.begin(DATA_LOGGER_SD_CS);
   if (!success)
@@ -61,7 +61,7 @@ bool DataLogger::setup(Stats *stats, LEDs *leds, AltitudeManager *altitude_manag
   }
 
   // update the led status for initialize
-  this->_leds->delay(10);
+  this->_leds->sleep(10);
 
   // verify the flash memory
   success = this->verify_flash_memory();

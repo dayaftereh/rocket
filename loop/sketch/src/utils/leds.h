@@ -14,7 +14,7 @@ public:
 
   void update();
 
-  void delay(int timeout);
+  void sleep(int timeout);
 
   void red_flash(int count, int timeout);
   void green_flash(int count, int timeout);

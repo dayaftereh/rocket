@@ -24,17 +24,17 @@ bool TVC::setup(Config *config, LEDs *leds, IMU *imu)
         return false;
     }
 
-    this->_leds->delay(100);
+    this->_leds->sleep(100);
 
     this->_x.write(5);
     this->_y.write(5);
 
-    this->_leds->delay(100);
+    this->_leds->sleep(100);
 
     this->_x.write(-5);
     this->_y.write(-5);
 
-    this->_leds->delay(100);
+    this->_leds->sleep(100);
 
     this->_x.write(0);
     this->_y.write(0);

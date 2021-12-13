@@ -26,7 +26,7 @@ bool ParachuteManager::setup(Config *config, LEDs *leds)
   }
 
   // wait a short time
-  this->_leds->delay(100);
+  this->_leds->sleep(100);
 
   // reset the bools
   this->reset();

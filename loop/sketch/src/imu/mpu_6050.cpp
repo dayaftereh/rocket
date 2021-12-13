@@ -49,7 +49,7 @@ bool MPU6050::setup(Config *config, TwoWire *wire, LEDs *leds)
     return false;
   }
 
-  this->_leds->delay(10);
+  this->_leds->sleep(10);
 
   success = this->calibrate();
   if (!success)
@@ -158,7 +158,7 @@ bool MPU6050::calibrate()
     gyroscope_offset = gyroscope_offset.add(_raw_gyroscope);
     acceleration_offset = acceleration_offset.add(_raw_acceleration);
 
-    this->_leds->delay(2);
+    this->_leds->sleep(2);
   }
 
   this->_gyroscope_offset = gyroscope_offset.divide_scalar(MOTION_MANAGER_CALIBRATION_READS).invert();

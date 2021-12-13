@@ -11,7 +11,7 @@ bool TriggerManager::setup(LEDs *leds)
     pinMode(TRIGGER_MANAGER_L1_PIN, OUTPUT);
     pinMode(TRIGGER_MANAGER_L2_PIN, OUTPUT);
 
-    this->_leds->delay(10);
+    this->_leds->sleep(10);
 
     digitalWrite(TRIGGER_MANAGER_L1_PIN, LOW);
     digitalWrite(TRIGGER_MANAGER_L2_PIN, LOW);
@@ -19,7 +19,7 @@ bool TriggerManager::setup(LEDs *leds)
     this->l1_off();
     this->l2_off();
 
-    this->_leds->delay(10);
+    this->_leds->sleep(10);
 
     return true;
 }

@@ -6,6 +6,8 @@ Loop::Loop()
 
 void Loop::setup()
 {
+    delay(100);
+    
     Serial.begin(SERIAL_BAUD_RATE);
 
     // start the wire
@@ -16,7 +18,7 @@ void Loop::setup()
     this->_leds.setup();
 
     // delay the startup
-    this->_leds.delay(500);
+    this->_leds.sleep(500);
 
     // start the init flashing
     this->_leds.green_blink(1000);

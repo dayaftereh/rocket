@@ -85,7 +85,7 @@ bool AltitudeManager::zero_altitude()
     this->_bmp280.readAltitude();
 
     // delay for the next reading
-    this->_leds->delay(2);
+    this->_leds->sleep(2);
   }
 
   // try to find zero level
@@ -96,7 +96,7 @@ bool AltitudeManager::zero_altitude()
     sum += this->_bmp280.readAltitude();
 
     // delay for the next reading
-    this->_leds->delay(2);
+    this->_leds->sleep(2);
   }
 
   this->_zero_altitude = sum / ((float)ALTITUDE_MANAGER_ZERO_READINGS);
