@@ -17,9 +17,19 @@ bool DataLogger::setup(Stats *stats, LEDs *leds, AltitudeManager *altitude_manag
   this->_parachute_manager = parachute_manager;
   this->_voltage_measurement = voltage_measurement;
 
-  SPI.begin();
+  SPI.begin(18, 19, 23);
 
   this->_leds->sleep(100);
+
+  /*pinMode(23, INPUT_PULLUP);
+
+  pinMode(DATA_LOGGER_SD_CS, OUTPUT);
+  pinMode(DATA_LOGGER_FLASH_CS, OUTPUT);
+
+  digitalWrite(DATA_LOGGER_SD_CS, HIGH);
+  digitalWrite(DATA_LOGGER_FLASH_CS, HIGH);*/
+
+  this->_leds->sleep(10);
 
   bool success = SD.begin(DATA_LOGGER_SD_CS);
   if (!success)

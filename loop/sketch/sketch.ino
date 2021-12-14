@@ -9,5 +9,5 @@ void setup()
 
 void loop()
 {
-  //_loop.update();
+  _loop.update();
 }
