@@ -129,7 +129,9 @@ void Loop::setup()
     Serial.println("initialization completed, ready for starting");
 
     // set the status to ready
+    this->_leds.green_no_blink();
     this->_leds.green_on();
+
     // write all serial data
     Serial.flush();
 }
@@ -142,6 +144,7 @@ void Loop::update()
     // update other components
     this->_imu.update();
     this->_tvc.update();
+    this->_leds.update();
     this->_data_logger.update();
     this->_remote_server.update();
     this->_trigger_manager.update();

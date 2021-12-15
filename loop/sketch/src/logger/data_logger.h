@@ -41,6 +41,9 @@ private:
 
   void write_entities_count_2_file();
 
+  bool print_sd_info();
+  bool erase_full_flash();
+
   bool _flushed;
   bool _started;
   uint32_t _entities;

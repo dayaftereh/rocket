@@ -17,18 +17,10 @@ bool DataLogger::setup(Stats *stats, LEDs *leds, AltitudeManager *altitude_manag
   this->_parachute_manager = parachute_manager;
   this->_voltage_measurement = voltage_measurement;
 
+  // start the spi
   SPI.begin(18, 19, 23);
 
-  this->_leds->sleep(100);
-
-  /*pinMode(23, INPUT_PULLUP);
-
-  pinMode(DATA_LOGGER_SD_CS, OUTPUT);
-  pinMode(DATA_LOGGER_FLASH_CS, OUTPUT);
-
-  digitalWrite(DATA_LOGGER_SD_CS, HIGH);
-  digitalWrite(DATA_LOGGER_FLASH_CS, HIGH);*/
-
+  // timeout
   this->_leds->sleep(10);
 
   bool success = SD.begin(DATA_LOGGER_SD_CS);
@@ -37,6 +29,8 @@ bool DataLogger::setup(Stats *stats, LEDs *leds, AltitudeManager *altitude_manag
     Serial.println("fail to initialize sd card.");
     return false;
   }
+
+  this->print_sd_info();
 
   // test the sd card for speed
   success = this->sd_card_speed_test();
@@ -81,10 +75,12 @@ bool DataLogger::setup(Stats *stats, LEDs *leds, AltitudeManager *altitude_manag
     return false;
   }
 
-  success = this->_flash.eraseSection(0, 1000);
+  Serial.println("ereasing full flash chip...");
+
+  success = this->erase_full_flash();
   if (!success)
   {
-    Serial.println("fail to erase flash memory.");
+    Serial.println("fail to erase full flash memory.");
     return false;
   }
 
@@ -102,24 +98,25 @@ bool DataLogger::sd_card_speed_test()
 {
   Serial.println("starting sd card speedtest...");
   // file name for the speedtest
-  String filename = "speedtest.dat";
+  String filename = "/speedtest.dat";
   // check if the file already exists
   bool exists = SD.exists(filename);
   if (exists)
   {
-    Serial.println("removing speedtest file from sd card...");
+    Serial.printf("removing speedtest file [ %s ] from sd card...\n", filename.c_str());
     // remove the speedtest file
     bool success = SD.remove(filename);
     if (!success)
     {
-      Serial.println("fail to remove speedtest file from sd card.");
+      Serial.printf("fail to remove speedtest file [ %s ] from sd card.\n", filename.c_str());
       return false;
     }
   }
 
   // open the speedtest file
-  File speedtest = SD.open(filename, FILE_WRITE);
-  /*// get back to the begining
+  File speedtest = SD.open(filename, "a+");
+
+  // get back to the begining
   bool success = speedtest.seek(0);
   if (!success)
   {
@@ -127,7 +124,7 @@ bool DataLogger::sd_card_speed_test()
     speedtest.close();
     Serial.println("fail to seek to the start of the speedtest file.");
     return false;
-  }*/
+  }
 
   int length = 128;
   byte buf[length];
@@ -141,7 +138,12 @@ bool DataLogger::sd_card_speed_test()
   unsigned long start = millis();
   for (int i = 0; i < writes; i++)
   {
-    speedtest.write(buf, length);
+    size_t bytes = speedtest.write(buf, length);
+    if (bytes != length)
+    {
+      Serial.printf("Fail to write speedtest file, bytes missmatch [ %d != %d ] \n", bytes, length);
+      return false;
+    }
     this->_leds->update();
   }
 
@@ -156,12 +158,45 @@ bool DataLogger::sd_card_speed_test()
   return true;
 }
 
+bool DataLogger::print_sd_info()
+{
+  uint8_t card_type = SD.cardType();
+  if (card_type == CARD_NONE)
+  {
+    Serial.println("No SD card attached");
+    return false;
+  }
+
+  Serial.print("SD Card Type: ");
+  if (card_type == CARD_MMC)
+  {
+    Serial.println("MMC");
+  }
+  else if (card_type == CARD_SD)
+  {
+    Serial.println("SDSC");
+  }
+  else if (card_type == CARD_SDHC)
+  {
+    Serial.println("SDHC");
+  }
+  else
+  {
+    Serial.println("UNKNOWN");
+  }
+
+  uint64_t card_size = SD.cardSize() / (1024 * 1024);
+  Serial.printf("SD Card Size: %llu MB\n", card_size);
+
+  return true;
+}
+
 bool DataLogger::open_data_file()
 {
   for (int i = 0; i < 100; i++)
   {
     // create the data-file for the data
-    String prefix = "data_";
+    String prefix = "/data_";
     String filename = prefix + i;
     filename = filename + ".dat";
 
@@ -221,11 +256,37 @@ bool DataLogger::verify_flash_memory()
   return true;
 }
 
+bool DataLogger::erase_full_flash()
+{
+  uint32_t address = 0;
+  uint32_t section_length = KB(32);
+  uint32_t capacity = this->_flash.getCapacity();
+
+  while (address < capacity)
+  {
+    // get the next section length
+    uint32_t length = section_length;
+    // cop the section length if needed
+    if ((address + length) > capacity)
+    {
+      length = capacity - address;
+    }
+    // erase the section
+    bool success = this->_flash.eraseSection(address, length);
+    // move address to next section
+    address += section_length;
+    // update the leds
+    this->_leds->update();
+  }
+
+  return true;
+}
+
 bool DataLogger::flash_memory_speed_test()
 {
   Serial.println("starting flash memory speedtest...");
 
-  int length = 128;
+  size_t length = 128;
   byte buf[length];
   for (int i = 0; i < length; i++)
   {
@@ -233,60 +294,81 @@ bool DataLogger::flash_memory_speed_test()
     buf[i] = random(0, 255);
   }
 
-  int writes = 1000;
-  unsigned long start = millis();
-  for (int i = 0; i < writes; i++)
+  size_t loops = 1000;
+  uint64_t elapsed_time = 0;
+
+  for (int i = 0; i < loops; i++)
   {
     uint32_t address = i * length + 1;
+
+    // check the time taken
+    uint64_t now = millis();
     bool success = this->_flash.writeByteArray(address, &buf[0], length);
-    /*if (!success)
+    elapsed_time += millis() - now;
+
+    if (!success)
     {
       Serial.println(this->_flash.error(true));
       Serial.println("fail to write to flash memory");
       return false;
-    }*/
+    }
     this->_leds->update();
   }
 
-  float elapsed = ((float)(millis() - start)) / 1000.0;
-  float speed = ((float)(writes * length)) / elapsed;
+  size_t total_length = (loops * length);
+
+  float elapsed = ((float)(elapsed_time)) / 1000.0;
+  float speed = ((float)total_length) / elapsed;
 
   Serial.print("flash memory write speed is [ ");
   Serial.print(speed);
   Serial.println(" byte/s ]");
 
-  int reads = 1000;
-  start = millis();
+  elapsed_time = 0;
   byte buf2[length];
-  for (int i = 0; i < reads; i++)
+  for (int i = 0; i < loops; i++)
   {
     uint32_t address = i * length + 1;
+
+    // check the time taken
+    uint64_t now = millis();
     bool success = this->_flash.readByteArray(address, &buf2[0], length);
+    elapsed_time += millis() - now;
+
     if (!success)
     {
       Serial.println(this->_flash.error());
       Serial.println("fail to read from flash memory");
       return false;
     }
+
     for (int j = 0; j < length; j++)
     {
       if (buf[j] != buf2[j])
       {
-        Serial.print(i);
-        Serial.print(j);
-        Serial.println("flash memory read missmatch");
+        Serial.printf("flash memory read missmatch [ %d != %d ] \n", buf[j], buf2[j]);
         return false;
       }
     }
+
     this->_leds->update();
   }
 
-  elapsed = ((float)(millis() - start)) / 1000.0;
-  speed = ((float)(reads * length)) / elapsed;
+  elapsed = ((float)elapsed_time) / 1000.0;
+  speed = ((float)total_length) / elapsed;
 
   Serial.print("flash memory read speed is [ ");
   Serial.print(speed);
   Serial.println(" byte/s ]");
+
+  // clean the speedtest section
+  Serial.println("erasing speedtest section...");
+  bool success = this->_flash.eraseSection(0, total_length);
+  if (!success)
+  {
+    Serial.println("fail to erase speedtest section");
+    return false;
+  }
 
   return true;
 }
