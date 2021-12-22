@@ -1,15 +1,13 @@
 import { NgModule } from "@angular/core";
-import { LocalStorageServiceModule } from "../local-storage/local-storage-service.module";
-import { SimulationService } from "./simulation.service";
+import { SingleSimulationServiceModule } from "./single/single-simulation-service.module";
+
 
 @NgModule({
-    imports:[
+    imports: [
         // custom
-        LocalStorageServiceModule
+        SingleSimulationServiceModule
     ],
-    providers: [
-        SimulationService
-    ]
+
 })
 export class SimulationServiceModule {
 

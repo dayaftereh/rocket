@@ -1,5 +1,5 @@
-import { SingleSimulationStep } from "src/app/services/simulation/single-simulation-step";
 import { Chart } from "src/app/utils/chart";
+import { SingleSimulationStep } from "../../../services/simulation/single/single-simulation-step";
 
 export class SingleSimulationChart extends Chart {
 
@@ -14,7 +14,6 @@ export class SingleSimulationChart extends Chart {
 
     private xAxisId: string = 'x-axis-0'
     private yAxisId: string = 'y-axis-0'
-
 
     constructor() {
         super()
@@ -86,7 +85,7 @@ export class SingleSimulationChart extends Chart {
         }
     }
 
-    load(steps: SingleSimulationStep[]): void {
+    clear(): void {
         this.datasetMass.data = []
         this.datasetHeight.data = []
         this.datasetThrust.data = []
@@ -95,47 +94,53 @@ export class SingleSimulationChart extends Chart {
         this.datasetAcceleration.data = []
         this.datasetFlowVelocity.data = []
         this.datasetMassFlowRate.data = []
+    }
 
+    appendStep(step: SingleSimulationStep): void {
+        this.datasetHeight.data.push({
+            x: step.time,
+            y: step.height
+        })
+
+        this.datasetThrust.data.push({
+            x: step.time,
+            y: step.thrust
+        })
+
+        this.datasetVelocity.data.push({
+            x: step.time,
+            y: step.velocity
+        })
+
+        this.datasetMass.data.push({
+            x: step.time,
+            y: step.mass
+        })
+
+        this.datasetPressure.data.push({
+            x: step.time,
+            y: step.pressure
+        })
+
+        this.datasetAcceleration.data.push({
+            x: step.time,
+            y: step.acceleration
+        })
+
+        this.datasetFlowVelocity.data.push({
+            x: step.time,
+            y: step.flowVelocity
+        })
+
+        this.datasetMassFlowRate.data.push({
+            x: step.time,
+            y: step.massFlowRate
+        })
+    }
+
+    load(steps: SingleSimulationStep[]): void {
         steps.forEach((step: SingleSimulationStep) => {
-            this.datasetHeight.data.push({
-                x: step.time,
-                y: step.height
-            })
-
-            this.datasetThrust.data.push({
-                x: step.time,
-                y: step.thrust
-            })
-
-            this.datasetVelocity.data.push({
-                x: step.time,
-                y: step.velocity
-            })
-
-            this.datasetMass.data.push({
-                x: step.time,
-                y: step.mass
-            })
-
-            this.datasetPressure.data.push({
-                x: step.time,
-                y: step.pressure
-            })
-
-            this.datasetAcceleration.data.push({
-                x: step.time,
-                y: step.acceleration
-            })
-
-            this.datasetFlowVelocity.data.push({
-                x: step.time,
-                y: step.flowVelocity
-            })
-
-            this.datasetMassFlowRate.data.push({
-                x: step.time,
-                y: step.massFlowRate
-            })
+            this.appendStep(step)
         })
     }
 

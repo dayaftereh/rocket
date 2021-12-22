@@ -87,10 +87,20 @@ export class UI {
         return x.toFixed(2)
     }
 
-    private initParachuteTrigger(): void {
+    private initParachute(): void {
         const parachuteTrigger: HTMLButtonElement = document.querySelector("#parachuteTrigger")
         parachuteTrigger.addEventListener('click', async () => {
-            await this.api.trigger()
+            await this.api.triggerParachute()
+        })
+
+        const parachuteOpen: HTMLButtonElement = document.querySelector("#parachuteOpen")
+        parachuteOpen.addEventListener('click', async () => {
+            await this.api.openParachute()
+        })
+
+        const parachuteClose: HTMLButtonElement = document.querySelector("#parachuteClose")
+        parachuteClose.addEventListener('click', async () => {
+            await this.api.closeParachute()
         })
     }
 
@@ -110,7 +120,7 @@ export class UI {
     }
 
     async init(): Promise<void> {
-        this.initParachuteTrigger()
+        this.initParachute()
         this.initUnlock();
 
         await this.configForm.init()

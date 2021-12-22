@@ -32,7 +32,11 @@ bool RemoteServer::setup(ConfigManager *config_manager, DataLogger *data_logger,
   this->_web_server.on("/api/unlock", HTTP_GET, std::bind(&RemoteServer::handle_unlock, this));
   this->_web_server.on("/api/config", HTTP_GET, std::bind(&RemoteServer::handle_get_configuration, this));
   this->_web_server.on("/api/config", HTTP_POST, std::bind(&RemoteServer::handle_update_configuration, this));
-  this->_web_server.on("/api/trigger", HTTP_GET, std::bind(&RemoteServer::handle_trigger_parachute, this));
+
+  //parachute
+  this->_web_server.on("/api/parachute/open", HTTP_GET, std::bind(&RemoteServer::handle_open_parachute, this));
+  this->_web_server.on("/api/parachute/close", HTTP_GET, std::bind(&RemoteServer::handle_close_parachute, this));
+  this->_web_server.on("/api/parachute/trigger", HTTP_GET, std::bind(&RemoteServer::handle_trigger_parachute, this));
 
   // add the websocket hook
   this->_web_server.addHook(this->_web_socket.hookForWebserver("/api/ws", [&](uint8_t num, WStype_t type, uint8_t *payload, size_t length)
@@ -337,6 +341,22 @@ void RemoteServer::handle_trigger_parachute()
 void RemoteServer::handle_unlock()
 {
   this->_flight_observer->unlock();
+  // send ok back
+  this->_web_server.send(200, "text/plain", "200: OK");
+}
+
+void RemoteServer::handle_open_parachute()
+{
+  // open the parachute
+  this->_parachute_manager->open();
+  // send ok back
+  this->_web_server.send(200, "text/plain", "200: OK");
+}
+
+void RemoteServer::handle_close_parachute()
+{
+  // close the parachute
+  this->_parachute_manager->close();
   // send ok back
   this->_web_server.send(200, "text/plain", "200: OK");
 }

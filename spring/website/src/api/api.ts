@@ -31,9 +31,9 @@ export class API {
         return paths.join('/').replace(/\/{2,}/, '/')
     }
 
-    private getApiPath(path: string): string {
+    private getApiPath(...paths: string[]): string {
         const root: URL = this.getRoot()
-        root.pathname = this.join('api', path)
+        root.pathname = this.join('api', ...paths)
         return root.toString()
     }
 
@@ -173,8 +173,30 @@ export class API {
         return result
     }
 
-    async trigger(): Promise<boolean> {
-        const url: string = this.getApiPath('trigger')
+    async triggerParachute(): Promise<boolean> {
+        const url: string = this.getApiPath('parachute', 'trigger')
+        const response: Response = await fetch(url, {
+            method: 'GET',
+            cache: 'no-cache',
+            redirect: 'manual',
+            referrerPolicy: 'no-referrer'
+        })
+        return response.ok
+    }
+
+    async openParachute(): Promise<boolean> {
+        const url: string = this.getApiPath('parachute', 'open')
+        const response: Response = await fetch(url, {
+            method: 'GET',
+            cache: 'no-cache',
+            redirect: 'manual',
+            referrerPolicy: 'no-referrer'
+        })
+        return response.ok
+    }
+
+    async closeParachute(): Promise<boolean> {
+        const url: string = this.getApiPath('parachute', 'close')
         const response: Response = await fetch(url, {
             method: 'GET',
             cache: 'no-cache',

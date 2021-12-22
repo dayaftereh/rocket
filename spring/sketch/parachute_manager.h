@@ -15,6 +15,8 @@ public:
     bool setup(Config *config, StatusLeds *status_leds);
     void update();
 
+    void open();
+    void close();
     void trigger();
 
     void velocity_trigger();
@@ -28,8 +30,9 @@ public:
 private:
     void reset();
 
+    bool _open;
     bool _trigger;
-
+    
     bool _completed;
 
     bool _velocity;

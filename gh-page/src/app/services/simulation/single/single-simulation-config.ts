@@ -1,3 +1,4 @@
+
 export interface SingleSimulationConfig {
     timeStep: number // s
     waterAmount: number // liter
@@ -6,5 +7,5 @@ export interface SingleSimulationConfig {
     rocketDiameter: number // mm
     nozzleDiameter: number // mm
     initialPressure: number // bar
-    dragCoefficient: number   
+    dragCoefficient: number
 }

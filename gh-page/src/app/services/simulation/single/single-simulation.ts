@@ -1,4 +1,6 @@
-import { Constants } from "../constants/constants";
+
+import { Subject } from "rxjs";
+import { Constants } from "../../constants/constants";
 import { SingleSimulationConfig } from "./single-simulation-config";
 import { SingleSimulationResult } from "./single-simulation-result";
 import { SingleSimulationStep } from "./single-simulation-step";
@@ -13,7 +15,8 @@ export class SingleSimulation {
 
     constructor(
         private readonly constants: Constants,
-        private readonly config: SingleSimulationConfig
+        private readonly config: SingleSimulationConfig,
+        private readonly subject: Subject<SingleSimulationStep>,
     ) {
 
     }
@@ -154,7 +157,7 @@ export class SingleSimulation {
             pressure: 0.0,
             velocity: 0.0,
             acceleration: 0.0,
-            flowVelocity: 0.0,           
+            flowVelocity: 0.0,
             massFlowRate: 0.0,
         } as SingleSimulationStep
 
@@ -187,9 +190,13 @@ export class SingleSimulation {
     private computeSteps(): SingleSimulationStep[] {
         const steps: SingleSimulationStep[] = []
 
-        for (let i = 0; i < 10000; i++) {
+        const maxSteps: number = 100000.0
+
+        for (let i = 0; i < maxSteps; i++) {
             // calculate current step
             const step: SingleSimulationStep = this.tick(this.config.timeStep)
+            // notify about next step
+            this.subject.next(step)
             // increment the time
             this.time += this.config.timeStep
             // add the step to list

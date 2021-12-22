@@ -44,7 +44,7 @@ void ParachuteManager::update()
   if (!this->_config->parachute_servo)
   {
     // write the digital output
-    digitalWrite(PARACHUTE_MANAGER_PIN, this->_trigger);
+    digitalWrite(PARACHUTE_MANAGER_PIN, this->_open);
   }
 
   // check if a trigger running
@@ -66,25 +66,37 @@ void ParachuteManager::update()
 
 void ParachuteManager::reset()
 {
+  this->close();
   this->_trigger = false;
   this->_timer = millis();
-  // move the servo back
-  if (this->_config->parachute_servo)
-  {
-    this->_servo.write(this->_config->parachute_servo_close_angle);
-  }
 }
 
-void ParachuteManager::trigger()
+void ParachuteManager::open()
 {
-  this->_trigger = true;
-  this->_timer = millis();
-
-  // open the servo
+  this->_open = true;
+  // move the servo to open
   if (this->_config->parachute_servo)
   {
     this->_servo.write(this->_config->parachute_servo_open_angle);
   }
+  Serial.println("open parachute");
+}
+void ParachuteManager::close()
+{
+  this->_open = false;
+  // move the servo to close
+  if (this->_config->parachute_servo)
+  {
+    this->_servo.write(this->_config->parachute_servo_close_angle);
+  }
+  Serial.println("close parachute");
+}
+
+void ParachuteManager::trigger()
+{
+  this->open();
+  this->_trigger = true;
+  this->_timer = millis();
 }
 
 void ParachuteManager::altitude_trigger()

@@ -35,14 +35,6 @@ bool Networking::setup()
         return false;
     }
 
-    // setup soft access point
-    success = WiFi.softAPConfig(serverIP, gateway, subNMask);
-    if (!success)
-    {
-        Serial.println("Fail to configure soft access point");
-        return false;
-    }
-
     // setup the access point
     success = WiFi.softAP(ACCESS_POINT_SSID, ACCESS_POINT_PASSWD, ACCESS_POINT_CHANNEL);
     if (!success)
@@ -50,6 +42,14 @@ bool Networking::setup()
         Serial.println("Fail to setup access point");
         return false;
     }
+
+    // setup soft access point
+    success = WiFi.softAPConfig(serverIP, gateway, subNMask);
+    if (!success)
+    {
+        Serial.println("Fail to configure soft access point");
+        return false;
+    }    
 
     // print the remote server address
     Serial.print("remote server ip-address is [ ");

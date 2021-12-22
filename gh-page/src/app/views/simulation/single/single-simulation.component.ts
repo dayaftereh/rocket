@@ -2,10 +2,12 @@ import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { UIChart } from "primeng/chart";
 import { Subscription } from "rxjs";
-import { SimulationService } from "src/app/services/simulation/simulation.service";
-import { SingleSimulationConfig } from "src/app/services/simulation/single-simulation-config";
-import { SingleSimulationResult } from "src/app/services/simulation/single-simulation-result";
+import { bufferTime } from "rxjs/operators";
+import { SingleSimulationConfig } from "src/app/services/simulation/single/single-simulation-config";
 import { FormUtils } from "src/app/utils/form-utils";
+import { SingleSimulationResult } from "../../../services/simulation/single/single-simulation-result";
+import { SingleSimulationStep } from "../../../services/simulation/single/single-simulation-step";
+import { SingleSimulationService } from "../../../services/simulation/single/single-simulation.service";
 import { SingleSimulationChart } from "./single-simulation-chart";
 
 @Component({
@@ -25,7 +27,7 @@ export class SingleSimulationComponent implements OnInit, OnDestroy {
     private subscriptions: Subscription[]
 
     constructor(
-        private readonly simulationService: SimulationService
+        private readonly singleSimulationService: SingleSimulationService
     ) {
         this.subscriptions = []
         this.formGroup = this.createFormGroup()
@@ -47,30 +49,40 @@ export class SingleSimulationComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this.simulationChart.init()
-        
-        const subscription: Subscription = this.simulationService.singleSimulationConfigAsObservable().subscribe((config: SingleSimulationConfig) => {
+
+        const configSubscription: Subscription = this.singleSimulationService.configAsObservable().subscribe((config: SingleSimulationConfig) => {
             this.formGroup.patchValue(config, {
                 emitEvent: false
             })
         })
 
-        this.subscriptions.push(subscription)
+        const stepsSubscription: Subscription = this.singleSimulationService.stepsAsObservable()
+            .pipe(
+                bufferTime(100),
+            )
+            .subscribe((steps: SingleSimulationStep[]) => {
+                this.onSimulationSteps(steps)
+            })
+
+        this.subscriptions.push(configSubscription, stepsSubscription)
     }
 
-    ngSubmit(): void {
-        this.result = undefined
-        const config: SingleSimulationConfig = this.getSingleSimulationConfig()
-        this.result = this.simulationService.executeSingle(config)
-        this.simulationChart.load(this.result.steps)
-
-        // reload the chart
-        if(this.chart){
+    private onSimulationSteps(steps: SingleSimulationStep[]): void {
+        this.simulationChart.load(steps)
+        if (this.chart) {
             this.chart.refresh()
         }
     }
 
+    async ngSubmit(): Promise<void> {
+        this.result = undefined
+        this.simulationChart.clear()
+        const config: SingleSimulationConfig = this.getSingleSimulationConfig()
+        this.result = await this.singleSimulationService.execute(config)
+    }
+
     private getSingleSimulationConfig(): SingleSimulationConfig {
-        const defaultConfig: SingleSimulationConfig = this.simulationService.defaultSingleSimulationConfig()
+        const defaultConfig: SingleSimulationConfig = this.singleSimulationService.defaultConfig()
 
         const timeStep: number = FormUtils.getValueOrDefault(this.formGroup, 'timeStep', defaultConfig.timeStep)
         const waterAmount: number = FormUtils.getValueOrDefault(this.formGroup, 'waterAmount', defaultConfig.waterAmount)
@@ -94,7 +106,7 @@ export class SingleSimulationComponent implements OnInit, OnDestroy {
     }
 
     onResetChart(): void {
-        if(!this.chart || !this.chart.chart){
+        if (!this.chart || !this.chart.chart) {
             return
         }
         this.chart.chart.resetZoom()

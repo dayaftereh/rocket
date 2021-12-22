@@ -39,8 +39,10 @@ private:
   void handle_update_configuration();
 
   // parachute
+  void handle_open_parachute();
+  void handle_close_parachute();
   void handle_trigger_parachute();
-
+  
   // unlock
   void handle_unlock();
 
