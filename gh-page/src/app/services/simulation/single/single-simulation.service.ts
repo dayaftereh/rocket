@@ -32,24 +32,15 @@ export class SingleSimulationService {
     }
 
     private async createWorker(): Promise<void> {
-        console.log(import.meta.url)
-        const url: URL = new URL('./single-simulation.worker', import.meta.url)
-        console.log(url)
-        this.worker = new Worker(url)
-
-        console.log(this.worker)
-
+        this.worker = new Worker(new URL('./single-simulation.worker', import.meta.url), {
+            name: 'SingleSimulationWorker'
+        })
         const ExecutorProxy: any = Comlink.wrap<SingleSimulationExecutor>(this.worker)
-
-        console.log("before")
         this.executor = await (new ExecutorProxy())
-        console.log("after")
 
         this.executor.subscribe(Comlink.proxy(async (step: SingleSimulationStep) => {
             this.steps.next(step)
         }))
-
-        console.log("Done")
     }
 
     private load(): SingleSimulationConfig {
@@ -90,6 +81,8 @@ export class SingleSimulationService {
     }
 
     async execute(config: SingleSimulationConfig): Promise<SingleSimulationResult> {
+        this.updateConfig(config)
+
         const constants: Constants = this.constantsService.get()
         try {
             this.running.next(true)

@@ -12,9 +12,10 @@
         "polyfills.ts"
     ],
     "include": [
-        "app/**/*.d.ts"
+        "**/*.d.ts"
     ],
     "exclude": [
         "assets",
+        "**/*.worker.ts"
     ]
 }

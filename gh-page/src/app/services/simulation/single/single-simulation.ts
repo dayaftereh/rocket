@@ -226,9 +226,8 @@ export class SingleSimulation {
         const maxHeight: number = this.searchMaxHeight(steps)
 
         return {
-            duration: this.time,
             maxHeight,
-            steps
+            duration: this.time,
         }
     }
 

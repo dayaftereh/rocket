@@ -1,8 +1,7 @@
 import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { UIChart } from "primeng/chart";
-import { Subscription } from "rxjs";
-import { bufferTime } from "rxjs/operators";
+import { auditTime, Subject, Subscription } from "rxjs";
 import { SingleSimulationConfig } from "src/app/services/simulation/single/single-simulation-config";
 import { FormUtils } from "src/app/utils/form-utils";
 import { SingleSimulationResult } from "../../../services/simulation/single/single-simulation-result";
@@ -24,12 +23,15 @@ export class SingleSimulationComponent implements OnInit, OnDestroy {
 
     result: SingleSimulationResult | undefined
 
+    private repaint: Subject<void>
+
     private subscriptions: Subscription[]
 
     constructor(
         private readonly singleSimulationService: SingleSimulationService
     ) {
         this.subscriptions = []
+        this.repaint = new Subject<void>();
         this.formGroup = this.createFormGroup()
         this.simulationChart = new SingleSimulationChart()
     }
@@ -56,22 +58,26 @@ export class SingleSimulationComponent implements OnInit, OnDestroy {
             })
         })
 
-        const stepsSubscription: Subscription = this.singleSimulationService.stepsAsObservable()
-            .pipe(
-                bufferTime(100),
-            )
-            .subscribe((steps: SingleSimulationStep[]) => {
-                this.onSimulationSteps(steps)
-            })
+        const stepsSubscription: Subscription = this.singleSimulationService.stepsAsObservable().subscribe((step: SingleSimulationStep) => {
+            this.onSimulationSteps(step)
+        })
 
-        this.subscriptions.push(configSubscription, stepsSubscription)
+        const repaintSubscription: Subscription = this.repaint.pipe(auditTime(100)).subscribe(() => {
+            this.onRepaint()
+        })
+
+        this.subscriptions.push(configSubscription, stepsSubscription, repaintSubscription)
     }
 
-    private onSimulationSteps(steps: SingleSimulationStep[]): void {
-        this.simulationChart.load(steps)
+    private onRepaint(): void {
         if (this.chart) {
             this.chart.refresh()
         }
+    }
+
+    private onSimulationSteps(step: SingleSimulationStep): void {
+        this.simulationChart.appendStep(step)
+        this.repaint.next()
     }
 
     async ngSubmit(): Promise<void> {
@@ -79,6 +85,7 @@ export class SingleSimulationComponent implements OnInit, OnDestroy {
         this.simulationChart.clear()
         const config: SingleSimulationConfig = this.getSingleSimulationConfig()
         this.result = await this.singleSimulationService.execute(config)
+        this.repaint.next()
     }
 
     private getSingleSimulationConfig(): SingleSimulationConfig {
@@ -103,6 +110,16 @@ export class SingleSimulationComponent implements OnInit, OnDestroy {
             rocketDiameter,
             nozzleDiameter,
         }
+    }
+
+    async cancel(): Promise<void> {
+        await this.singleSimulationService.cancel()
+    }
+
+    async clear(): Promise<void> {
+        this.result = undefined
+        this.simulationChart.clear()
+        this.repaint.next()
     }
 
     onResetChart(): void {

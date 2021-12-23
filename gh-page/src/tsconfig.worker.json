@@ -1,6 +1,7 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
+    "target": "es5",
     "outDir": "./out-tsc/worker",
     "lib": [
       "es2018",
@@ -9,6 +10,6 @@
     "types": []
   },
   "include": [
-    "app/**/*.worker.ts"
+    "**/*.worker.ts"
   ]
 }
