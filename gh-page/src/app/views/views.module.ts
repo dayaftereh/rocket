@@ -6,6 +6,7 @@ import { MenuModule } from "./menu/menu.module";
 import { SettingsModule } from "./settings/settings.module";
 import { SimulationModule } from "./simulation/simulation.module";
 import { UtilitiesModule } from "./utilities/utilities.module";
+import { VideoStudioModule } from "./video-studio/video-studio.module";
 import { ViewsComponent } from "./views.component";
 
 @NgModule({
@@ -18,7 +19,8 @@ import { ViewsComponent } from "./views.component";
         SettingsModule,
         AnalyzerModule,
         UtilitiesModule,
-        SimulationModule
+        SimulationModule,
+        VideoStudioModule
     ],
     declarations: [
         ViewsComponent

@@ -58,6 +58,18 @@ export class MenuComponent implements OnInit {
                         icon: 'pi pi-chart-line'
                     }
                 ]
+            },
+            {
+                label: 'Video-Studio',               
+                items: [
+                    {
+                        label: "Background",
+                        command: () => {
+                            this.navigate(['video-studio', 'background'])
+                        },
+                        icon: 'pi pi-desktop'
+                    }
+                ]
             }
         )
 
