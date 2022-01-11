@@ -1,7 +1,9 @@
 #ifndef _ALTITUDE_MANAGER_H
 #define _ALTITUDE_MANAGER_H
 
-#include <Adafruit_BMP280.h>
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BMP085_U.h>
 
 #include "../utils/leds.h"
 #include "../config/config.h"
@@ -20,12 +22,13 @@ public:
 
 private:
   bool zero_altitude();
+  bool read_altitude();
 
   float _altitude;
   float _zero_altitude;
 
   LEDs *_leds;
-  Adafruit_BMP280 _bmp280;
+  Adafruit_BMP085_Unified _bmp180;
 };
 
 #endif // _ALTITUDE_MANAGER_H

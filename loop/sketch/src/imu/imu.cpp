@@ -17,6 +17,14 @@ bool IMU::setup(Config *config, Stats *stats, LEDs *leds)
       this->_config->rotation_y * DEG_2_RAD,
       this->_config->rotation_z * DEG_2_RAD);
 
+  Serial.print(this->_q.x);
+  Serial.print(", ");
+  Serial.print(this->_q.y);
+  Serial.print(", ");
+  Serial.print(this->_q.z);
+  Serial.print(", ");
+  Serial.println(this->_q.w);
+
   bool success = this->_madgwick.setup(config, stats);
   if (!success)
   {
@@ -33,10 +41,10 @@ bool IMU::setup(Config *config, Stats *stats, LEDs *leds)
 
   this->_leds->sleep(10);
 
-  success = this->_qmc_5883l.setup(config, wire, leds);
+  success = this->_hmc_5883l.setup(config, wire, leds);
   if (!success)
   {
-    Serial.println("fail to setup hmc5883l");
+    Serial.println("fail to setup qmc5883l");
     return false;
   }
 
@@ -47,14 +55,20 @@ void IMU::update()
 {
   // read the new data from sensors
   this->_mpu_6050.update();
-  this->_qmc_5883l.update();
+  this->_hmc_5883l.update();
 
   Vec3f *gyroscope = this->_mpu_6050.get_gyroscope();
   Vec3f *acceleration = this->_mpu_6050.get_acceleration();
-  Vec3f *magnetometer = this->_qmc_5883l.get_magnetometer();
+  Vec3f *magnetometer = this->_hmc_5883l.get_magnetometer();
 
   // convert to gyro
   Vec3f gyro = gyroscope->scale_scalar(DEG_2_RAD);
+
+  Serial.print(acceleration->x);
+  Serial.print(", ");
+  Serial.print(acceleration->y);
+  Serial.print(", ");
+  Serial.println(acceleration->z);
 
   // update madgwick
   this->_madgwick.update(
@@ -93,7 +107,7 @@ Vec3f *IMU::get_rotation()
 
 Vec3f *IMU::get_magnetometer()
 {
-  return this->_qmc_5883l.get_magnetometer();
+  return this->_hmc_5883l.get_magnetometer();
 }
 
 Vec3f *IMU::get_gyroscope()

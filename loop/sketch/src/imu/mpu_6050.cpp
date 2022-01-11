@@ -84,22 +84,22 @@ bool MPU6050::set_gyroscope_config(MPU6050GyroscopeConfig config_num)
   bool success = false;
   switch (config_num)
   {
-    case MPU6050_GYROSCOPE_250_DEG: // range = +- 250 deg/s
-      this->_gyroscope_2_deg = 131.0;
-      success = this->write_data(MPU6050_GYROSCOPE_CONFIG_REGISTER, config_num);
-      break;
-    case MPU6050_GYROSCOPE_500_DEG: // range = +- 500 deg/s
-      this->_gyroscope_2_deg = 65.5;
-      success = this->write_data(MPU6050_GYROSCOPE_CONFIG_REGISTER, config_num);
-      break;
-    case MPU6050_GYROSCOPE_1000_DEG: // range = +- 1000 deg/s
-      this->_gyroscope_2_deg = 32.8;
-      success = this->write_data(MPU6050_GYROSCOPE_CONFIG_REGISTER, config_num);
-      break;
-    case MPU6050_GYROSCOPE_2000_DEG: // range = +- 2000 deg/s
-      this->_gyroscope_2_deg = 16.4;
-      success = this->write_data(MPU6050_GYROSCOPE_CONFIG_REGISTER, config_num);
-      break;
+  case MPU6050_GYROSCOPE_250_DEG: // range = +- 250 deg/s
+    this->_gyroscope_2_deg = 131.0;
+    success = this->write_data(MPU6050_GYROSCOPE_CONFIG_REGISTER, config_num);
+    break;
+  case MPU6050_GYROSCOPE_500_DEG: // range = +- 500 deg/s
+    this->_gyroscope_2_deg = 65.5;
+    success = this->write_data(MPU6050_GYROSCOPE_CONFIG_REGISTER, config_num);
+    break;
+  case MPU6050_GYROSCOPE_1000_DEG: // range = +- 1000 deg/s
+    this->_gyroscope_2_deg = 32.8;
+    success = this->write_data(MPU6050_GYROSCOPE_CONFIG_REGISTER, config_num);
+    break;
+  case MPU6050_GYROSCOPE_2000_DEG: // range = +- 2000 deg/s
+    this->_gyroscope_2_deg = 16.4;
+    success = this->write_data(MPU6050_GYROSCOPE_CONFIG_REGISTER, config_num);
+    break;
   }
 
   Serial.print("gyroscope_2_degree is [ ");
@@ -114,22 +114,22 @@ bool MPU6050::set_acceleration_config(MPU6050AccelerationConfig config_num)
   byte success = false;
   switch (config_num)
   {
-    case MPU6050_ACCELERATION_2_G: // range = +- 2 g
-      this->_acceleration_2_g = 16384.0;
-      success = this->write_data(MPU6050_ACCELERATION_CONFIG_REGISTER, config_num);
-      break;
-    case MPU6050_ACCELERATION_4_G: // range = +- 4 g
-      this->_acceleration_2_g = 8192.0;
-      success = this->write_data(MPU6050_ACCELERATION_CONFIG_REGISTER, config_num);
-      break;
-    case MPU6050_ACCELERATION_8_G: // range = +- 8 g
-      this->_acceleration_2_g = 4096.0;
-      success = this->write_data(MPU6050_ACCELERATION_CONFIG_REGISTER, config_num);
-      break;
-    case MPU6050_ACCELERATION_16_G: // range = +- 16 g
-      this->_acceleration_2_g = 2048.0;
-      success = this->write_data(MPU6050_ACCELERATION_CONFIG_REGISTER, config_num);
-      break;
+  case MPU6050_ACCELERATION_2_G: // range = +- 2 g
+    this->_acceleration_2_g = 16384.0;
+    success = this->write_data(MPU6050_ACCELERATION_CONFIG_REGISTER, config_num);
+    break;
+  case MPU6050_ACCELERATION_4_G: // range = +- 4 g
+    this->_acceleration_2_g = 8192.0;
+    success = this->write_data(MPU6050_ACCELERATION_CONFIG_REGISTER, config_num);
+    break;
+  case MPU6050_ACCELERATION_8_G: // range = +- 8 g
+    this->_acceleration_2_g = 4096.0;
+    success = this->write_data(MPU6050_ACCELERATION_CONFIG_REGISTER, config_num);
+    break;
+  case MPU6050_ACCELERATION_16_G: // range = +- 16 g
+    this->_acceleration_2_g = 2048.0;
+    success = this->write_data(MPU6050_ACCELERATION_CONFIG_REGISTER, config_num);
+    break;
   }
 
   Serial.print("acceleration_2_g is [ ");

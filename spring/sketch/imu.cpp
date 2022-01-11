@@ -38,7 +38,7 @@ bool IMU::setup(Config *config, Stats *stats, StatusLeds *status_leds)
   success = this->_qmc_5883l.setup(config, wire, status_leds);
   if (!success)
   {
-    Serial.println("fail to setup hmc5883l");
+    Serial.println("fail to setup qmc5883l");
     return false;
   }
 

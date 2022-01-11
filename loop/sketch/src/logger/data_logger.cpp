@@ -18,7 +18,7 @@ bool DataLogger::setup(Stats *stats, LEDs *leds, AltitudeManager *altitude_manag
   this->_voltage_measurement = voltage_measurement;
 
   // start the spi
-  SPI.begin(18, 19, 23);
+  SPI.begin();
 
   // timeout
   this->_leds->sleep(10);
@@ -111,10 +111,12 @@ bool DataLogger::sd_card_speed_test()
       Serial.printf("fail to remove speedtest file [ %s ] from sd card.\n", filename.c_str());
       return false;
     }
+
+    Serial.printf("speedtest file [ %s ] successful removed from sd card\n", filename.c_str());
   }
 
   // open the speedtest file
-  File speedtest = SD.open(filename, "a+");
+  File speedtest = SD.open(filename, "w");
 
   // get back to the begining
   bool success = speedtest.seek(0);
@@ -134,20 +136,26 @@ bool DataLogger::sd_card_speed_test()
     buf[i] = random(0, 255);
   }
 
-  int writes = 1000;
-  unsigned long start = millis();
+  int writes = 100;
+  uint64_t elapsed_time = 0;
   for (int i = 0; i < writes; i++)
   {
+    Serial.print(".");
+
+    uint64_t start = millis();
     size_t bytes = speedtest.write(buf, length);
+    elapsed_time += (millis() - start);
+
     if (bytes != length)
     {
       Serial.printf("Fail to write speedtest file, bytes missmatch [ %d != %d ] \n", bytes, length);
       return false;
     }
+    
     this->_leds->update();
   }
 
-  float elapsed = ((float)(millis() - start)) / 1000.0;
+  float elapsed = ((float)elapsed_time) / 1000.0;
   float speed = ((float)(writes * length)) / elapsed;
 
   Serial.print("sd card speed is [ ");

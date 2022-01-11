@@ -6,7 +6,7 @@
 
 #include "mpu_6050.h"
 #include "madgwick.h"
-#include "qmc_5883l.h"
+#include "hmc_5883l.h"
 
 #include "../utils/leds.h"
 #include "../utils/stats.h"
@@ -34,7 +34,7 @@ public:
 private:
   MPU6050 _mpu_6050;
   Madgwick _madgwick;
-  QMC5883L _qmc_5883l;
+  HMC5883L _hmc_5883l;
 
   Quaternion _q;
   Quaternion _orientation;

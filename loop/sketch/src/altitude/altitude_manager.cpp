@@ -9,35 +9,32 @@ bool AltitudeManager::setup(LEDs *leds)
   this->_leds = leds;
 
   // try first address
-  bool success = this->_bmp280.begin(0x77);
-  if (!success)
-  {
-    // try second address
-    success = this->_bmp280.begin(0x76);
-  }
+  bool success = this->_bmp180.begin();
 
   if (!success)
   {
-    Serial.println("Could not find a valid BMP280 sensor, check wiring or try a different address!");
+    Serial.println("Could not find a valid BMP180 sensor, check wiring or try a different address!");
     return false;
   }
 
-  /* Default settings from datasheet. */
-  this->_bmp280.setSampling(Adafruit_BMP280::MODE_NORMAL,   /* Operating Mode. */
-                            Adafruit_BMP280::SAMPLING_X4,   /* Temp. oversampling */
-                            Adafruit_BMP280::SAMPLING_X16,  /* Pressure oversampling */
-                            Adafruit_BMP280::FILTER_X4,     /* Filtering. */
-                            Adafruit_BMP280::STANDBY_MS_1); /* Standby time. */
+  // get sensor information
+  sensor_t sensor;
+  this->_bmp180.getSensor(&sensor);
 
-  uint8_t status = this->_bmp280.getStatus();
-  uint8_t sensorID = this->_bmp280.sensorID();
-
-  // output info about bmp280 sensor
-  Serial.print("Connected with BMP280 [ status:");
-  Serial.print(status);
-  Serial.print(" id: ");
-  Serial.print(sensorID);
-  Serial.println(" ]");
+  // output info about bmp180 sensor
+  Serial.print("Connected with bmp180 [ name:");
+  Serial.print(sensor.name);
+  Serial.print(" version: ");
+  Serial.print(sensor.version);
+  Serial.print(", id: ");
+  Serial.print(sensor.sensor_id);
+  Serial.print(", max_value: ");
+  Serial.print(sensor.max_value);
+  Serial.print(" hPa, min_value: ");
+  Serial.print(sensor.min_value);
+  Serial.print(" hPa, resolution: ");
+  Serial.print(sensor.resolution);
+  Serial.println(" hPa ]");
 
   // zero the altitude level
   success = this->zero_altitude();
@@ -46,6 +43,29 @@ bool AltitudeManager::setup(LEDs *leds)
     Serial.println("unable to zero altitude");
     return false;
   }
+
+  return true;
+}
+
+bool AltitudeManager::read_altitude()
+{
+  // read the next sensor event
+  sensors_event_t event;
+  this->_bmp180.getEvent(&event);
+
+  // check for success
+  if (!event.pressure)
+  {
+    return false;
+  }
+
+  // first lets get the temperature
+  float temperature;
+  this->_bmp180.getTemperature(&temperature);
+
+  // calculate altitude based on the default sea level
+  float seaLevelPressure = SENSORS_PRESSURE_SEALEVELHPA;
+  this->_altitude = this->_bmp180.pressureToAltitude(seaLevelPressure, event.pressure);
 
   return true;
 }
@@ -68,7 +88,7 @@ float AltitudeManager::get_altitude_delta()
 void AltitudeManager::update()
 {
   // read the altitude
-  this->_altitude = this->_bmp280.readAltitude();
+  this->read_altitude();
 }
 
 bool AltitudeManager::zero_altitude()
@@ -76,13 +96,17 @@ bool AltitudeManager::zero_altitude()
   unsigned long elapsed = 0;
   unsigned long start = millis();
 
-  // warm the bmp280 up
-  Serial.println("warming up the BMP280 ... ");
+  // warm the BMP180 up
+  Serial.println("warming up the BMP180 ... ");
   while (elapsed < ALTITUDE_MANAGER_WARM_UP_TIMEOUT)
   {
     elapsed = millis() - start;
     // read the altitude
-    this->_bmp280.readAltitude();
+    bool success = this->read_altitude();
+    if (!success)
+    {
+      return false;
+    }
 
     // delay for the next reading
     this->_leds->sleep(2);
@@ -93,13 +117,24 @@ bool AltitudeManager::zero_altitude()
   float sum = 0.0;
   for (int i = 0; i < ALTITUDE_MANAGER_ZERO_READINGS; i++)
   {
-    sum += this->_bmp280.readAltitude();
+    // read the altitude
+    bool success = this->read_altitude();
+    if (!success)
+    {
+      return false;
+    }
+
+    sum += this->_altitude;
 
     // delay for the next reading
     this->_leds->sleep(2);
   }
 
   this->_zero_altitude = sum / ((float)ALTITUDE_MANAGER_ZERO_READINGS);
+
+  Serial.print("altitude zeroed by [ ");
+  Serial.print(this->_zero_altitude);
+  Serial.println(" m ]");
 
   return true;
 }

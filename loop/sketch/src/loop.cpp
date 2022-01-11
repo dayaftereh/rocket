@@ -148,7 +148,7 @@ void Loop::update()
     this->_data_logger.update();
     this->_remote_server.update();
     this->_trigger_manager.update();
-    this->_altitude_manager.update();
+    //this->_altitude_manager.update();
     this->_parachute_manager.update();
     this->_voltage_measurement.update();
 
