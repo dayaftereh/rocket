@@ -56,35 +56,14 @@ void IMU::update()
   // convert to gyro
   Vec3f gyro = gyroscope->scale_scalar(DEG_2_RAD);
 
-  Serial.print(magnetometer->x);
-  Serial.print(" ");
-  Serial.print(magnetometer->y);
-  Serial.print(" ");
-  Serial.println(magnetometer->z);
-
   // update madgwick
   this->_madgwick.update(
       gyro.x, gyro.y, gyro.z,
       acceleration->x, acceleration->y, acceleration->z,
       magnetometer->x, magnetometer->y, magnetometer->z);
 
-  /*Serial.print(magnetometer->x);
-  Serial.print(" ");
-  Serial.print(magnetometer->y);
-  Serial.print(" ");
-  Serial.println(magnetometer->z);*/
-
   // get the current rotation as Quaternion
   Quaternion *q = this->_madgwick.get_quaternion();
-
-  Serial.print(q->x);
-  Serial.print(" ");
-  Serial.print(q->y);
-  Serial.print(" ");
-  Serial.print(q->z);
-  Serial.print(" ");
-  Serial.println(q->w);
-
   Quaternion q1 = q->clone();
   this->_orientation = q1.multiply(this->_q);
 

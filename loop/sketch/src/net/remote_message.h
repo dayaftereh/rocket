@@ -1,7 +1,7 @@
 #ifndef _REMOTE_MESSAGE_H
 #define _REMOTE_MESSAGE_H
 
-typedef struct __attribute__((packed)) RemoteMessage
+struct __attribute__((packed)) RemoteMessage
 {
 
   unsigned long time; // 4

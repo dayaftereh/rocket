@@ -1,7 +1,7 @@
 #ifndef _DATA_LOGGER_ENTRY_H
 #define _DATA_LOGGER_ENTRY_H
 
-typedef struct __attribute__((packed)) DataLoggerEntry
+struct __attribute__((packed)) DataLoggerEntry
 {
 
   uint32_t time; // 4
