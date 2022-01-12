@@ -63,12 +63,12 @@ void Loop::setup()
     }
 
     // AltitudeManager
-    success = this->_altitude_manager.setup(&this->_leds);
+    /*success = this->_altitude_manager.setup(&this->_leds);
     if (!success)
     {
         Serial.println("fail to setup altitude manager");
         this->_error_manager.error(ERROR_ALTITUDE_MANAGER);
-    }
+    }*/
 
     // IMU
     success = this->_imu.setup(config, &this->_stats, &this->_leds);

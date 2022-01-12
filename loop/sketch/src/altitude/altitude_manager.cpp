@@ -17,25 +17,6 @@ bool AltitudeManager::setup(LEDs *leds)
     return false;
   }
 
-  // get sensor information
-  sensor_t sensor;
-  this->_bmp180.getSensor(&sensor);
-
-  // output info about bmp180 sensor
-  Serial.print("Connected with bmp180 [ name:");
-  Serial.print(sensor.name);
-  Serial.print(" version: ");
-  Serial.print(sensor.version);
-  Serial.print(", id: ");
-  Serial.print(sensor.sensor_id);
-  Serial.print(", max_value: ");
-  Serial.print(sensor.max_value);
-  Serial.print(" hPa, min_value: ");
-  Serial.print(sensor.min_value);
-  Serial.print(" hPa, resolution: ");
-  Serial.print(sensor.resolution);
-  Serial.println(" hPa ]");
-
   // zero the altitude level
   success = this->zero_altitude();
   if (!success)
@@ -48,25 +29,8 @@ bool AltitudeManager::setup(LEDs *leds)
 }
 
 bool AltitudeManager::read_altitude()
-{
-  // read the next sensor event
-  sensors_event_t event;
-  this->_bmp180.getEvent(&event);
-
-  // check for success
-  if (!event.pressure)
-  {
-    return false;
-  }
-
-  // first lets get the temperature
-  float temperature;
-  this->_bmp180.getTemperature(&temperature);
-
-  // calculate altitude based on the default sea level
-  float seaLevelPressure = SENSORS_PRESSURE_SEALEVELHPA;
-  this->_altitude = this->_bmp180.pressureToAltitude(seaLevelPressure, event.pressure);
-
+{  
+  this->_altitude = this->_bmp180.readAltitude();
   return true;
 }
 

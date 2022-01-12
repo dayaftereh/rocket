@@ -29,7 +29,7 @@
 #define STATUS_FINALIZE_LED_TIMEOUT 200
 
 // DataLogger -----------------------------------------------
-#define DATA_LOGGER_USE_FLASH true
+#define DATA_LOGGER_USE_FLASH false
 #define DATA_LOGGER_SD_CS 5
 #define DATA_LOGGER_FLASH_CS 17
 

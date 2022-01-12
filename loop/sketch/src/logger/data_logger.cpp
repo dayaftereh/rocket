@@ -136,12 +136,10 @@ bool DataLogger::sd_card_speed_test()
     buf[i] = random(0, 255);
   }
 
-  int writes = 100;
+  int writes = 1000;
   uint64_t elapsed_time = 0;
   for (int i = 0; i < writes; i++)
   {
-    Serial.print(".");
-
     uint64_t start = millis();
     size_t bytes = speedtest.write(buf, length);
     elapsed_time += (millis() - start);

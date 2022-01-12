@@ -14,7 +14,17 @@
 #define HMC5883L_CONFIGURATION_REGISTER_A 0x00
 #define HMC5883L_CONFIGURATION_REGISTER_B 0x01
 
-#define HMC5883L_MEASUREMENT_CONTINUOUS 0x00 
+#define HMC5883L_MEASUREMENT_CONTINUOUS 0x00
+
+enum HMC5883L_MEASUREMENT_RATE { // set magnetometer ODR
+  HMC5883L_MEASUREMENT_RATE_0075 = 0, // 0.75 Hz ODR
+  HMC5883L_MEASUREMENT_RATE_015,      // 1.5 Hz
+  HMC5883L_MEASUREMENT_RATE_030,      // 3.0 Hz
+  HMC5883L_MEASUREMENT_RATE_075,      // 7.5 Hz
+  HMC5883L_MEASUREMENT_RATE_15,       // 15 Hz
+  HMC5883L_MEASUREMENT_RATE_30,       // 30 Hz
+  HMC5883L_MEASUREMENT_RATE_75,       // 75 Hz ODR    
+};
 
 class HMC5883L
 {
@@ -30,6 +40,8 @@ public:
 private:
     bool read();
     bool calibrate();
+    bool self_test();
+    bool warm_up();
     bool write_data(byte reg, byte data);
 
     byte _address;

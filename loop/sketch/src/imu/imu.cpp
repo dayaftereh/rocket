@@ -17,14 +17,6 @@ bool IMU::setup(Config *config, Stats *stats, LEDs *leds)
       this->_config->rotation_y * DEG_2_RAD,
       this->_config->rotation_z * DEG_2_RAD);
 
-  Serial.print(this->_q.x);
-  Serial.print(", ");
-  Serial.print(this->_q.y);
-  Serial.print(", ");
-  Serial.print(this->_q.z);
-  Serial.print(", ");
-  Serial.println(this->_q.w);
-
   bool success = this->_madgwick.setup(config, stats);
   if (!success)
   {
@@ -64,11 +56,11 @@ void IMU::update()
   // convert to gyro
   Vec3f gyro = gyroscope->scale_scalar(DEG_2_RAD);
 
-  Serial.print(acceleration->x);
-  Serial.print(", ");
-  Serial.print(acceleration->y);
-  Serial.print(", ");
-  Serial.println(acceleration->z);
+  Serial.print(magnetometer->x);
+  Serial.print(" ");
+  Serial.print(magnetometer->y);
+  Serial.print(" ");
+  Serial.println(magnetometer->z);
 
   // update madgwick
   this->_madgwick.update(
@@ -76,8 +68,23 @@ void IMU::update()
       acceleration->x, acceleration->y, acceleration->z,
       magnetometer->x, magnetometer->y, magnetometer->z);
 
+  /*Serial.print(magnetometer->x);
+  Serial.print(" ");
+  Serial.print(magnetometer->y);
+  Serial.print(" ");
+  Serial.println(magnetometer->z);*/
+
   // get the current rotation as Quaternion
   Quaternion *q = this->_madgwick.get_quaternion();
+
+  Serial.print(q->x);
+  Serial.print(" ");
+  Serial.print(q->y);
+  Serial.print(" ");
+  Serial.print(q->z);
+  Serial.print(" ");
+  Serial.println(q->w);
+
   Quaternion q1 = q->clone();
   this->_orientation = q1.multiply(this->_q);
 
