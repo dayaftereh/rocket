@@ -6,6 +6,7 @@ import { SettingsComponent } from "./views/settings/settings.component";
 import { SimulationComponent } from "./views/simulation/simulation.component";
 import { SingleSimulationComponent } from "./views/simulation/single/single-simulation.component";
 import { BackgroundVideoStudioComponent } from "./views/video-studio/background/background-video-studio.component";
+import { GreenScreenVideoStudioComponent } from "./views/video-studio/green-screen/green-screen-video-studio.component";
 import { VideoStudioComponent } from "./views/video-studio/video-studio.component";
 
 const routes: Routes = [
@@ -27,6 +28,9 @@ const routes: Routes = [
         path: 'video-studio', component: VideoStudioComponent, children: [
             {
                 path: 'background', component: BackgroundVideoStudioComponent
+            },
+            {
+                path: 'green-screen', component: GreenScreenVideoStudioComponent
             }
         ]
     },

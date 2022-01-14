@@ -1,0 +1,48 @@
+<div class="grid">
+    <div class="col">
+        <p-fileUpload #fileUpload [customUpload]="true" (uploadHandler)="onVideo($event)"></p-fileUpload>
+    </div>
+    <div class="col">
+        <p-card header="Configuration">
+
+            <div class="field grid">
+                <label for="color" class="col">Color</label>
+                <div class="col">
+                    <p-colorPicker id="color"></p-colorPicker>
+                </div>
+            </div>
+
+            <div class="field grid">
+                <label for="color" class="col">HAU</label>
+                <div class="col">
+                    <p-slider></p-slider>
+                </div>
+            </div>
+
+            <div class="field grid">
+                <label for="color" class="col">Sat</label>
+                <div class="col">
+                    <p-slider></p-slider>
+                </div>
+            </div>
+
+            <div class="field grid">
+                <label for="color" class="col">Val</label>
+                <div class="col">
+                    <p-slider></p-slider>
+                </div>
+            </div>
+
+        </p-card>
+    </div>
+</div>
+<div class="grid">
+    <div class="col">
+        <video #video width="800" height="800" controls autoplay></video>
+    </div>
+    <div class="col">
+        <div style="overflow: auto;width:800px;height:800px;">
+            <canvas #canvas></canvas>
+        </div>
+    </div>
+</div>
