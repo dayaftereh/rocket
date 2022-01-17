@@ -1,41 +1,61 @@
 <div class="grid">
     <div class="col">
-        <p-fileUpload #fileUpload [customUpload]="true" (uploadHandler)="onVideo($event)"></p-fileUpload>
+        <p-fileUpload #fileUpload [customUpload]="true" (uploadHandler)="onVideo($event)" [style]="{'height': '100%'}">
+        </p-fileUpload>
     </div>
     <div class="col">
         <p-card header="Configuration">
+            <form [formGroup]="formGroup">
 
-            <div class="field grid">
-                <label for="color" class="col">Color</label>
-                <div class="col">
-                    <p-colorPicker id="color"></p-colorPicker>
+
+                <div class="field grid">
+                    <label for="color" class="col">Color</label>
+                    <div class="col">
+                        <p-colorPicker id="color" formControlName="color" format="rgb"></p-colorPicker>
+                    </div>
                 </div>
-            </div>
 
-            <div class="field grid">
-                <label for="color" class="col">HAU</label>
-                <div class="col">
-                    <p-slider></p-slider>
+                <div class="field grid">
+                    <label for="useChannel" class="col">Use Channel</label>
+                    <div class="col">
+                        <p-inputSwitch id="useChannel" formControlName="useChannel"></p-inputSwitch>
+                    </div>
                 </div>
-            </div>
 
-            <div class="field grid">
-                <label for="color" class="col">Sat</label>
-                <div class="col">
-                    <p-slider></p-slider>
+                <div class="field grid">
+                    <label for="hueThreshold" class="col">Hue-Threshold</label>
+                    <div class="col">
+                        <p-slider id="hueThreshold" formControlName="hueThreshold" [max]="1.0" [step]="0.01"></p-slider>
+                    </div>
                 </div>
-            </div>
 
-            <div class="field grid">
-                <label for="color" class="col">Val</label>
-                <div class="col">
-                    <p-slider></p-slider>
+                <div class="field grid">
+                    <label for="satThreshold" class="col">Sat-Threshold</label>
+                    <div class="col">
+                        <p-slider id="satThreshold" formControlName="satThreshold" [max]="1.0" [step]="0.01"></p-slider>
+                    </div>
                 </div>
-            </div>
 
+                <div class="field grid">
+                    <label for="valThreshold" class="col">Val-Threshold</label>
+                    <div class="col">
+                        <p-slider id="valThreshold" formControlName="valThreshold" [max]="1.0" [step]="0.01"></p-slider>
+                    </div>
+                </div>
+
+                <div class="field grid">
+                    <label for="channelThreshold" class="col">Channel-Threshold</label>
+                    <div class="col">
+                        <p-slider id="channelThreshold" formControlName="channelThreshold" [max]="255.0" [step]="0.1">
+                        </p-slider>
+                    </div>
+                </div>
+
+            </form>
         </p-card>
     </div>
 </div>
+
 <div class="grid">
     <div class="col">
         <video #video width="800" height="800" controls autoplay></video>

@@ -1,10 +1,12 @@
 export interface GreenScreenOptions {
     key: {
-        h: number,
-        s: number,
-        v: number
+        r: number,
+        g: number,
+        b: number
     }
     hueThreshold: number
     satThreshold: number
     valThreshold: number
+    useChannel: boolean
+    channelThreshold: number
 }

@@ -15,13 +15,15 @@ export class GreenScreen {
         private readonly canvas: HTMLCanvasElement,
     ) {
         this.options = {
+            useChannel: false,
             hueThreshold: 0.5,
             satThreshold: 0.5,
             valThreshold: 0.5,
+            channelThreshold: 0.5,
             key: {
-                h: 1,
-                s: 1,
-                v: 1
+                r: 14,
+                g: 255,
+                b: 0
             }
         }
     }
@@ -41,8 +43,11 @@ export class GreenScreen {
         })
     }
 
-    changeOptions(options: GreenScreenOptions): void {
+    changeOptions(options: GreenScreenOptions, repaint: boolean): void {
         this.options = options
+        if (repaint) {
+            this.render()
+        }
     }
 
     private registerRequestVideoFrameCallback(): void {
@@ -57,15 +62,32 @@ export class GreenScreen {
 
     private frameCallback(): void {
         this.registerRequestVideoFrameCallback()
+        this.render()
+    }
+
+    private render(): void {
         this.bufContext2d.drawImage(this.video, 0, 0, this.video.videoWidth, this.video.videoHeight)
         const frame: ImageData = this.bufContext2d.getImageData(0, 0, this.video.videoWidth, this.video.videoHeight)
+
+        const key: any = GreenScreen.rgbToHsv(this.options.key.r, this.options.key.g, this.options.key.b)
+
+        let chromaKeyOut = (r: number, g: number, b: number) => {
+            return this.chromaKeyOutHSV(r, g, b, key)
+        }
+
+        if (this.options.useChannel) {
+            chromaKeyOut = (r: number, g: number, b: number) => {
+                return this.chromaKeyOutChannel(r, g, b)
+
+            }
+        }
 
         for (let i = 0; i < frame.data.length; i += 4) {
             const r: number = frame.data[i + 0]
             const g: number = frame.data[i + 1]
             const b: number = frame.data[i + 2]
 
-            if (this.chromaKeyOut(r, g, b)) {
+            if (chromaKeyOut(r, g, b)) {
                 frame.data[i + 3] = 0
             }
         }
@@ -73,7 +95,7 @@ export class GreenScreen {
         this.context2d.putImageData(frame, 0, 0)
     }
 
-    private rgbToHsv(r: number, g: number, b: number): { h: number, s: number, v: number } {
+    static rgbToHsv(r: number, g: number, b: number): { h: number, s: number, v: number } {
 
         r /= 255.0
         g /= 255.0
@@ -106,22 +128,32 @@ export class GreenScreen {
         };
     }
 
-    private chromaKeyOut(r: number, g: number, b: number): boolean {
-        const { h, s, v } = this.rgbToHsv(r, g, b)
+    private chromaKeyOutHSV(r: number, g: number, b: number, keyHSV: any): boolean {
+        const pixel: any = GreenScreen.rgbToHsv(r, g, b)
 
-        if (Math.abs(h - this.options.key.h) >= this.options.hueThreshold) {
+        if (Math.abs(pixel.h - keyHSV.h) > this.options.hueThreshold) {
             return false
         }
 
-        if (Math.abs(s - this.options.key.s) >= this.options.satThreshold) {
+        if (Math.abs(pixel.s - keyHSV.s) > this.options.satThreshold) {
             return false
         }
 
-        if (Math.abs(v - this.options.key.v) >= this.options.valThreshold) {
+        if (Math.abs(pixel.v - keyHSV.v) > this.options.valThreshold) {
             return false
         }
 
         return true
+    }
+
+    private chromaKeyOutChannel(r: number, g: number, b: number): boolean {
+        const max: number = Math.max(r, g, b);
+        if (Math.abs(max - g) > 0.1) {
+            return false
+        }
+
+        const mid: number = Math.max(r, b);
+        return max - mid > this.options.channelThreshold;
     }
 
     private onResize(): void {
