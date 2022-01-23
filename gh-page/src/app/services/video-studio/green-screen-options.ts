@@ -1,3 +1,10 @@
+export enum GreenScreenMode {
+    ChannelRed = "red",
+    ChannelGreen = "green",
+    ChannelBlue = "blue",
+    KeyColor = "key"
+}
+
 export interface GreenScreenOptions {
     key: {
         r: number,
@@ -7,6 +14,6 @@ export interface GreenScreenOptions {
     hueThreshold: number
     satThreshold: number
     valThreshold: number
-    useChannel: boolean
+    mode: GreenScreenMode
     channelThreshold: number
 }
