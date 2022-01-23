@@ -44,6 +44,13 @@ export class MenuComponent implements OnInit {
                             this.navigate(['simulation', 'single'])
                         },
                         icon: 'pi pi-play'
+                    },
+                    {
+                        label: "Multiple",
+                        command: () => {
+                            this.navigate(['simulation', 'multiple'])
+                        },
+                        icon: 'pi'
                     }
                 ]
             },
@@ -60,7 +67,7 @@ export class MenuComponent implements OnInit {
                 ]
             },
             {
-                label: 'Video-Studio',               
+                label: 'Video-Studio',
                 items: [
                     {
                         label: "Background",
@@ -75,7 +82,7 @@ export class MenuComponent implements OnInit {
                             this.navigate(['video-studio', 'green-screen'])
                         },
                         icon: 'pi'
-                    }                    
+                    }
                 ]
             }
         )

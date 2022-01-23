@@ -3,6 +3,7 @@ import { RouterModule, Routes } from "@angular/router";
 import { AnalyzerComponent } from "./views/analyzer/analyzer.component";
 import { ConstantsSettingsComponent } from "./views/settings/constants/constants-settings.component";
 import { SettingsComponent } from "./views/settings/settings.component";
+import { MultipleSimulationComponent } from "./views/simulation/multiple/multiple-simulation.component";
 import { SimulationComponent } from "./views/simulation/simulation.component";
 import { SingleSimulationComponent } from "./views/simulation/single/single-simulation.component";
 import { BackgroundVideoStudioComponent } from "./views/video-studio/background/background-video-studio.component";
@@ -21,6 +22,9 @@ const routes: Routes = [
         path: 'simulation', component: SimulationComponent, children: [
             {
                 path: 'single', component: SingleSimulationComponent
+            },
+            {
+                path: 'multiple', component: MultipleSimulationComponent
             }
         ]
     },

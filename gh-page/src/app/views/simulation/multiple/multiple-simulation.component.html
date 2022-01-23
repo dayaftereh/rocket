@@ -1,0 +1,134 @@
+<div class="grid">
+    <div class="col">
+        <p-card header="Base Settings">
+            <form [formGroup]="formGroup" (ngSubmit)="onSubmit()">
+                <div class="card">
+                    <div class="field ">
+                        <label for="rocketWeight">Empty rocket weight</label>
+                        <div class="p-inputgroup">
+                            <input id="rocketWeight" pInputText formControlName="rocketWeight" type="number"
+                                class="inputfield w-full">
+                            <span class="p-inputgroup-addon">g</span>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label for="tankVolume">Tank Volume</label>
+                        <div class="p-inputgroup">
+                            <input id="tankVolume" formControlName="tankVolume" pInputText type="number"
+                                class="inputfield w-full">
+                            <span class="p-inputgroup-addon">l</span>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label for="rocketDiameter">Rocket Diameter</label>
+                        <div class="p-inputgroup">
+                            <input id="rocketDiameter" formControlName="rocketDiameter" pInputText type="number"
+                                class="inputfield w-full">
+                            <span class="p-inputgroup-addon">mm</span>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label for="initialPressure">Initial Pressure</label>
+                        <div class="p-inputgroup">
+                            <input id="initialPressure" formControlName="initialPressure" pInputText type="number"
+                                class="inputfield w-full">
+                            <span class="p-inputgroup-addon">bar</span>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label for="dragCoefficient">DragCoefficient</label>
+                        <input id="dragCoefficient" formControlName="dragCoefficient" pInputText type="number"
+                            class="inputfield w-full">
+                    </div>
+
+                    <div class="field">
+                        <label for="timeStep">Time Step</label>
+                        <div class="p-inputgroup">
+                            <input id="timeStep" formControlName="timeStep" pInputText type="number"
+                                class="inputfield w-full">
+                            <span class="p-inputgroup-addon">s</span>
+                        </div>
+                    </div>
+
+                    <div class="formgrid grid">
+                        <div class="field col">
+                            <label for="nozzleDiameterMinimum">Nozzle Diameter Minimum</label>
+                            <input id="nozzleDiameterMinimum" formControlName="nozzleDiameterMinimum" pInputText
+                                type="number" class="inputfield w-full">
+                        </div>
+                        <div class="field col">
+                            <label for="nozzleDiameterMaximum">Nozzle Diameter Maximum</label>
+                            <input id="nozzleDiameterMaximum" formControlName="nozzleDiameterMaximum" pInputText
+                                type="number" class="inputfield w-full">
+                        </div>
+                        <div class="field col">
+                            <label for="nozzleDiameterStep">Nozzle Diameter Step</label>
+                            <input id="nozzleDiameterStep" formControlName="nozzleDiameterStep" pInputText type="number"
+                                class="inputfield w-full">
+                        </div>
+                    </div>
+
+                    <div class="formgrid grid">
+                        <div class="field col">
+                            <label for="waterAmountMinimum">Water Amount Minimum</label>
+                            <input id="waterAmountMinimum" formControlName="waterAmountMinimum" pInputText type="number"
+                                class="inputfield w-full">
+                        </div>
+                        <div class="field col">
+                            <label for="waterAmountMaximum">Water Amount Maximum</label>
+                            <input id="waterAmountMaximum" formControlName="waterAmountMaximum" pInputText type="number"
+                                class="inputfield w-full">
+                        </div>
+                        <div class="field col">
+                            <label for="waterAmountStep">Water Amount Step</label>
+                            <input id="waterAmountStep" formControlName="waterAmountStep" pInputText type="number"
+                                class="inputfield w-full">
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <button pButton type="submit" label="Start"></button>
+                    </div>
+                </div>
+            </form>
+        </p-card>
+    </div>
+</div>
+
+<div class="grid">
+    <div class="col">
+        <p-card header="Running">
+            <p-progressBar [value]="progress"></p-progressBar>
+        </p-card>
+    </div>
+</div>
+
+<div class="grid">
+    <div class="col">
+        <p-card header="Result">
+            <p-table [value]="results">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th pSortableColumn="maxHeight">Max Height (m) <p-sortIcon field="maxHeight"></p-sortIcon>
+                        </th>
+                        <th>Duration (s)</th>
+                        <th>Water Amount (l)</th>
+                        <th>Nozzle Diameter (mm)</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-step>
+                    <tr>
+                        <td>{{step.maxHeight | number}}</td>
+                        <td>{{step.duration | number}}</td>
+                        <td>{{step.config.waterAmount | number}}</td>
+                        <td>{{step.config.nozzleDiameter | number}}</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </p-card>
+    </div>
+</div>
