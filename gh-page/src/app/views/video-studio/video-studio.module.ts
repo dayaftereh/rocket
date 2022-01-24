@@ -1,7 +1,7 @@
 import { NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
 import { RouterModule } from "@angular/router";
-import { BackgroundVideoStudioModule } from "./background/background-video-studio.module";
+import { TransformerVideoStudioModule } from "./transformer/transformer-video-studio.module";
 import { VideoStudioComponent } from "./video-studio.component";
 
 @NgModule({
@@ -9,8 +9,8 @@ import { VideoStudioComponent } from "./video-studio.component";
         // Angular
         RouterModule,
         BrowserModule,
-        // Custom
-        BackgroundVideoStudioModule,
+        // Custom       
+        TransformerVideoStudioModule
     ],
     declarations: [
         VideoStudioComponent

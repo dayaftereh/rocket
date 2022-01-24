@@ -70,19 +70,12 @@ export class MenuComponent implements OnInit {
                 label: 'Video-Studio',
                 items: [
                     {
-                        label: "Background",
+                        label: "Transformer",
                         command: () => {
-                            this.navigate(['video-studio', 'background'])
+                            this.navigate(['video-studio', "transformer"])
                         },
                         icon: 'pi pi-desktop'
-                    },
-                    {
-                        label: "GreenScreen",
-                        command: () => {
-                            this.navigate(['video-studio', 'green-screen'])
-                        },
-                        icon: 'pi'
-                    }
+                    },                    
                 ]
             }
         )

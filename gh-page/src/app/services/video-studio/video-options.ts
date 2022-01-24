@@ -1,22 +1,16 @@
-import { GreenScreenOptions } from "./green-screen-options";
-
-export interface ForegroundItem {
-    x: number
-    y: number
-    time: number
-    duration: number
-    text: string
-    font: string
-    fillStyle: string | undefined
-    strokeStyle: string | undefined
-}
+import { VideoBackgroundOptions } from "./background/video-background-options";
+import { VideoGreenScreenOptions } from "./video-green-screen-options";
+import { VideoForegroundItem } from "./video-foreground-item";
 
 export interface VideoOptions {
-    width: number
-    height: number
     x: number
     y: number
+    width: number
+    height: number
+
     frameRate: number
-    greenScreen: GreenScreenOptions | undefined
-    foregrounds: ForegroundItem[]
+
+    foregrounds: VideoForegroundItem[]
+    greenScreen: VideoGreenScreenOptions | undefined
+    background: VideoBackgroundOptions | undefined
 }

@@ -6,7 +6,7 @@ import { SettingsComponent } from "./views/settings/settings.component";
 import { MultipleSimulationComponent } from "./views/simulation/multiple/multiple-simulation.component";
 import { SimulationComponent } from "./views/simulation/simulation.component";
 import { SingleSimulationComponent } from "./views/simulation/single/single-simulation.component";
-import { BackgroundVideoStudioComponent } from "./views/video-studio/background/background-video-studio.component";
+import { TransformerVideoStudioComponent } from "./views/video-studio/transformer/transformer-video-studio.component";
 import { VideoStudioComponent } from "./views/video-studio/video-studio.component";
 
 const routes: Routes = [
@@ -30,13 +30,11 @@ const routes: Routes = [
     {
         path: 'video-studio', component: VideoStudioComponent, children: [
             {
-                path: 'background', component: BackgroundVideoStudioComponent
+                path: "transformer", component: TransformerVideoStudioComponent
             }
         ]
     },
-    {
-        path: 'analyzer', component: AnalyzerComponent
-    },
+    { path: 'analyzer', component: AnalyzerComponent },
 ]
 
 @NgModule({

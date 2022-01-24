@@ -1,9 +1,17 @@
+import { Color } from "src/app/utils/color"
+import { VideoBackgroundSimulation } from "./background/video-background-simulation"
+import { VideoForegroundItem } from "./video-foreground-item"
 import { VideoFrame } from "./video-frame"
-import { ForegroundItem, VideoOptions } from "./video-options"
+import { VideoGreenScreenMode } from "./video-green-screen-mode"
+import { VideoGreenScreenOptions } from "./video-green-screen-options"
+import { VideoOptions } from "./video-options"
 
 export class VideoStudioExecutor {
 
     private options: VideoOptions | undefined
+
+    private background: VideoBackgroundSimulation | undefined
+
     private bufferCanvas: any | undefined
     private bufferContext: any | undefined
 
@@ -18,6 +26,94 @@ export class VideoStudioExecutor {
         //@ts-ignore
         this.bufferCanvas = new OffscreenCanvas(options.width, options.height)
         this.bufferContext = this.bufferCanvas.getContext("2d")
+
+        // create the background
+        if (!!this.options.background) {
+            this.background = new VideoBackgroundSimulation(this.options.background)
+        } else {
+            this.background = undefined
+        }
+
+        // create the green screen chromaKey function
+        this.chromaKeyOut = this.createChromaKeyOut(options)
+    }
+
+    private createChromaKeyOut(options: VideoOptions): (r: number, g: number, b: number) => boolean {
+        // check if green screen disabled
+        if (!this.options.greenScreen) {
+            return (r: number, g: number, b: number) => {
+                return false
+            }
+        }
+
+        const greenScreen: VideoGreenScreenOptions = this.options.greenScreen
+
+        // check if key color mode active
+        if (greenScreen.mode === VideoGreenScreenMode.KeyColor) {
+            // convert key color to hsv
+            const key: any = Color.rgbToHsv(
+                greenScreen.key.r,
+                greenScreen.key.g,
+                greenScreen.key.b
+            )
+
+            return (r: number, g: number, b: number) => {
+                // convert frame color to hsv
+                const frame: any = Color.rgbToHsv(r, g, b)
+
+                // check the threshold
+                if (Math.abs(key.h - frame.h) >= greenScreen.hueThreshold) {
+                    return false
+                }
+
+                if (Math.abs(key.s - frame.s) >= greenScreen.satThreshold) {
+                    return false
+                }
+
+                if (Math.abs(key.v - frame.v) >= greenScreen.valThreshold) {
+                    return false
+                }
+
+                return true
+            }
+        }
+
+        const closeEquals = (a: number, b: number) => {
+            return Math.abs(a - b) < 0.01
+        }
+
+        return (r: number, g: number, b: number) => {
+            const max = Math.max(r, g, b);
+
+            if (greenScreen.mode === VideoGreenScreenMode.ChannelGreen) {
+                if (!closeEquals(max, g)) {
+                    return false
+                }
+
+                const mid: number = Math.max(r, b)
+                return max - mid > greenScreen.channelThreshold
+            }
+
+            if (greenScreen.mode === VideoGreenScreenMode.ChannelBlue) {
+                if (!closeEquals(max, b)) {
+                    return false
+                }
+
+                const mid: number = Math.max(r, g)
+                return max - mid > greenScreen.channelThreshold
+            }
+
+            if (greenScreen.mode === VideoGreenScreenMode.ChannelRed) {
+                if (!closeEquals(max, r)) {
+                    return false
+                }
+
+                const mid: number = Math.max(b, g)
+                return max - mid > greenScreen.channelThreshold
+            }
+
+            return false
+        }
     }
 
     private createImageDataFromFrame(frame: VideoFrame): ImageData {
@@ -63,19 +159,23 @@ export class VideoStudioExecutor {
         // insert the frame
         this.bufferContext.putImageData(image, this.options.x, this.options.y)
 
-
         // render the foreground
         this.renderForeground(frame.time)
     }
 
     private renderBackground(): void {
+        if (!this.background) {
+            return
+        }
 
+        // draw the background
+        this.background.render(this.bufferContext)
     }
 
     private renderForeground(time: number): void {
-        this.options.foregrounds.filter((item: ForegroundItem) => {
+        this.options.foregrounds.filter((item: VideoForegroundItem) => {
             return item.time <= time && time <= (item.time + item.duration)
-        }).forEach((item: ForegroundItem) => {
+        }).forEach((item: VideoForegroundItem) => {
             this.bufferContext.save()
 
             this.bufferContext.font = item.font
@@ -95,7 +195,9 @@ export class VideoStudioExecutor {
     }
 
     async update(time: number): Promise<void> {
-
+        if (this.background) {
+            this.background.update(time)
+        }
     }
 
 }

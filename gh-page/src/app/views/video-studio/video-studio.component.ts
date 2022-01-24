@@ -5,4 +5,8 @@ import { Component } from "@angular/core";
 })
 export class VideoStudioComponent {
 
+    constructor() {
+
+    }
+
 }

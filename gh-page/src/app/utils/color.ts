@@ -1,7 +1,7 @@
 export class Color {
 
 
-    private constructor(){
+    private constructor() {
 
     }
 
@@ -36,6 +36,15 @@ export class Color {
         return {
             h, s, v
         };
+    }
+
+    static hexToRgb(hex: string): { r: number, g: number, b: number } {
+        const r: number = parseInt(hex.slice(1, 3), 16)
+        const g: number = parseInt(hex.slice(3, 5), 16)
+        const b: number = parseInt(hex.slice(5, 7), 16)
+        return {
+            r, g, b
+        }
     }
 
 

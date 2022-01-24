@@ -1,15 +1,17 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "target": "es5",
+    "target": "es6",
     "outDir": "./out-tsc/worker",
+    "skipLibCheck": true,
+    "types": [],
     "lib": [
       "ES2021",
       "WebWorker",
-      "scripthost"
     ]
   },
   "include": [
-    "**/*.worker.ts"
+    "**/*.worker.ts",
+    "**/*.d.ts"
   ]
 }
