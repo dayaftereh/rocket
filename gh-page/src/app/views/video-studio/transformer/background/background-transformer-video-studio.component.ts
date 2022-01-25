@@ -25,7 +25,19 @@ export class BackgroundTransformerVideoStudioComponent implements OnInit, OnDest
 
     private createFormGroup(): FormGroup {
         return new FormGroup({
-            enabled: new FormControl(),
+            enabled: new FormControl(false),
+
+            speed: new FormControl([0, 20]),
+            radius: new FormControl([0, 10]),
+
+            distance: new FormControl(0.1),
+            particles: new FormControl(50),
+
+            x: new FormControl(0),
+            y: new FormControl(0),
+
+            width: new FormControl(1920),
+            height: new FormControl(1080),
         })
     }
 
@@ -35,6 +47,8 @@ export class BackgroundTransformerVideoStudioComponent implements OnInit, OnDest
         })
 
         this.subscriptions.push(formSubscription)
+
+        this.onFormChanged()
     }
 
     private onFormChanged(): void {
@@ -43,6 +57,18 @@ export class BackgroundTransformerVideoStudioComponent implements OnInit, OnDest
         const opts: any = {
             emitEvent: false
         }
+
+        FormUtils.setControlEnable(this.formGroup, "speed", enabled, opts)
+        FormUtils.setControlEnable(this.formGroup, "radius", enabled, opts)
+
+        FormUtils.setControlEnable(this.formGroup, "distance", enabled, opts)
+        FormUtils.setControlEnable(this.formGroup, "particles", enabled, opts)
+
+        FormUtils.setControlEnable(this.formGroup, "x", enabled, opts)
+        FormUtils.setControlEnable(this.formGroup, "y", enabled, opts)
+
+        FormUtils.setControlEnable(this.formGroup, "width", enabled, opts)
+        FormUtils.setControlEnable(this.formGroup, "height", enabled, opts)
 
         const options: VideoBackgroundOptions | undefined = this.getOptions()
         this.onChanged.next(options)
@@ -54,6 +80,30 @@ export class BackgroundTransformerVideoStudioComponent implements OnInit, OnDest
             return undefined
         }
 
+        const speed: number[] = FormUtils.getValueOrDefault(this.formGroup, "speed", [0, 1])
+        const radius: number[] = FormUtils.getValueOrDefault(this.formGroup, "radius", [0, 1])
+
+        const distance: number = FormUtils.getValueOrDefault(this.formGroup, "distance", 0.1)
+        const particles: number = FormUtils.getValueOrDefault(this.formGroup, "particles", 50)
+
+        const x: number = FormUtils.getValueOrDefault(this.formGroup, "x", 0)
+        const y: number = FormUtils.getValueOrDefault(this.formGroup, "y", 0)
+
+        const width: number = FormUtils.getValueOrDefault(this.formGroup, "width", 200)
+        const height: number = FormUtils.getValueOrDefault(this.formGroup, "height", 200)
+
+        return {
+            x,
+            y,
+            width,
+            height,
+            particles,
+            radiusMinimum: radius[0],
+            radiusMaximum: radius[1],
+            speedMinimum: speed[0],
+            speedMaximum: speed[1],
+            distance: width * distance,
+        }
     }
 
     ngOnDestroy(): void {

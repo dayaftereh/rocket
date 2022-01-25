@@ -3,6 +3,8 @@ import { ReactiveFormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
 import { CardModule } from "primeng/card";
 import { InputSwitchModule } from "primeng/inputswitch";
+import { InputTextModule } from "primeng/inputtext";
+import { SliderModule } from "primeng/slider";
 import { BackgroundTransformerVideoStudioComponent } from "./background-transformer-video-studio.component";
 
 @NgModule({
@@ -12,6 +14,8 @@ import { BackgroundTransformerVideoStudioComponent } from "./background-transfor
         ReactiveFormsModule,
         // PrimeNG
         CardModule,
+        SliderModule,
+        InputTextModule,
         InputSwitchModule,
     ],
     declarations: [

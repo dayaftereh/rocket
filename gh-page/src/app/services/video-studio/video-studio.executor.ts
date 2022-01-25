@@ -5,6 +5,7 @@ import { VideoFrame } from "./video-frame"
 import { VideoGreenScreenMode } from "./video-green-screen-mode"
 import { VideoGreenScreenOptions } from "./video-green-screen-options"
 import { VideoOptions } from "./video-options"
+import * as WebMWriter from "webm-writer"
 
 export class VideoStudioExecutor {
 
@@ -14,6 +15,9 @@ export class VideoStudioExecutor {
 
     private bufferCanvas: any | undefined
     private bufferContext: any | undefined
+
+
+    private videoBuffer: WebMWriter
 
     private chromaKeyOut: (r: number, g: number, b: number) => boolean
 
@@ -34,8 +38,16 @@ export class VideoStudioExecutor {
             this.background = undefined
         }
 
+        console.log("start")
+
         // create the green screen chromaKey function
         this.chromaKeyOut = this.createChromaKeyOut(options)
+
+        this.videoBuffer = new WebMWriter({
+            quality: 0.95,
+            frameDuration: 2,
+            frameRate: 15,
+        })
     }
 
     private createChromaKeyOut(options: VideoOptions): (r: number, g: number, b: number) => boolean {
@@ -161,6 +173,45 @@ export class VideoStudioExecutor {
 
         // render the foreground
         this.renderForeground(frame.time)
+
+        console.log("0frame")
+
+        const blob: Blob = await this.convertToBlob()
+        const content: string = await this.blobToDataURL(blob)
+        console.log("1frame")
+        this.videoBuffer.addFrame(content, undefined, 16)
+        console.log("2frame")
+
+    }
+
+    private convertToBlob(): Promise<Blob> {
+        return new Promise(resolve => {
+            const p: Promise<Blob> = this.bufferCanvas.convertToBlob({ type: 'image/webp', quality: 0 })
+            p.then(blob => resolve(blob))
+        })
+    }
+
+    private async blobToDataURL(blob: Blob): Promise<string> {
+        let completed: boolean = false
+        const fileReader: FileReader = new FileReader()
+        return new Promise(async (resolve, reject) => {
+
+            fileReader.onerror = (e: any) => {
+                if (!completed) {
+                    reject(e)
+                }
+                completed = true
+            }
+
+            fileReader.onloadend = () => {
+                const result: string = fileReader.result as string
+                if (!completed) {
+                    resolve(result)
+                }
+                completed = true
+            }
+            fileReader.readAsDataURL(blob)
+        })
     }
 
     private renderBackground(): void {
@@ -200,4 +251,11 @@ export class VideoStudioExecutor {
         }
     }
 
+    async complete(): Promise<string> {
+        console.log("done")
+        const blob: Blob = await this.videoBuffer.complete()
+        console.log(blob.size)
+        const url: string = URL.createObjectURL(blob)
+        return url
+    }
 }

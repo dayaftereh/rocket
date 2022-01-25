@@ -1,0 +1,12 @@
+<p-card header="Media">
+    <div class="grid">
+        <div class="col">
+            <p-fileUpload [customUpload]="true" (uploadHandler)="onFile($event)"></p-fileUpload>
+        </div>
+    </div>
+    <div class="grid">
+        <div class="col" #parent>
+            <video #video></video>
+        </div>
+    </div>
+</p-card>

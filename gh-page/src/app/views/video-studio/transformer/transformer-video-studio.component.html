@@ -1,8 +1,23 @@
 <div class="grid">
     <div class="col">
-        <app-green-screen-transformer></app-green-screen-transformer>
+        <app-green-screen-transformer #greenScreen></app-green-screen-transformer>
     </div>
     <div class="col">
-        <app-background-transformer></app-background-transformer>
+        <app-background-transformer #background></app-background-transformer>
+    </div>
+</div>
+<div class="grid">
+    <div class="col">
+        <app-media-transformer #media (onFinished)="onFinished()" (onFrame)="onFrame($event)"></app-media-transformer>
+    </div>
+</div>
+
+<div class="grid">
+    <div class="col">
+        <span class="p-buttonset">
+            <button pButton type="button" label="Start" class="p-button-success" (click)="start()" ></button>
+            <button pButton type="button" label="Cancel" class="p-button-warning" (click)="cancel()" ></button>
+        </span>
+       
     </div>
 </div>
