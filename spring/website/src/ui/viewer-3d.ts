@@ -29,7 +29,6 @@ export class Viewer3D {
         const container: HTMLElement = this.container
         const style: CSSStyleDeclaration = window.getComputedStyle(container);
         const width: number = container.offsetWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight) - parseFloat(style.borderLeft) - parseFloat(style.borderRight) - parseFloat(style.marginLeft) - parseFloat(style.marginRight);
-        console.log(width)
         return width
     }
 
@@ -82,7 +81,6 @@ export class Viewer3D {
     }
 
     private onResize(): void {
-        console.log(this.width, this.height)
         if (this.camera) {
             this.camera.aspect = this.width / this.height;
             this.camera.updateProjectionMatrix();

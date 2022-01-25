@@ -79,7 +79,6 @@ export class D3View {
     }
 
     private onResize(): void {
-        console.log(this.width, this.height)
         if (this.camera) {
             this.camera.aspect = this.width / this.height;
             this.camera.updateProjectionMatrix();

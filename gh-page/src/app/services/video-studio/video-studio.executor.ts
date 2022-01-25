@@ -1,11 +1,11 @@
 import { Color } from "src/app/utils/color"
+import * as WebMWriter from "webm-writer"
 import { VideoBackgroundSimulation } from "./background/video-background-simulation"
 import { VideoForegroundItem } from "./video-foreground-item"
 import { VideoFrame } from "./video-frame"
 import { VideoGreenScreenMode } from "./video-green-screen-mode"
 import { VideoGreenScreenOptions } from "./video-green-screen-options"
 import { VideoOptions } from "./video-options"
-import * as WebMWriter from "webm-writer"
 
 export class VideoStudioExecutor {
 
@@ -28,25 +28,24 @@ export class VideoStudioExecutor {
     async start(options: VideoOptions): Promise<void> {
         this.options = options
         //@ts-ignore
-        this.bufferCanvas = new OffscreenCanvas(options.width, options.height)
+        this.bufferCanvas = new OffscreenCanvas(options.information.width, options.information.height)
         this.bufferContext = this.bufferCanvas.getContext("2d")
 
         // create the background
         if (!!this.options.background) {
             this.background = new VideoBackgroundSimulation(this.options.background)
+            await this.background.init()
         } else {
             this.background = undefined
         }
-
-        console.log("start")
 
         // create the green screen chromaKey function
         this.chromaKeyOut = this.createChromaKeyOut(options)
 
         this.videoBuffer = new WebMWriter({
-            quality: 0.95,
-            frameDuration: 2,
-            frameRate: 15,
+            quality: 1.0,
+            frameDuration: null,
+            frameRate: this.options.information.frameRate,
         })
     }
 
@@ -154,14 +153,15 @@ export class VideoStudioExecutor {
             const b: number = image.data[i + 2]
 
             if (this.chromaKeyOut(r, g, b)) {
-                image.data[i + 0] = 0
+                image.data[i + 3] = 0
             }
         }
     }
 
     async frame(frame: VideoFrame): Promise<void> {
+        this.bufferContext.fillStyle = "rgb(42,50,61)"
         // clear out the buffer canvas for the next frame
-        this.bufferContext.clearRect(0, 0, this.options.width, this.options.height)
+        this.bufferContext.fillRect(0, 0, this.options.information.width, this.options.information.height)
 
         // draw the background
         this.renderBackground()
@@ -169,26 +169,32 @@ export class VideoStudioExecutor {
         // convert the frame to image data
         const image: ImageData = this.createImageDataFromFrame(frame)
         // insert the frame
-        this.bufferContext.putImageData(image, this.options.x, this.options.y)
+        this.putImageData(image, this.options.x, this.options.y)
 
         // render the foreground
         this.renderForeground(frame.time)
 
-        console.log("0frame")
-
-        const blob: Blob = await this.convertToBlob()
+        const blob: Blob = await this.bufferCanvas.convertToBlob({ type: 'image/webp', quality: 0.9999 })
         const content: string = await this.blobToDataURL(blob)
-        console.log("1frame")
-        this.videoBuffer.addFrame(content, undefined, 16)
-        console.log("2frame")
-
+        this.videoBuffer.addFrame(content)
     }
 
-    private convertToBlob(): Promise<Blob> {
-        return new Promise(resolve => {
-            const p: Promise<Blob> = this.bufferCanvas.convertToBlob({ type: 'image/webp', quality: 0 })
-            p.then(blob => resolve(blob))
-        })
+    private putImageData(image: ImageData, x: number, y: number): void {
+        const canvas: ImageData = this.bufferContext.getImageData(0, 0, image.width, image.height);
+
+        for (let i: number = 0; i < image.data.length; i += 4) {
+            const a: number = image.data[i + 3]
+            if (a <= 0) {
+                continue
+            }
+
+            canvas.data[i] = image.data[i]
+            canvas.data[i + 1] = image.data[i + 1]
+            canvas.data[i + 2] = image.data[i + 2]
+            canvas.data[i + 3] = image.data[i + 3]
+        }
+
+        this.bufferContext.putImageData(canvas, x, y)
     }
 
     private async blobToDataURL(blob: Blob): Promise<string> {
@@ -252,9 +258,7 @@ export class VideoStudioExecutor {
     }
 
     async complete(): Promise<string> {
-        console.log("done")
         const blob: Blob = await this.videoBuffer.complete()
-        console.log(blob.size)
         const url: string = URL.createObjectURL(blob)
         return url
     }

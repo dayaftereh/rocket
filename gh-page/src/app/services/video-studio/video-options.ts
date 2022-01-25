@@ -1,15 +1,13 @@
 import { VideoBackgroundOptions } from "./background/video-background-options";
-import { VideoGreenScreenOptions } from "./video-green-screen-options";
 import { VideoForegroundItem } from "./video-foreground-item";
+import { VideoGreenScreenOptions } from "./video-green-screen-options";
+import { VideoInformation } from "./video-information";
 
 export interface VideoOptions {
     x: number
     y: number
-    width: number
-    height: number
 
-    frameRate: number
-
+    information: VideoInformation
     foregrounds: VideoForegroundItem[]
     greenScreen: VideoGreenScreenOptions | undefined
     background: VideoBackgroundOptions | undefined

@@ -1,5 +1,6 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, Output, ViewChild } from "@angular/core";
 import { VideoFrame } from "src/app/services/video-studio/video-frame";
+import { VideoInformation } from "src/app/services/video-studio/video-information";
 
 @Component({
     selector: 'app-media-transformer',
@@ -13,8 +14,7 @@ export class MediaTransformerVideoStudioComponent implements AfterViewInit {
     @ViewChild("video")
     videoElement: ElementRef<HTMLVideoElement> | undefined
 
-    @Output()
-    onFrame: EventEmitter<VideoFrame>
+    onFrame: ((frame: VideoFrame) => Promise<void>) | undefined
 
     @Output()
     onFinished: EventEmitter<void>
@@ -27,17 +27,27 @@ export class MediaTransformerVideoStudioComponent implements AfterViewInit {
     constructor() {
         this.frameCounter = 0
         this.onFinished = new EventEmitter<void>(true)
-        this.onFrame = new EventEmitter<VideoFrame>(true)
+
     }
 
-    get width(): number {
+    private get width(): number {
         const element: HTMLVideoElement = this.videoElement.nativeElement
         return element.videoWidth
     }
 
-    get height(): number {
+    private get height(): number {
         const element: HTMLVideoElement = this.videoElement.nativeElement
         return element.videoHeight
+    }
+
+    getInformation(): VideoInformation {
+        const element: HTMLVideoElement = this.videoElement.nativeElement
+        return {
+            width: this.width,
+            height: this.height,
+            duration: element.duration,
+            frameRate: 50
+        }
     }
 
     onFile(event: any): void {
@@ -52,8 +62,8 @@ export class MediaTransformerVideoStudioComponent implements AfterViewInit {
 
     ngAfterViewInit(): void {
         const element: HTMLVideoElement = this.videoElement.nativeElement
-        element.addEventListener("play", () => {
-            this.onPlay()
+        element.addEventListener("canplay", () => {
+            this.onCanPlay()
         })
 
         element.addEventListener("ended", () => {
@@ -63,7 +73,7 @@ export class MediaTransformerVideoStudioComponent implements AfterViewInit {
         this.resizeVideo()
     }
 
-    private onPlay(): void {
+    private onCanPlay(): void {
         // reset the frame counter
         this.frameCounter = 0
         // create OffscreenCanvas
@@ -71,17 +81,21 @@ export class MediaTransformerVideoStudioComponent implements AfterViewInit {
         this.bufCanvas = new OffscreenCanvas(this.width, this.height)
         this.bufContext2D = this.bufCanvas.getContext("2d")
 
-        // register frame callback
-        this.registerRequestVideoFrameCallback()
+
     }
 
     private onEnded(): void {
         this.onFinished.next()
+        console.log(this.frameCounter)
     }
 
-    play(): void {
+    async play(): Promise<void> {
         const element: HTMLVideoElement = this.videoElement.nativeElement
-        element.play()
+        await element.play()
+        // register frame callback
+        this.registerRequestVideoFrameCallback().catch((e: Error) => {
+            console.error(e)
+        })
     }
 
     pause(): void {
@@ -89,25 +103,32 @@ export class MediaTransformerVideoStudioComponent implements AfterViewInit {
         element.pause()
     }
 
-    private registerRequestVideoFrameCallback(): void {
-        this.frameCallback()
-
+    private async registerRequestVideoFrameCallback(): Promise<void> {
         const element: HTMLVideoElement = this.videoElement.nativeElement
 
         if (element.paused || element.ended) {
             return
         }
 
+        element.pause()
+
+        await this.frameCallback();
+
         (element as any).requestVideoFrameCallback(() => {
-            this.registerRequestVideoFrameCallback()
+            this.registerRequestVideoFrameCallback().catch((e: Error) => {
+                console.error(e)
+            })
         })
+
+        await element.play()
     }
 
-    private frameCallback(): void {
+    private async frameCallback(): Promise<void> {
         this.frameCounter++
 
         // get the video element
         const element: HTMLVideoElement = this.videoElement.nativeElement
+
         // draw the video to the OffscreenCanvas
         this.bufContext2D.drawImage(element, 0, 0, this.width, this.height)
         // get the image data
@@ -122,7 +143,7 @@ export class MediaTransformerVideoStudioComponent implements AfterViewInit {
             time: element.currentTime,
         }
 
-        this.onFrame.next(next)
+        await this.onFrame(next)
     }
 
     private resizeVideo(): void {

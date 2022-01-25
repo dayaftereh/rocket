@@ -1,8 +1,9 @@
-import { Component, ViewChild } from "@angular/core";
+import { AfterViewInit, Component, ViewChild } from "@angular/core";
 import { saveAs } from "file-saver";
 import { VideoBackgroundOptions } from "src/app/services/video-studio/background/video-background-options";
 import { VideoFrame } from "src/app/services/video-studio/video-frame";
 import { VideoGreenScreenOptions } from "src/app/services/video-studio/video-green-screen-options";
+import { VideoInformation } from "src/app/services/video-studio/video-information";
 import { VideoOptions } from "src/app/services/video-studio/video-options";
 import { VideoStudioService } from "src/app/services/video-studio/video-studio.service";
 import { BackgroundTransformerVideoStudioComponent } from "./background/background-transformer-video-studio.component";
@@ -12,12 +13,12 @@ import { MediaTransformerVideoStudioComponent } from "./media/media-transformer-
 @Component({
     templateUrl: "./transformer-video-studio.component.html"
 })
-export class TransformerVideoStudioComponent {
+export class TransformerVideoStudioComponent implements AfterViewInit {
 
     @ViewChild("media")
     media: MediaTransformerVideoStudioComponent | undefined
 
-    @ViewChild("greenScreen")
+    @ViewChild("background")
     background: BackgroundTransformerVideoStudioComponent | undefined
 
     @ViewChild("greenScreen")
@@ -29,7 +30,13 @@ export class TransformerVideoStudioComponent {
 
     }
 
-    async onFrame(frame: VideoFrame): Promise<void> {
+    ngAfterViewInit(): void {
+        this.media.onFrame = async (frame: VideoFrame) => {
+            await this.onFrame(frame)
+        }
+    }
+
+    private async onFrame(frame: VideoFrame): Promise<void> {
         await this.videoStudioService.frame(frame)
         if (this.lastFrame) {
             const time: number = frame.time - this.lastFrame.time
@@ -47,18 +54,17 @@ export class TransformerVideoStudioComponent {
         const backgroundOptions: VideoBackgroundOptions = this.background.getOptions()
         const greenScreenOptions: VideoGreenScreenOptions = this.greenScreen.getOptions()
 
-        const width: number = this.media.width
-        const height: number = this.media.height
+        const videoInfo: VideoInformation = this.media.getInformation()
 
         const options: VideoOptions = {
             foregrounds: [],
             background: backgroundOptions,
             greenScreen: greenScreenOptions,
-            frameRate: 10,
+
+            information: videoInfo,
+
             x: 0,
             y: 0,
-            width,
-            height
         }
 
         this.lastFrame = undefined
