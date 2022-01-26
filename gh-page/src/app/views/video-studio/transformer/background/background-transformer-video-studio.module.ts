@@ -5,6 +5,7 @@ import { CardModule } from "primeng/card";
 import { InputSwitchModule } from "primeng/inputswitch";
 import { InputTextModule } from "primeng/inputtext";
 import { SliderModule } from "primeng/slider";
+import { VideoStudioServiceModule } from "src/app/services/video-studio/video-studio-service.module";
 import { BackgroundTransformerVideoStudioComponent } from "./background-transformer-video-studio.component";
 
 @NgModule({
@@ -17,6 +18,8 @@ import { BackgroundTransformerVideoStudioComponent } from "./background-transfor
         SliderModule,
         InputTextModule,
         InputSwitchModule,
+        // Custom
+        VideoStudioServiceModule
     ],
     declarations: [
         BackgroundTransformerVideoStudioComponent

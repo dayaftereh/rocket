@@ -2,6 +2,7 @@ import { Component, EventEmitter, OnDestroy, OnInit, Output } from "@angular/cor
 import { FormControl, FormGroup } from "@angular/forms";
 import { Subscription } from "rxjs";
 import { VideoBackgroundOptions } from "src/app/services/video-studio/background/video-background-options";
+import { VideoStudioService } from "src/app/services/video-studio/video-studio.service";
 import { FormUtils } from "src/app/utils/form-utils";
 
 @Component({
@@ -12,15 +13,11 @@ export class BackgroundTransformerVideoStudioComponent implements OnInit, OnDest
 
     formGroup: FormGroup
 
-    @Output()
-    onChanged: EventEmitter<VideoBackgroundOptions | undefined>
-
     private subscriptions: Subscription[]
 
-    constructor() {
+    constructor(private readonly videoStudioService: VideoStudioService) {
         this.subscriptions = []
         this.formGroup = this.createFormGroup()
-        this.onChanged = new EventEmitter<VideoBackgroundOptions | undefined>(true)
     }
 
     private createFormGroup(): FormGroup {
@@ -71,10 +68,10 @@ export class BackgroundTransformerVideoStudioComponent implements OnInit, OnDest
         FormUtils.setControlEnable(this.formGroup, "height", enabled, opts)
 
         const options: VideoBackgroundOptions | undefined = this.getOptions()
-        this.onChanged.next(options)
+        this.videoStudioService.setBackground(options)
     }
 
-    getOptions(): VideoBackgroundOptions | undefined {
+    private getOptions(): VideoBackgroundOptions | undefined {
         const enabled: boolean = FormUtils.getValueOrDefault(this.formGroup, "enabled", false)
         if (!enabled) {
             return undefined

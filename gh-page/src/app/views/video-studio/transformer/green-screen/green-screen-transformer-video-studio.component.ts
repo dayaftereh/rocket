@@ -1,9 +1,12 @@
-import { Component, EventEmitter, OnDestroy, OnInit, Output } from "@angular/core";
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { SelectItem } from "primeng/api";
+import { OverlayPanel } from "primeng/overlaypanel";
 import { Subscription } from "rxjs";
+import { VideoFrame } from "src/app/services/video-studio/video-frame";
 import { VideoGreenScreenMode } from "src/app/services/video-studio/video-green-screen-mode";
 import { VideoGreenScreenOptions } from "src/app/services/video-studio/video-green-screen-options";
+import { VideoStudioService } from "src/app/services/video-studio/video-studio.service";
 import { Color } from "src/app/utils/color";
 import { FormUtils } from "src/app/utils/form-utils";
 
@@ -17,16 +20,18 @@ export class GreenScreenTransformerVideoStudioComponent implements OnInit, OnDes
 
     modes: SelectItem[]
 
-    @Output()
-    onChanged: EventEmitter<VideoGreenScreenOptions | undefined>
+    @ViewChild("overlay")
+    overlay: OverlayPanel | undefined
+
+    @ViewChild("canvas")
+    canvas: ElementRef<HTMLCanvasElement> | undefined
 
     private subscriptions: Subscription[]
 
-    constructor() {
+    constructor(private readonly videoStudioService: VideoStudioService) {
         this.modes = []
         this.subscriptions = []
         this.formGroup = this.createFormGroup()
-        this.onChanged = new EventEmitter<VideoGreenScreenOptions | undefined>(true)
     }
 
     private createFormGroup(): FormGroup {
@@ -90,10 +95,10 @@ export class GreenScreenTransformerVideoStudioComponent implements OnInit, OnDes
         FormUtils.setControlEnable(this.formGroup, 'channelThreshold', enabled && !keyColor, opts)
 
         const options: VideoGreenScreenOptions | undefined = this.getOptions()
-        this.onChanged.next(options)
+        this.videoStudioService.setGreenScreen(options)
     }
 
-    getOptions(): VideoGreenScreenOptions | undefined {
+    private getOptions(): VideoGreenScreenOptions | undefined {
         const enabled: boolean = FormUtils.getValueOrDefault(this.formGroup, "enabled", false)
         if (!enabled) {
             return undefined
@@ -117,6 +122,52 @@ export class GreenScreenTransformerVideoStudioComponent implements OnInit, OnDes
             channelThreshold,
             key: Color.hexToRgb(color)
         }
+    }
+
+    async onShow(): Promise<void> {
+        console.log(this.canvas)
+        if (!this.canvas) {
+            return
+        }
+
+        const frame: VideoFrame | undefined = await this.videoStudioService.greenScreen()
+        if (!frame) {
+            return
+        }
+
+        //@ts-ignore
+        const buf: any = new OffscreenCanvas(frame.width, frame.height)
+        const bufContext: CanvasRenderingContext2D = buf.getContext("2d")
+        const image: ImageData = bufContext.createImageData(frame.width, frame.height)
+        for (let i = 0; i < frame.data.length; i++) {
+            image.data[i] = frame.data[i]
+        }
+        bufContext.putImageData(image, 0, 0)
+
+        const w: number = 500
+        const max: number = Math.max(frame.width, frame.height)
+
+        let scale: number = 1
+        if (max > 500) {
+            scale = w / max
+        }
+
+        const canvas: HTMLCanvasElement = this.canvas.nativeElement
+        const context: CanvasRenderingContext2D = canvas.getContext("2d")
+
+        canvas.width = frame.width * scale
+        canvas.height = frame.height * scale
+
+        context.scale(scale, scale)
+        context.drawImage(buf, 0, 0)
+    }
+
+    async snapshot(event: any): Promise<void> {
+        if (!this.overlay) {
+            return
+        }
+
+        this.overlay.show(event)
     }
 
     ngOnDestroy(): void {

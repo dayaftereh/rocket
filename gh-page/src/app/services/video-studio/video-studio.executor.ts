@@ -1,63 +1,76 @@
 import { Color } from "src/app/utils/color"
 import * as WebMWriter from "webm-writer"
+import { VideoBackgroundOptions } from "./background/video-background-options"
 import { VideoBackgroundSimulation } from "./background/video-background-simulation"
 import { VideoForegroundItem } from "./video-foreground-item"
 import { VideoFrame } from "./video-frame"
 import { VideoGreenScreenMode } from "./video-green-screen-mode"
 import { VideoGreenScreenOptions } from "./video-green-screen-options"
-import { VideoOptions } from "./video-options"
+import { VideoInfo } from "./video-info"
 
 export class VideoStudioExecutor {
 
-    private options: VideoOptions | undefined
+    private lastUpdate: number
 
+    private frame: VideoFrame | undefined
+
+    private bufCanvas: any | undefined
+    private bufContext2D: any | undefined
+
+    private videoWriter: WebMWriter | undefined
+
+    private foregrounds: VideoForegroundItem[]
     private background: VideoBackgroundSimulation | undefined
-
-    private bufferCanvas: any | undefined
-    private bufferContext: any | undefined
-
-
-    private videoBuffer: WebMWriter
-
     private chromaKeyOut: (r: number, g: number, b: number) => boolean
 
     constructor() {
-
+        this.lastUpdate = 0
+        this.foregrounds = []
     }
 
-    async start(options: VideoOptions): Promise<void> {
-        this.options = options
-        //@ts-ignore
-        this.bufferCanvas = new OffscreenCanvas(options.information.width, options.information.height)
-        this.bufferContext = this.bufferCanvas.getContext("2d")
+    async initialize(info: VideoInfo): Promise<void> {
+        this.videoWriter = new WebMWriter({
+            quality: 1.0,
+            frameRate: info.frameRate,
+            frameDuration: info.frameDuration,
+        })
 
-        // create the background
-        if (!!this.options.background) {
-            this.background = new VideoBackgroundSimulation(this.options.background)
-            await this.background.init()
+        //@ts-ignore
+        this.bufCanvas = new OffscreenCanvas(info.width, info.height)
+        this.bufContext2D = this.bufCanvas.getContext('2d')
+
+        if (this.frame) {
+            this.lastUpdate = this.frame.time
         } else {
+            this.lastUpdate = 0
+        }
+    }
+
+    async setFrame(frame: VideoFrame): Promise<void> {
+        this.frame = frame
+    }
+
+    async setBackground(background: VideoBackgroundOptions | undefined): Promise<void> {
+        if (!background) {
             this.background = undefined
+            return
         }
 
-        // create the green screen chromaKey function
-        this.chromaKeyOut = this.createChromaKeyOut(options)
-
-        this.videoBuffer = new WebMWriter({
-            quality: 1.0,
-            frameDuration: null,
-            frameRate: this.options.information.frameRate,
-        })
+        this.background = new VideoBackgroundSimulation(background)
+        await this.background.init()
     }
 
-    private createChromaKeyOut(options: VideoOptions): (r: number, g: number, b: number) => boolean {
+    async setGreenScreen(greenScreen: VideoGreenScreenOptions | undefined): Promise<void> {
+        this.chromaKeyOut = this.createChromaKeyOut(greenScreen)
+    }
+
+    private createChromaKeyOut(greenScreen: VideoGreenScreenOptions | undefined): (r: number, g: number, b: number) => boolean {
         // check if green screen disabled
-        if (!this.options.greenScreen) {
+        if (!greenScreen) {
             return (r: number, g: number, b: number) => {
                 return false
             }
         }
-
-        const greenScreen: VideoGreenScreenOptions = this.options.greenScreen
 
         // check if key color mode active
         if (greenScreen.mode === VideoGreenScreenMode.KeyColor) {
@@ -127,60 +140,72 @@ export class VideoStudioExecutor {
         }
     }
 
-    private createImageDataFromFrame(frame: VideoFrame): ImageData {
-        // create a new image data
-        const image: ImageData = this.bufferContext.createImageData(frame.width, frame.height)
-        // copy frame to image
-        for (let i: number = 0; i < image.data.length; i++) {
-            image.data[i] = frame.data[i]
+    async greenScreen(): Promise<VideoFrame | undefined> {
+        // check if a frame given
+        if (!this.frame) {
+            return undefined
         }
 
-        // check if green screen given
-        if (!!this.options.greenScreen) {
-            // remove the green screen
-            this.greenScreen(image)
+        // check if chrome key out function given
+        if (!this.chromaKeyOut) {
+            return this.frame
         }
 
+        // create a copy of the current frame
+        const data: Uint8ClampedArray = new Uint8ClampedArray(this.frame.data)
 
-        return image
-    }
-
-    private greenScreen(image: ImageData): void {
-        for (let i: number = 0; i < image.data.length; i += 4) {
+        for (let i: number = 0; i < data.length; i += 4) {
             // get red, green and blue
-            const r: number = image.data[i + 0]
-            const g: number = image.data[i + 1]
-            const b: number = image.data[i + 2]
+            const r: number = data[i + 0]
+            const g: number = data[i + 1]
+            const b: number = data[i + 2]
 
+            // set the alpha channel
             if (this.chromaKeyOut(r, g, b)) {
-                image.data[i + 3] = 0
+                data[i + 3] = 0
             }
         }
+
+        // create a new frame
+        return {
+            data,
+            time: this.frame.time,
+            width: this.frame.width,
+            height: this.frame.height,
+            counter: this.frame.counter,
+        }
     }
 
-    async frame(frame: VideoFrame): Promise<void> {
-        this.bufferContext.fillStyle = "rgb(42,50,61)"
+    async setForegrounds(foregrounds: VideoForegroundItem[]): Promise<void> {
+        this.foregrounds = foregrounds
+    }
+
+    async next(): Promise<void> {
+        if (!this.frame) {
+            return
+        }
+
+        this.bufContext2D.fillStyle = "rgb(42,50,61)"
         // clear out the buffer canvas for the next frame
-        this.bufferContext.fillRect(0, 0, this.options.information.width, this.options.information.height)
+        this.bufContext2D.fillRect(0, 0, this.bufCanvas.width, this.bufCanvas.height)
 
         // draw the background
         this.renderBackground()
 
-        // convert the frame to image data
-        const image: ImageData = this.createImageDataFromFrame(frame)
-        // insert the frame
-        this.putImageData(image, this.options.x, this.options.y)
+        const frame: VideoFrame = await this.greenScreen()
+        this.putImageData(frame, 0, 0)
 
         // render the foreground
         this.renderForeground(frame.time)
 
-        const blob: Blob = await this.bufferCanvas.convertToBlob({ type: 'image/webp', quality: 0.9999 })
-        const content: string = await this.blobToDataURL(blob)
-        this.videoBuffer.addFrame(content)
+        await this.canvasToVideoWriter()
+
+        // update for next frame
+        this.update()
     }
 
     private putImageData(image: ImageData, x: number, y: number): void {
-        const canvas: ImageData = this.bufferContext.getImageData(0, 0, image.width, image.height);
+        const canvas: ImageData = this.bufContext2D.getImageData(0, 0, image.width, image.height);
 
         for (let i: number = 0; i < image.data.length; i += 4) {
             const a: number = image.data[i + 3]
@@ -194,7 +219,13 @@ export class VideoStudioExecutor {
             canvas.data[i + 3] = image.data[i + 3]
         }
 
-        this.bufferContext.putImageData(canvas, x, y)
+        this.bufContext2D.putImageData(canvas, x, y)
+    }
+
+    private async canvasToVideoWriter(): Promise<void> {
+        const blob: Blob = await this.bufCanvas.convertToBlob({ type: 'image/webp', quality: 0.9999 })
+        const content: string = await this.blobToDataURL(blob)
+        this.videoWriter.addFrame(content)
     }
 
     private async blobToDataURL(blob: Blob): Promise<string> {
@@ -226,40 +257,48 @@ export class VideoStudioExecutor {
         }
 
         // draw the background
-        this.background.render(this.bufferContext)
+        this.background.render(this.bufContext2D)
     }
 
     private renderForeground(time: number): void {
-        this.options.foregrounds.filter((item: VideoForegroundItem) => {
+        this.foregrounds.filter((item: VideoForegroundItem) => {
             return item.time <= time && time <= (item.time + item.duration)
         }).forEach((item: VideoForegroundItem) => {
-            this.bufferContext.save()
+            this.bufContext2D.save()
 
-            this.bufferContext.font = item.font
+            this.bufContext2D.font = item.font
             if (!!item.fillStyle) {
-                this.bufferContext.fillStyle = item.fillStyle
-                this.bufferContext.fillText(item.text, item.x, item.y)
+                this.bufContext2D.fillStyle = item.fillStyle
+                this.bufContext2D.fillText(item.text, item.x, item.y)
             }
 
             if (!!item.strokeStyle) {
-                this.bufferContext.strokeStyle = item.strokeStyle
-                this.bufferContext.strokeText(item.text, item.x, item.y)
+                this.bufContext2D.strokeStyle = item.strokeStyle
+                this.bufContext2D.strokeText(item.text, item.x, item.y)
             }
 
-            this.bufferContext.restore()
+            this.bufContext2D.restore()
         })
 
     }
 
-    async update(time: number): Promise<void> {
+    private update(): void {
+        if (!this.frame) {
+            return
+        }
+
+        const delta: number = this.frame.time - this.lastUpdate
+        this.lastUpdate = this.frame.time
+
         if (this.background) {
-            this.background.update(time)
+            this.background.update(delta)
         }
     }
 
-    async complete(): Promise<string> {
-        const blob: Blob = await this.videoBuffer.complete()
+    async done(): Promise<string> {
+        const blob: Blob = await this.videoWriter.complete()
         const url: string = URL.createObjectURL(blob)
         return url
     }
+
 }

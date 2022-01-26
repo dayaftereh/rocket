@@ -1,81 +1,53 @@
-import { AfterViewInit, Component, ViewChild } from "@angular/core";
-import { saveAs } from "file-saver";
-import { VideoBackgroundOptions } from "src/app/services/video-studio/background/video-background-options";
-import { VideoFrame } from "src/app/services/video-studio/video-frame";
-import { VideoGreenScreenOptions } from "src/app/services/video-studio/video-green-screen-options";
-import { VideoInformation } from "src/app/services/video-studio/video-information";
-import { VideoOptions } from "src/app/services/video-studio/video-options";
+import { AfterViewInit, Component, OnDestroy } from "@angular/core";
+import { Subscription } from "rxjs";
 import { VideoStudioService } from "src/app/services/video-studio/video-studio.service";
-import { BackgroundTransformerVideoStudioComponent } from "./background/background-transformer-video-studio.component";
-import { GreenScreenTransformerVideoStudioComponent } from "./green-screen/green-screen-transformer-video-studio.component";
-import { MediaTransformerVideoStudioComponent } from "./media/media-transformer-video-studio.component";
 
 @Component({
     templateUrl: "./transformer-video-studio.component.html"
 })
-export class TransformerVideoStudioComponent implements AfterViewInit {
+export class TransformerVideoStudioComponent implements OnDestroy {
 
-    @ViewChild("media")
-    media: MediaTransformerVideoStudioComponent | undefined
-
-    @ViewChild("background")
-    background: BackgroundTransformerVideoStudioComponent | undefined
-
-    @ViewChild("greenScreen")
-    greenScreen: GreenScreenTransformerVideoStudioComponent | undefined
-
-    private lastFrame: VideoFrame | undefined
+    private doneSubscription: Subscription | undefined
+    private nextSubscription: Subscription | undefined
 
     constructor(private readonly videoStudioService: VideoStudioService) {
 
     }
 
     ngAfterViewInit(): void {
-        this.media.onFrame = async (frame: VideoFrame) => {
-            await this.onFrame(frame)
-        }
-    }
 
-    private async onFrame(frame: VideoFrame): Promise<void> {
-        await this.videoStudioService.frame(frame)
-        if (this.lastFrame) {
-            const time: number = frame.time - this.lastFrame.time
-            await this.videoStudioService.update(time)
-        }
-        this.lastFrame = frame
-    }
-
-    async onFinished(): Promise<void> {
-        const blopUrl: string = await this.videoStudioService.complete()
-        saveAs(blopUrl, "out.webm")
     }
 
     async start(): Promise<void> {
-        const backgroundOptions: VideoBackgroundOptions = this.background.getOptions()
-        const greenScreenOptions: VideoGreenScreenOptions = this.greenScreen.getOptions()
+        this.videoStudioService.initialize({
+            frameRate: 30,
+            frameDuration: undefined,
+            width: 1920,
+            height: 1080
+        })
 
-        const videoInfo: VideoInformation = {} as VideoInformation
+        this.nextSubscription = this.videoStudioService.frameAsObservable().subscribe(async () => {
+            await this.videoStudioService.next()
+        })
 
-        const options: VideoOptions = {
-            foregrounds: [],
-            background: backgroundOptions,
-            greenScreen: greenScreenOptions,
+        this.doneSubscription = this.videoStudioService.doneAsObservable().subscribe(async () => {
+            this.nextSubscription.unsubscribe()
+        })
 
-            information: videoInfo,
-
-            x: 0,
-            y: 0,
-        }
-
-        this.lastFrame = undefined
-
-        await this.videoStudioService.start(options)
-
+        await this.videoStudioService.next()
     }
 
     cancel(): void {
         this.videoStudioService.cancel()
-        if (this.media) {
+    }
+
+    ngOnDestroy(): void {
+        if (this.nextSubscription) {
+            this.nextSubscription.unsubscribe()
+        }
+
+        if (this.doneSubscription) {
+            this.doneSubscription.unsubscribe()
         }
     }
 }

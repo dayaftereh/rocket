@@ -30,6 +30,16 @@
                 <p-slider id="channelThreshold" [min]="0" [max]="255" [step]="1" formControlName="channelThreshold">
                 </p-slider>
             </div>
+            <div class="field">
+                <button pButton type="button" label="Snapshot" (click)="snapshot($event)"></button>
+            </div>
         </div>
+
     </p-card>
 </form>
+
+<p-overlayPanel #overlay (onShow)="onShow()">
+    <ng-template pTemplate>
+        <canvas #canvas></canvas>
+    </ng-template>
+</p-overlayPanel>

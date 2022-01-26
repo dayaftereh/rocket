@@ -17,10 +17,12 @@
                 <button pButton type="button" icon="pi pi-step-forward" class="p-button-secondary" label="+1/60"
                     [disabled]="!loaded" (click)="next()"></button>
             </span>
-
         </div>
         <div class="col">
-
+            Time: {{time | number}} / {{duration|number}} s
+        </div>
+        <div class="col">
+            Frame: {{frames}}
         </div>
     </div>
 </p-card>

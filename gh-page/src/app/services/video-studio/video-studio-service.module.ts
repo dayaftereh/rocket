@@ -2,9 +2,9 @@ import { NgModule } from "@angular/core";
 import { VideoStudioService } from "./video-studio.service";
 
 @NgModule({
-   providers:[
-       VideoStudioService       
-   ],
+    providers: [
+        VideoStudioService,
+    ],
 })
 export class VideoStudioServiceModule {
 
