@@ -1,5 +1,6 @@
 import { NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
+import { ButtonModule } from "primeng/button";
 import { CardModule } from "primeng/card";
 import { FileUploadModule } from 'primeng/fileupload';
 import { MediaTransformerVideoStudioComponent } from "./media-transformer-video-studio.component";
@@ -10,6 +11,7 @@ import { MediaTransformerVideoStudioComponent } from "./media-transformer-video-
         BrowserModule,
         // PrimeNG
         CardModule,
+        ButtonModule,
         FileUploadModule,
     ],
     declarations: [

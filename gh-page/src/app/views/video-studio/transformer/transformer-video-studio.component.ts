@@ -54,7 +54,7 @@ export class TransformerVideoStudioComponent implements AfterViewInit {
         const backgroundOptions: VideoBackgroundOptions = this.background.getOptions()
         const greenScreenOptions: VideoGreenScreenOptions = this.greenScreen.getOptions()
 
-        const videoInfo: VideoInformation = this.media.getInformation()
+        const videoInfo: VideoInformation = {} as VideoInformation
 
         const options: VideoOptions = {
             foregrounds: [],
@@ -71,13 +71,11 @@ export class TransformerVideoStudioComponent implements AfterViewInit {
 
         await this.videoStudioService.start(options)
 
-        this.media.play()
     }
 
     cancel(): void {
         this.videoStudioService.cancel()
         if (this.media) {
-            this.media.pause()
         }
     }
 }

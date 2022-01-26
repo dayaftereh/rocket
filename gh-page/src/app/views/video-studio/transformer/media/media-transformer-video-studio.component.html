@@ -9,4 +9,18 @@
             <video #video></video>
         </div>
     </div>
+    <div class="grid">
+        <div class="col">
+            <span class="p-buttonset">
+                <button pButton type="button" icon="pi pi-step-backward" class="p-button-secondary" label="-1/60"
+                    [disabled]="!loaded" (click)="previous()"></button>
+                <button pButton type="button" icon="pi pi-step-forward" class="p-button-secondary" label="+1/60"
+                    [disabled]="!loaded" (click)="next()"></button>
+            </span>
+
+        </div>
+        <div class="col">
+
+        </div>
+    </div>
 </p-card>
