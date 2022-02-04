@@ -120,14 +120,13 @@ void FlightObserver::wait_for_lift_off()
   this->update_velocity();
 
   // check fir lift of speed
-  float velocity = this->_velocity.length();
-  if (velocity < this->_config->lift_off_velocity_threshold)
+  if (this->_velocity.z < this->_config->lift_off_velocity_threshold)
   {
     return;
   }
 
   Serial.print("velocity:");
-  Serial.print(velocity);
+  Serial.print(this->_velocity.z);
   Serial.println(" => lift-off!");
 
   this->_status_leds->on();
@@ -283,8 +282,7 @@ bool FlightObserver::observe_parachute()
   }
 
   // check if velocity close to zero
-  float velocity = this->_velocity.length();
-  if (velocity < this->_config->apogee_velocity_threshold)
+  if (this->_velocity.z < this->_config->apogee_velocity_threshold)
   {
     triggered = true;
     this->_parachute_manager->velocity_trigger();
@@ -295,7 +293,7 @@ bool FlightObserver::observe_parachute()
     Serial.print(" angle: ");
     Serial.print(angle);
     Serial.print(" velocity: ");
-    Serial.print(velocity);
+    Serial.print(this->_velocity.z);
     Serial.print(" triggered: ");
     Serial.print(triggered);
     Serial.println("");*/

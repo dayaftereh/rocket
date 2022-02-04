@@ -14,7 +14,7 @@
     ],
     "scripts": {
         "ng": "ng",
-        "start": "ng serve",
+        "start": "ng serve --configuration development",
         "build": "ng build --baseHref=./ --aot=true --configuration production"
     },
     "dependencies": {

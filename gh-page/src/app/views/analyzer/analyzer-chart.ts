@@ -112,7 +112,7 @@ export class AnalyzerChart extends Chart {
 
         this.data = {
             datasets: [
-                this.datasetState ,
+                this.datasetState,
                 this.datasetElapsed,
 
                 this.datasetVoltage,
@@ -270,5 +270,22 @@ export class AnalyzerChart extends Chart {
             })
 
         })
+    }
+
+    unselectAllDatasets(): void {
+        this.data.datasets.forEach((dataset: any) => {
+            dataset.hidden = true
+        });
+    }
+
+    onSelectTriggerOverview(): void {
+        this.unselectAllDatasets()
+
+        this.datasetParachuteVelocity.hidden = false
+        this.datasetParachuteAltitude.hidden = false
+        this.datasetParachuteOrientation.hidden = false
+
+        this.datasetVelocityZ.hidden = false
+        this.datasetAccelerationZ.hidden = false        
     }
 }

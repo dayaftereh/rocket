@@ -49,6 +49,24 @@ export class AnalyzerComponent implements OnInit, OnDestroy {
         this.chart.chart.resetZoom()
     }
 
+    onUnselectAll(): void {
+        this.analyzerChart.unselectAllDatasets()
+
+        // reload the chart
+        if (this.chart) {
+            this.chart.refresh()
+        }
+    }
+
+    onSelectTriggerOverview(): void {
+        this.analyzerChart.onSelectTriggerOverview()
+
+        // reload the chart
+        if (this.chart) {
+            this.chart.refresh()
+        }
+    }
+
     ngOnDestroy(): void {
         this.subscriptions.forEach((subscription: Subscription) => {
             subscription.unsubscribe()
