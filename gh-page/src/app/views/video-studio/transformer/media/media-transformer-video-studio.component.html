@@ -22,6 +22,9 @@
             Time: {{time | number}} / {{duration|number}} s
         </div>
         <div class="col">
+            <p-slider  [(ngModel)]="sliderTime" [min]="0" [max]="duration" [step]="seekTime" (onSlideEnd)="onSlideEnd()"></p-slider>
+        </div>
+        <div class="col">
             Frame: {{frames}}
         </div>
     </div>

@@ -18,6 +18,8 @@ export class MediaTransformerVideoStudioComponent implements OnInit, AfterViewIn
     frames: number
     duration: number
 
+    sliderTime: number
+
     seekTime: number = 1.0 / 60.0
 
     loaded: boolean
@@ -30,6 +32,8 @@ export class MediaTransformerVideoStudioComponent implements OnInit, AfterViewIn
     constructor(private readonly videoStudioService: VideoStudioService) {
         this.time = 0
         this.frames = 0
+        this.duration = 0
+        this.sliderTime = 0
         this.loaded = false
         this.subscriptions = []
     }
@@ -75,6 +79,11 @@ export class MediaTransformerVideoStudioComponent implements OnInit, AfterViewIn
         const file: File = event.files[0]
         const element: HTMLVideoElement = this.videoElement.nativeElement
         element.src = URL.createObjectURL(file)
+    }
+
+    onSlideEnd(): void {
+        const element: HTMLVideoElement = this.videoElement.nativeElement
+        element.currentTime = Math.max(0.0, Math.min(element.duration, this.sliderTime))
     }
 
     private onResize(): void {
@@ -148,11 +157,13 @@ export class MediaTransformerVideoStudioComponent implements OnInit, AfterViewIn
     next(): void {
         const element: HTMLVideoElement = this.videoElement.nativeElement
         element.currentTime = Math.min(element.duration, element.currentTime + this.seekTime)
+        this.sliderTime = element.currentTime
     }
 
     previous(): void {
         const element: HTMLVideoElement = this.videoElement.nativeElement
         element.currentTime = Math.max(0.0, element.currentTime - this.seekTime)
+        this.sliderTime = element.currentTime
     }
 
     ngOnDestroy(): void {
