@@ -1,4 +1,5 @@
 import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { SelectItem } from "primeng/api";
 import { fromEvent, Subscription } from "rxjs";
 import { VideoStudioService } from "src/app/services/video-studio/video-studio.service";
 
@@ -21,8 +22,11 @@ export class MediaTransformerVideoStudioComponent implements OnInit, AfterViewIn
     sliderTime: number
 
     seekTime: number = 1.0 / 60.0
+    seekTimes: SelectItem[]
 
     loaded: boolean
+
+    private epsilon: number = 0.00001
 
     private bufCanvas: any | undefined
     private bufContext2D: CanvasRenderingContext2D | undefined
@@ -35,6 +39,7 @@ export class MediaTransformerVideoStudioComponent implements OnInit, AfterViewIn
         this.duration = 0
         this.sliderTime = 0
         this.loaded = false
+        this.seekTimes = []
         this.subscriptions = []
     }
 
@@ -44,6 +49,29 @@ export class MediaTransformerVideoStudioComponent implements OnInit, AfterViewIn
         })
 
         this.subscriptions.push(subscription)
+
+        this.seekTimes.push(
+            {
+                value: 1 / 15.0,
+                label: "15 FPS"
+            },
+            {
+                value: 1 / 30.0,
+                label: "30 FPS"
+            },
+            {
+                value: 1 / 50.0,
+                label: "50 FPS"
+            },
+            {
+                value: 1 / 60.0,
+                label: "60 FPS"
+            },
+            {
+                value: 1 / 120.0,
+                label: "120 FPS"
+            },
+        )
     }
 
     ngAfterViewInit(): void {
@@ -146,7 +174,7 @@ export class MediaTransformerVideoStudioComponent implements OnInit, AfterViewIn
     private async onNext(): Promise<void> {
         const element: HTMLVideoElement = this.videoElement.nativeElement
 
-        if (Math.abs(element.currentTime - element.duration) < 0.001) {
+        if (Math.abs(element.currentTime - element.duration) < this.epsilon) {
             await this.videoStudioService.done()
             return
         }

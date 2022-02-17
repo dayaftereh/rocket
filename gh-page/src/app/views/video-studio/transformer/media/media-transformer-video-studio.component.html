@@ -3,6 +3,9 @@
         <div class="col">
             <p-fileUpload [customUpload]="true" (uploadHandler)="onFile($event)"></p-fileUpload>
         </div>
+        <div class="col">
+            
+        </div>
     </div>
     <div class="grid">
         <div class="col" #parent>
@@ -11,18 +14,23 @@
     </div>
     <div class="grid">
         <div class="col">
-            <span class="p-buttonset">
-                <button pButton type="button" icon="pi pi-step-backward" class="p-button-secondary" label="-1/60"
-                    [disabled]="!loaded" (click)="previous()"></button>
-                <button pButton type="button" icon="pi pi-step-forward" class="p-button-secondary" label="+1/60"
-                    [disabled]="!loaded" (click)="next()"></button>
-            </span>
+            <button pButton type="button" icon="pi pi-step-backward" class="p-button-secondary" label="- Frame"
+                [disabled]="!loaded" (click)="previous()"></button>
+        </div>
+        <div class="col">
+            <p-dropdown [options]="seekTimes" [(ngModel)]="seekTime"></p-dropdown>
+        </div>
+        <div class="col">
+            <button pButton type="button" icon="pi pi-step-forward" class="p-button-secondary" label="+ Frame"
+                [disabled]="!loaded" (click)="next()"></button>
         </div>
         <div class="col">
             Time: {{time | number}} / {{duration|number}} s
         </div>
         <div class="col">
-            <p-slider  [(ngModel)]="sliderTime" [min]="0" [max]="duration" [step]="seekTime" (onSlideEnd)="onSlideEnd()"></p-slider>
+            <p-slider [(ngModel)]="sliderTime" [disabled]="!loaded" [min]="0" [max]="duration" [step]="seekTime"
+                (onSlideEnd)="onSlideEnd()">
+            </p-slider>
         </div>
         <div class="col">
             Frame: {{frames}}
