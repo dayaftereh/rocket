@@ -5,6 +5,7 @@ export interface VideoForegroundItem {
     duration: number
     text: string
     font: string
+    fontSize: number
     fillStyle: string | undefined
     strokeStyle: string | undefined
 }

@@ -3,6 +3,7 @@ import * as Comlink from 'comlink';
 import { saveAs } from "file-saver";
 import { Observable, Subject } from "rxjs";
 import { VideoBackgroundOptions } from "./background/video-background-options";
+import { VideoForegroundItem } from "./video-foreground-item";
 import { VideoFrame } from "./video-frame";
 import { VideoGreenScreenOptions } from "./video-green-screen-options";
 import { VideoInfo } from "./video-info";
@@ -49,6 +50,12 @@ export class VideoStudioService {
         this._frame.next()
     }
 
+    async renderFrame(): Promise<VideoFrame | undefined> {
+        const executor: VideoStudioExecutor = await this.createOrGetExecutor()
+        const frame: VideoFrame | undefined = await executor.renderFrame()
+        return frame
+    }
+
     async setGreenScreen(greenScreen: VideoGreenScreenOptions | undefined): Promise<void> {
         const executor: VideoStudioExecutor = await this.createOrGetExecutor()
         await executor.setGreenScreen(greenScreen)
@@ -57,6 +64,11 @@ export class VideoStudioService {
     async setBackground(background: VideoBackgroundOptions | undefined): Promise<void> {
         const executor: VideoStudioExecutor = await this.createOrGetExecutor()
         await executor.setBackground(background)
+    }
+
+    async setForegrounds(foregrounds: VideoForegroundItem[]): Promise<void> {
+        const executor: VideoStudioExecutor = await this.createOrGetExecutor()
+        await executor.setForegrounds(foregrounds)
     }
 
     async initialize(info: VideoInfo): Promise<void> {

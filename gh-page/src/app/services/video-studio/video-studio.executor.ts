@@ -28,6 +28,12 @@ export class VideoStudioExecutor {
         this.foregrounds = []
     }
 
+    private createOffscreenCanvas(width: number, height: number): void {
+        //@ts-ignore
+        this.bufCanvas = new OffscreenCanvas(width, height)
+        this.bufContext2D = this.bufCanvas.getContext('2d')
+    }
+
     async initialize(info: VideoInfo): Promise<void> {
         this.videoWriter = new WebMWriter({
             quality: 1.0,
@@ -35,9 +41,7 @@ export class VideoStudioExecutor {
             frameDuration: info.frameDuration,
         })
 
-        //@ts-ignore
-        this.bufCanvas = new OffscreenCanvas(info.width, info.height)
-        this.bufContext2D = this.bufCanvas.getContext('2d')
+        this.createOffscreenCanvas(info.width, info.height)
 
         if (this.frame) {
             this.lastUpdate = this.frame.time
@@ -180,9 +184,13 @@ export class VideoStudioExecutor {
         this.foregrounds = foregrounds
     }
 
-    async next(): Promise<void> {
+    async renderFrame(): Promise<VideoFrame | undefined> {
         if (!this.frame) {
-            return
+            return undefined
+        }
+
+        if (!this.bufCanvas || !this.bufContext2D) {
+            this.createOffscreenCanvas(this.frame.width, this.frame.height)
         }
 
         this.bufContext2D.fillStyle = "rgb(42,50,61)"
@@ -192,20 +200,37 @@ export class VideoStudioExecutor {
         // draw the background
         this.renderBackground()
 
-        const frame: VideoFrame = await this.greenScreen()
-        this.putImageData(frame, 0, 0)
+        const greenScreenFrame: VideoFrame = await this.greenScreen()
+        this.putImageData(greenScreenFrame, 0, 0)
 
         // render the foreground
-        this.renderForeground(frame.time)
+        this.renderForeground(this.frame.time)
 
+        const frame: ImageData = this.bufContext2D.getImageData(0, 0, this.bufCanvas.width, this.bufCanvas.height)
+
+        // create a new frame
+        return {
+            data: frame.data,
+            time: this.frame.time,
+            width: this.frame.width,
+            height: this.frame.height,
+            counter: this.frame.counter,
+        }
+    }
+
+    async next(): Promise<void> {
+        if (!this.frame) {
+            return
+        }
+
+        await this.renderFrame()
         await this.canvasToVideoWriter()
-
         // update for next frame
         this.update()
     }
 
     private putImageData(image: ImageData, x: number, y: number): void {
-        const canvas: ImageData = this.bufContext2D.getImageData(0, 0, image.width, image.height);
+        const canvas: ImageData = this.bufContext2D.getImageData(x, y, image.width, image.height);
 
         for (let i: number = 0; i < image.data.length; i += 4) {
             const a: number = image.data[i + 3]
@@ -266,7 +291,9 @@ export class VideoStudioExecutor {
         }).forEach((item: VideoForegroundItem) => {
             this.bufContext2D.save()
 
-            this.bufContext2D.font = item.font
+            this.bufContext2D.textAlign = "center"
+            this.bufContext2D.textBaseline = "middle"
+            this.bufContext2D.font = `${item.fontSize}px ${item.font}`
             if (!!item.fillStyle) {
                 this.bufContext2D.fillStyle = item.fillStyle
                 this.bufContext2D.fillText(item.text, item.x, item.y)

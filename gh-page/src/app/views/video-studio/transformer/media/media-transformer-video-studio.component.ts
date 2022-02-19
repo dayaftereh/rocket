@@ -1,6 +1,7 @@
-import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { SelectItem } from "primeng/api";
 import { fromEvent, Subscription } from "rxjs";
+import { VideoFrame } from "src/app/services/video-studio/video-frame";
 import { VideoStudioService } from "src/app/services/video-studio/video-studio.service";
 
 @Component({
@@ -9,11 +10,17 @@ import { VideoStudioService } from "src/app/services/video-studio/video-studio.s
 })
 export class MediaTransformerVideoStudioComponent implements OnInit, AfterViewInit, OnDestroy {
 
-    @ViewChild("parent")
-    parent: ElementRef<HTMLElement> | undefined
+    @ViewChild("videoParent")
+    videoParent: ElementRef<HTMLElement> | undefined
+
+    @ViewChild("canvasParent")
+    canvasParent: ElementRef<HTMLElement> | undefined
 
     @ViewChild("video")
     videoElement: ElementRef<HTMLVideoElement> | undefined
+
+    @ViewChild("canvas")
+    canvasElement: ElementRef<HTMLCanvasElement> | undefined
 
     time: number
     frames: number
@@ -31,9 +38,12 @@ export class MediaTransformerVideoStudioComponent implements OnInit, AfterViewIn
     private bufCanvas: any | undefined
     private bufContext2D: CanvasRenderingContext2D | undefined
 
+    private canvasContext2D: CanvasRenderingContext2D | undefined
+
     private subscriptions: Subscription[]
 
-    constructor(private readonly videoStudioService: VideoStudioService) {
+    constructor(
+        private readonly videoStudioService: VideoStudioService) {
         this.time = 0
         this.frames = 0
         this.duration = 0
@@ -44,11 +54,16 @@ export class MediaTransformerVideoStudioComponent implements OnInit, AfterViewIn
     }
 
     ngOnInit(): void {
-        const subscription: Subscription = this.videoStudioService.nextAsObservable().subscribe(() => {
-            this.onNext()
+        const nextSubscription: Subscription = this.videoStudioService.nextAsObservable().subscribe(async () => {
+            await this.onNext()
         })
 
-        this.subscriptions.push(subscription)
+        const frameSubscription: Subscription = this.videoStudioService.frameAsObservable().subscribe(async () => {
+            this.onFrame()
+
+        })
+
+        this.subscriptions.push(nextSubscription, frameSubscription)
 
         this.seekTimes.push(
             {
@@ -87,16 +102,26 @@ export class MediaTransformerVideoStudioComponent implements OnInit, AfterViewIn
             this.onLoadedData()
         })
 
-
         // register for the parent element
-        const parent: HTMLElement = this.parent.nativeElement
-        const resizeSubscription: Subscription = fromEvent(parent, "resize").subscribe(() => {
-            this.onResize()
+        const videoParent: HTMLElement = this.videoParent.nativeElement
+        const resizeVideoSubscription: Subscription = fromEvent(videoParent, "resize").subscribe(() => {
+            this.onVideoResize()
         })
 
-        this.subscriptions.push(timeupdateSubscription, loadedSubscription, resizeSubscription)
+        // get the preview canvas
+        const canvas: HTMLCanvasElement = this.canvasElement.nativeElement
+        this.canvasContext2D = canvas.getContext("2d")
 
-        this.onResize()
+        // register for the parent element
+        const canvasParent: HTMLElement = this.canvasParent.nativeElement
+        const resizeCanvasSubscription: Subscription = fromEvent(canvasParent, "resize").subscribe(() => {
+            this.onCanvasResize()
+        })
+
+        this.subscriptions.push(timeupdateSubscription, loadedSubscription, resizeVideoSubscription, resizeCanvasSubscription)
+
+        this.onVideoResize()
+        this.onCanvasResize()
     }
 
     onFile(event: any): void {
@@ -114,12 +139,26 @@ export class MediaTransformerVideoStudioComponent implements OnInit, AfterViewIn
         element.currentTime = Math.max(0.0, Math.min(element.duration, this.sliderTime))
     }
 
-    private onResize(): void {
-        const parent: HTMLElement = this.parent.nativeElement
+    @HostListener('window:resize', ['$event'])
+    onResize(event: any): void {
+       this.onCanvasResize()
+       this.onVideoResize()
+    }
+
+    private onVideoResize(): void {
+        const parent: HTMLElement = this.videoParent.nativeElement
         const video: HTMLVideoElement = this.videoElement.nativeElement
 
         video.width = parent.clientWidth * 0.95
         video.height = parent.clientHeight
+    }
+
+    private onCanvasResize(): void {
+        const parent: HTMLElement = this.canvasParent.nativeElement
+        const canvas: HTMLCanvasElement = this.canvasElement.nativeElement
+
+        canvas.width = parent.clientWidth * 0.95
+        canvas.height = parent.clientHeight
     }
 
     private async onTimeUpdate(): Promise<void> {
@@ -180,6 +219,29 @@ export class MediaTransformerVideoStudioComponent implements OnInit, AfterViewIn
         }
 
         this.next()
+    }
+
+    private async onFrame(): Promise<void> {
+        const frame: VideoFrame | undefined = await this.videoStudioService.renderFrame()
+        if (!frame) {
+            return
+        }
+
+        // @ts-ignore
+        const bufCanvas: any = new OffscreenCanvas(frame.width, frame.height)
+        const bufContext2D: CanvasRenderingContext2D = bufCanvas.getContext("2d")
+        const imageData: ImageData = bufContext2D.createImageData(frame.width, frame.height)
+        for (let i: number = 0; i < frame.data.length; i++) {
+            imageData.data[i] = frame.data[i]
+        }
+        bufContext2D.putImageData(imageData, 0, 0)
+
+        const canvas: HTMLCanvasElement = this.canvasElement.nativeElement
+
+        this.canvasContext2D.save()
+        this.canvasContext2D.scale(canvas.width / frame.width, canvas.height / frame.height)
+        this.canvasContext2D.drawImage(bufCanvas, 0, 0)
+        this.canvasContext2D.restore()
     }
 
     next(): void {

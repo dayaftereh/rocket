@@ -3,13 +3,13 @@
         <div class="col">
             <p-fileUpload [customUpload]="true" (uploadHandler)="onFile($event)"></p-fileUpload>
         </div>
-        <div class="col">
-            
-        </div>
     </div>
     <div class="grid">
-        <div class="col" #parent>
+        <div class="col" #videoParent>
             <video #video></video>
+        </div>
+        <div class="col" #canvasParent>
+            <canvas #canvas></canvas>            
         </div>
     </div>
     <div class="grid">

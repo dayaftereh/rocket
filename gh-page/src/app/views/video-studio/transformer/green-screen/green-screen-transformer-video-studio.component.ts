@@ -124,52 +124,6 @@ export class GreenScreenTransformerVideoStudioComponent implements OnInit, OnDes
         }
     }
 
-    async onShow(): Promise<void> {
-        console.log(this.canvas)
-        if (!this.canvas) {
-            return
-        }
-
-        const frame: VideoFrame | undefined = await this.videoStudioService.greenScreen()
-        if (!frame) {
-            return
-        }
-
-        //@ts-ignore
-        const buf: any = new OffscreenCanvas(frame.width, frame.height)
-        const bufContext: CanvasRenderingContext2D = buf.getContext("2d")
-        const image: ImageData = bufContext.createImageData(frame.width, frame.height)
-        for (let i = 0; i < frame.data.length; i++) {
-            image.data[i] = frame.data[i]
-        }
-        bufContext.putImageData(image, 0, 0)
-
-        const w: number = 500
-        const max: number = Math.max(frame.width, frame.height)
-
-        let scale: number = 1
-        if (max > 500) {
-            scale = w / max
-        }
-
-        const canvas: HTMLCanvasElement = this.canvas.nativeElement
-        const context: CanvasRenderingContext2D = canvas.getContext("2d")
-
-        canvas.width = frame.width * scale
-        canvas.height = frame.height * scale
-
-        context.scale(scale, scale)
-        context.drawImage(buf, 0, 0)
-    }
-
-    async snapshot(event: any): Promise<void> {
-        if (!this.overlay) {
-            return
-        }
-
-        this.overlay.show(event)
-    }
-
     ngOnDestroy(): void {
         this.subscriptions.forEach((subscription: Subscription) => {
             subscription.unsubscribe()
