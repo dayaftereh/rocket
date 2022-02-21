@@ -1,8 +1,11 @@
 import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { FormControl, FormGroup } from "@angular/forms";
 import { SelectItem } from "primeng/api";
 import { fromEvent, Subscription } from "rxjs";
-import { VideoFrame } from "src/app/services/video-studio/video-frame";
+import { LocalStorageService } from "src/app/services/local-storage/local-storage.service";
 import { VideoStudioService } from "src/app/services/video-studio/video-studio.service";
+import { FormUtils } from "src/app/utils/form-utils";
+import { MediaTransformerVideoStudioOptions } from "./media-transformer-video-studio-options";
 
 @Component({
     selector: 'app-media-transformer',
@@ -10,17 +13,13 @@ import { VideoStudioService } from "src/app/services/video-studio/video-studio.s
 })
 export class MediaTransformerVideoStudioComponent implements OnInit, AfterViewInit, OnDestroy {
 
+    private static localStorageKey: string = "media-transformer-video-studio-key"
+
     @ViewChild("videoParent")
     videoParent: ElementRef<HTMLElement> | undefined
 
-    @ViewChild("canvasParent")
-    canvasParent: ElementRef<HTMLElement> | undefined
-
     @ViewChild("video")
     videoElement: ElementRef<HTMLVideoElement> | undefined
-
-    @ViewChild("canvas")
-    canvasElement: ElementRef<HTMLCanvasElement> | undefined
 
     time: number
     frames: number
@@ -33,17 +32,15 @@ export class MediaTransformerVideoStudioComponent implements OnInit, AfterViewIn
 
     loaded: boolean
 
-    private epsilon: number = 0.00001
+    formGroup: FormGroup
 
-    private bufCanvas: any | undefined
-    private bufContext2D: CanvasRenderingContext2D | undefined
-
-    private canvasContext2D: CanvasRenderingContext2D | undefined
+    private epsilon: number = 0.0001
 
     private subscriptions: Subscription[]
 
     constructor(
-        private readonly videoStudioService: VideoStudioService) {
+        private readonly videoStudioService: VideoStudioService,
+        private readonly localStorageService: LocalStorageService) {
         this.time = 0
         this.frames = 0
         this.duration = 0
@@ -51,19 +48,49 @@ export class MediaTransformerVideoStudioComponent implements OnInit, AfterViewIn
         this.loaded = false
         this.seekTimes = []
         this.subscriptions = []
+        this.formGroup = this.createFormGroup()
+    }
+
+    private createFormGroup(): FormGroup {
+        return new FormGroup({
+            frameDuration: new FormControl(),
+            dx: new FormControl(),
+            dy: new FormControl(),
+            width: new FormControl(),
+            height: new FormControl(),
+            offsetX: new FormControl(),
+            offsetY: new FormControl(),
+        })
+    }
+
+    private defaultOptions(): MediaTransformerVideoStudioOptions {
+        return {
+            dx: 0,
+            dy: 0,
+            frameDuration: 1 / 60,
+            width: 1920,
+            height: 1080,
+            offsetX: 0,
+            offsetY: 0
+        }
     }
 
     ngOnInit(): void {
+        const formSubscription: Subscription = this.formGroup.valueChanges.subscribe(() => {
+            this.onFormChanged()
+        })
+
+        const options: MediaTransformerVideoStudioOptions = this.localStorageService.getObjectOrDefault(
+            MediaTransformerVideoStudioComponent.localStorageKey,
+            this.defaultOptions()
+        )
+        this.formGroup.patchValue(options)
+
         const nextSubscription: Subscription = this.videoStudioService.nextAsObservable().subscribe(async () => {
             await this.onNext()
         })
 
-        const frameSubscription: Subscription = this.videoStudioService.frameAsObservable().subscribe(async () => {
-            this.onFrame()
-
-        })
-
-        this.subscriptions.push(nextSubscription, frameSubscription)
+        this.subscriptions.push(formSubscription, nextSubscription)
 
         this.seekTimes.push(
             {
@@ -87,6 +114,10 @@ export class MediaTransformerVideoStudioComponent implements OnInit, AfterViewIn
                 label: "120 FPS"
             },
         )
+
+
+
+        this.setFormEnabled(false)
     }
 
     ngAfterViewInit(): void {
@@ -102,26 +133,10 @@ export class MediaTransformerVideoStudioComponent implements OnInit, AfterViewIn
             this.onLoadedData()
         })
 
-        // register for the parent element
-        const videoParent: HTMLElement = this.videoParent.nativeElement
-        const resizeVideoSubscription: Subscription = fromEvent(videoParent, "resize").subscribe(() => {
-            this.onVideoResize()
-        })
+        this.subscriptions.push(timeupdateSubscription, loadedSubscription)
 
-        // get the preview canvas
-        const canvas: HTMLCanvasElement = this.canvasElement.nativeElement
-        this.canvasContext2D = canvas.getContext("2d")
-
-        // register for the parent element
-        const canvasParent: HTMLElement = this.canvasParent.nativeElement
-        const resizeCanvasSubscription: Subscription = fromEvent(canvasParent, "resize").subscribe(() => {
-            this.onCanvasResize()
-        })
-
-        this.subscriptions.push(timeupdateSubscription, loadedSubscription, resizeVideoSubscription, resizeCanvasSubscription)
-
-        this.onVideoResize()
-        this.onCanvasResize()
+        // trigger resize once
+        this.onResize()
     }
 
     onFile(event: any): void {
@@ -137,28 +152,20 @@ export class MediaTransformerVideoStudioComponent implements OnInit, AfterViewIn
     onSlideEnd(): void {
         const element: HTMLVideoElement = this.videoElement.nativeElement
         element.currentTime = Math.max(0.0, Math.min(element.duration, this.sliderTime))
+        const frames: number = Math.round(element.currentTime * (1.0 / this.seekTime)) - 1.0
+        this.frames = Math.max(0, Math.min(element.duration * (1.0 / this.seekTime), frames))
     }
 
-    @HostListener('window:resize', ['$event'])
-    onResize(event: any): void {
-       this.onCanvasResize()
-       this.onVideoResize()
-    }
-
-    private onVideoResize(): void {
+    @HostListener('window:resize')
+    onResize(): void {
         const parent: HTMLElement = this.videoParent.nativeElement
         const video: HTMLVideoElement = this.videoElement.nativeElement
 
+        video.width = 0
+        video.height = 0
+
         video.width = parent.clientWidth * 0.95
-        video.height = parent.clientHeight
-    }
-
-    private onCanvasResize(): void {
-        const parent: HTMLElement = this.canvasParent.nativeElement
-        const canvas: HTMLCanvasElement = this.canvasElement.nativeElement
-
-        canvas.width = parent.clientWidth * 0.95
-        canvas.height = parent.clientHeight
+        video.height = video.width * 9 / 16
     }
 
     private async onTimeUpdate(): Promise<void> {
@@ -169,17 +176,29 @@ export class MediaTransformerVideoStudioComponent implements OnInit, AfterViewIn
         if (delta > 0.0) {
             this.frames++
         } else if (delta < 0.0) {
-            this.frames--
+            this.frames = Math.max(0, this.frames--)
         }
+
+        this.frames = Math.max(0, Math.min(video.duration * (1.0 / this.seekTime), this.frames))
 
         await this.renderFrame()
     }
 
     private async renderFrame(): Promise<void> {
+        // get the video element
         const video: HTMLVideoElement = this.videoElement.nativeElement
-        this.bufContext2D.drawImage(video, 0.0, 0.0)
 
-        const frame: ImageData = this.bufContext2D.getImageData(0, 0, video.videoWidth, video.videoHeight)
+        // @ts-ignore
+        const bufCanvas: any = new OffscreenCanvas(video.videoWidth, video.videoHeight)
+        const bufContext2D: CanvasRenderingContext2D = bufCanvas.getContext("2d")
+
+        // get the options for dy, dy and width, height
+        const options: MediaTransformerVideoStudioOptions = this.getOptions()
+        // draw the current video to the buffer canvas        
+        bufContext2D.drawImage(video, options.dx, options.dy, options.width, options.height)
+
+        // get the image data from the buffer canvas
+        const frame: ImageData = bufContext2D.getImageData(0, 0, video.videoWidth, video.videoHeight)
         // set the next frame to worker
         await this.videoStudioService.setFrame({
             time: this.time,
@@ -193,15 +212,12 @@ export class MediaTransformerVideoStudioComponent implements OnInit, AfterViewIn
     private onLoadedData(): void {
         this.frames = 0
         this.loaded = true
+        this.setFormEnabled(true)
 
-        const element: HTMLVideoElement = this.videoElement.nativeElement
+        const video: HTMLVideoElement = this.videoElement.nativeElement
 
-        //@ts-ignore
-        this.bufCanvas = new OffscreenCanvas(element.videoWidth, element.videoHeight)
-        this.bufContext2D = this.bufCanvas.getContext('2d')
-
-        this.time = element.currentTime
-        this.duration = element.duration
+        this.time = video.currentTime
+        this.duration = video.duration
 
         setTimeout(() => {
             this.renderFrame().catch((e: Error) => {
@@ -214,6 +230,7 @@ export class MediaTransformerVideoStudioComponent implements OnInit, AfterViewIn
         const element: HTMLVideoElement = this.videoElement.nativeElement
 
         if (Math.abs(element.currentTime - element.duration) < this.epsilon) {
+            element.currentTime = element.duration
             await this.videoStudioService.done()
             return
         }
@@ -221,27 +238,56 @@ export class MediaTransformerVideoStudioComponent implements OnInit, AfterViewIn
         this.next()
     }
 
-    private async onFrame(): Promise<void> {
-        const frame: VideoFrame | undefined = await this.videoStudioService.renderFrame()
-        if (!frame) {
-            return
+    async onFormChanged(): Promise<void> {
+        const options: MediaTransformerVideoStudioOptions = this.getOptions()
+        this.seekTime = options.frameDuration
+
+        this.localStorageService.updateObject(
+            MediaTransformerVideoStudioComponent.localStorageKey,
+            options
+        )
+
+        await this.videoStudioService.setVideoMeta({
+            frameDuration: options.frameDuration,
+            x: options.offsetX,
+            y: options.offsetY
+        })
+
+    }
+
+    private getOptions(): MediaTransformerVideoStudioOptions {
+        const defaultOptions: MediaTransformerVideoStudioOptions = this.defaultOptions()
+
+        const frameDuration: number = FormUtils.getValueOrDefault(this.formGroup, "frameDuration", defaultOptions.frameDuration)
+
+        const dx: number = FormUtils.getValueOrDefault(this.formGroup, "dx", defaultOptions.dx)
+        const dy: number = FormUtils.getValueOrDefault(this.formGroup, "dy", defaultOptions.dy)
+
+        const offsetX: number = FormUtils.getValueOrDefault(this.formGroup, "offsetX", defaultOptions.offsetX)
+        const offsetY: number = FormUtils.getValueOrDefault(this.formGroup, "offsetY", defaultOptions.offsetY)
+
+        const width: number = FormUtils.getValueOrDefault(this.formGroup, "width", defaultOptions.width)
+        const height: number = FormUtils.getValueOrDefault(this.formGroup, "height", defaultOptions.height)
+
+        return {
+            frameDuration,
+            dx,
+            dy,
+            offsetX,
+            offsetY,
+            width,
+            height
         }
+    }
 
-        // @ts-ignore
-        const bufCanvas: any = new OffscreenCanvas(frame.width, frame.height)
-        const bufContext2D: CanvasRenderingContext2D = bufCanvas.getContext("2d")
-        const imageData: ImageData = bufContext2D.createImageData(frame.width, frame.height)
-        for (let i: number = 0; i < frame.data.length; i++) {
-            imageData.data[i] = frame.data[i]
-        }
-        bufContext2D.putImageData(imageData, 0, 0)
-
-        const canvas: HTMLCanvasElement = this.canvasElement.nativeElement
-
-        this.canvasContext2D.save()
-        this.canvasContext2D.scale(canvas.width / frame.width, canvas.height / frame.height)
-        this.canvasContext2D.drawImage(bufCanvas, 0, 0)
-        this.canvasContext2D.restore()
+    private setFormEnabled(flag: boolean): void {
+        FormUtils.setControlEnable(this.formGroup, "frameDuration", flag)
+        FormUtils.setControlEnable(this.formGroup, "dx", flag)
+        FormUtils.setControlEnable(this.formGroup, "dy", flag)
+        FormUtils.setControlEnable(this.formGroup, "width", flag)
+        FormUtils.setControlEnable(this.formGroup, "height", flag)
+        FormUtils.setControlEnable(this.formGroup, "offsetX", flag)
+        FormUtils.setControlEnable(this.formGroup, "offsetY", flag)
     }
 
     next(): void {

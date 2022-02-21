@@ -1,6 +1,7 @@
 import { Component, EventEmitter, OnDestroy, OnInit, Output } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { Subscription } from "rxjs";
+import { LocalStorageService } from "src/app/services/local-storage/local-storage.service";
 import { VideoBackgroundOptions } from "src/app/services/video-studio/background/video-background-options";
 import { VideoStudioService } from "src/app/services/video-studio/video-studio.service";
 import { FormUtils } from "src/app/utils/form-utils";
@@ -11,95 +12,116 @@ import { FormUtils } from "src/app/utils/form-utils";
 })
 export class BackgroundTransformerVideoStudioComponent implements OnInit, OnDestroy {
 
+    private static localStorageKey: string = "background-transformer-video-studio-key"
+
     formGroup: FormGroup
 
     private subscriptions: Subscription[]
 
-    constructor(private readonly videoStudioService: VideoStudioService) {
+    constructor(
+        private readonly videoStudioService: VideoStudioService,
+        private readonly localStorageService: LocalStorageService) {
         this.subscriptions = []
         this.formGroup = this.createFormGroup()
     }
 
     private createFormGroup(): FormGroup {
         return new FormGroup({
-            enabled: new FormControl(false),
+            color: new FormControl(),
+            visible: new FormControl(false),
 
             speed: new FormControl([0, 20]),
             radius: new FormControl([0, 10]),
 
             distance: new FormControl(0.1),
             particles: new FormControl(50),
-
-            x: new FormControl(0),
-            y: new FormControl(0),
-
-            width: new FormControl(1920),
-            height: new FormControl(1080),
         })
+    }
+
+    private defaultVideoBackgroundOptions(): VideoBackgroundOptions {
+        return {
+            particles: 50,
+            visible: false,
+            distance: 0.1,
+            color: '#2a323d',
+            radiusMinimum: 2,
+            radiusMaximum: 7,
+            speedMinimum: 5,
+            speedMaximum: 12,
+        }
     }
 
     ngOnInit(): void {
         const formSubscription: Subscription = this.formGroup.valueChanges.subscribe(() => {
             this.onFormChanged()
         })
-
         this.subscriptions.push(formSubscription)
 
-        this.onFormChanged()
+        const videoBackgroundOptions: VideoBackgroundOptions = this.localStorageService.getObjectOrDefault(
+            BackgroundTransformerVideoStudioComponent.localStorageKey,
+            this.defaultVideoBackgroundOptions()
+        )
+        this.formGroup.patchValue(Object.assign({}, videoBackgroundOptions, {
+            speed: [
+                videoBackgroundOptions.speedMinimum,
+                videoBackgroundOptions.speedMaximum
+            ],
+            radius: [
+                videoBackgroundOptions.radiusMinimum,
+                videoBackgroundOptions.radiusMaximum
+            ]
+        }))
     }
 
     private onFormChanged(): void {
-        const enabled: boolean = FormUtils.getValueOrDefault(this.formGroup, "enabled", false)
+        const visible: boolean = FormUtils.getValueOrDefault(this.formGroup, "visible", false)
 
         const opts: any = {
             emitEvent: false
         }
 
-        FormUtils.setControlEnable(this.formGroup, "speed", enabled, opts)
-        FormUtils.setControlEnable(this.formGroup, "radius", enabled, opts)
+        FormUtils.setControlEnable(this.formGroup, "speed", visible, opts)
+        FormUtils.setControlEnable(this.formGroup, "radius", visible, opts)
 
-        FormUtils.setControlEnable(this.formGroup, "distance", enabled, opts)
-        FormUtils.setControlEnable(this.formGroup, "particles", enabled, opts)
+        FormUtils.setControlEnable(this.formGroup, "distance", visible, opts)
+        FormUtils.setControlEnable(this.formGroup, "particles", visible, opts)
 
-        FormUtils.setControlEnable(this.formGroup, "x", enabled, opts)
-        FormUtils.setControlEnable(this.formGroup, "y", enabled, opts)
-
-        FormUtils.setControlEnable(this.formGroup, "width", enabled, opts)
-        FormUtils.setControlEnable(this.formGroup, "height", enabled, opts)
-
-        const options: VideoBackgroundOptions | undefined = this.getOptions()
+        const options: VideoBackgroundOptions = this.getOptions()
+        this.localStorageService.updateObject(
+            BackgroundTransformerVideoStudioComponent.localStorageKey,
+            options,
+        )
         this.videoStudioService.setBackground(options)
     }
 
-    private getOptions(): VideoBackgroundOptions | undefined {
-        const enabled: boolean = FormUtils.getValueOrDefault(this.formGroup, "enabled", false)
-        if (!enabled) {
-            return undefined
-        }
+    private getOptions(): VideoBackgroundOptions {
+        const defaultVideoBackgroundOptions: VideoBackgroundOptions = this.defaultVideoBackgroundOptions()
 
-        const speed: number[] = FormUtils.getValueOrDefault(this.formGroup, "speed", [0, 1])
-        const radius: number[] = FormUtils.getValueOrDefault(this.formGroup, "radius", [0, 1])
+        const visible: boolean = FormUtils.getValueOrDefault(this.formGroup, "visible", defaultVideoBackgroundOptions.visible)
 
-        const distance: number = FormUtils.getValueOrDefault(this.formGroup, "distance", 0.1)
-        const particles: number = FormUtils.getValueOrDefault(this.formGroup, "particles", 50)
+        const speed: number[] = FormUtils.getValueOrDefault(this.formGroup, "speed", [
+            defaultVideoBackgroundOptions.speedMinimum,
+            defaultVideoBackgroundOptions.speedMaximum
+        ])
+        const radius: number[] = FormUtils.getValueOrDefault(this.formGroup, "radius", [
+            defaultVideoBackgroundOptions.radiusMinimum,
+            defaultVideoBackgroundOptions.radiusMaximum
+        ])
 
-        const x: number = FormUtils.getValueOrDefault(this.formGroup, "x", 0)
-        const y: number = FormUtils.getValueOrDefault(this.formGroup, "y", 0)
+        const distance: number = FormUtils.getValueOrDefault(this.formGroup, "distance", defaultVideoBackgroundOptions.distance)
+        const particles: number = FormUtils.getValueOrDefault(this.formGroup, "particles", defaultVideoBackgroundOptions.particles)
 
-        const width: number = FormUtils.getValueOrDefault(this.formGroup, "width", 200)
-        const height: number = FormUtils.getValueOrDefault(this.formGroup, "height", 200)
+        const color: string = FormUtils.getValueOrDefault(this.formGroup, "color", defaultVideoBackgroundOptions.color)
 
         return {
-            x,
-            y,
-            width,
-            height,
+            color,
+            visible,
             particles,
+            distance: distance,
             radiusMinimum: radius[0],
             radiusMaximum: radius[1],
             speedMinimum: speed[0],
             speedMaximum: speed[1],
-            distance: width * distance,
         }
     }
 

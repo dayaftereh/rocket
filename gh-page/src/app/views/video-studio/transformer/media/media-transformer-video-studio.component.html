@@ -3,13 +3,77 @@
         <div class="col">
             <p-fileUpload [customUpload]="true" (uploadHandler)="onFile($event)"></p-fileUpload>
         </div>
+        <div class="col">
+            <form [formGroup]="formGroup">
+                <div class="formgrid grid">
+
+                    <div class="field col-3">
+                        <label for="frameDuration">FPS:</label>
+                        <p-dropdown [options]="seekTimes" id="frameDuration" formControlName="frameDuration" styleClass="inputfield w-full">
+                        </p-dropdown>
+                    </div>
+
+                    <div class="field col-3">
+                        <label for="dx">DX:</label>
+                        <div class="p-inputgroup">
+                            <input pInputText id="dx" type="number" formControlName="dx"
+                                class="inputfield w-full">
+                            <span class="p-inputgroup-addon">px</span>
+                        </div>
+                    </div>
+
+                    <div class="field col-3">
+                        <label for="dy">DY:</label>
+                        <div class="p-inputgroup">
+                            <input pInputText id="dy" type="number" formControlName="dy"
+                                class="inputfield w-full">
+                            <span class="p-inputgroup-addon">px</span>
+                        </div>
+                    </div>
+
+                    <div class="field col-3">
+                        <label for="width">Width:</label>
+                        <div class="p-inputgroup">
+                            <input pInputText id="width" type="number" formControlName="width"
+                                class="inputfield w-full">
+                            <span class="p-inputgroup-addon">px</span>
+                        </div>
+                    </div>
+
+                    <div class="field col-3">
+                        <label for="height">Height:</label>
+                        <div class="p-inputgroup">
+                            <input pInputText id="height" type="number" formControlName="height"
+                                class="inputfield w-full">
+                            <span class="p-inputgroup-addon">px</span>
+                        </div>
+                    </div>
+
+                    <div class="field col-3">
+                        <label for="offsetX">Offset-X:</label>
+                        <div class="p-inputgroup">
+                            <input pInputText id="offsetX" type="number" formControlName="offsetX"
+                                class="inputfield w-full">
+                            <span class="p-inputgroup-addon">px</span>
+                        </div>
+                    </div>
+
+                    <div class="field col-3">
+                        <label for="offsetY">Offset-Y:</label>
+                        <div class="p-inputgroup">
+                            <input pInputText id="offsetY" type="number" formControlName="offsetY"
+                                class="inputfield w-full">
+                            <span class="p-inputgroup-addon">px</span>
+                        </div>
+                    </div>
+
+                </div>
+            </form>
+        </div>
     </div>
     <div class="grid">
-        <div class="col" #videoParent>
+        <div class="col text-center" #videoParent>
             <video #video></video>
-        </div>
-        <div class="col" #canvasParent>
-            <canvas #canvas></canvas>            
         </div>
     </div>
     <div class="grid">
@@ -17,22 +81,21 @@
             <button pButton type="button" icon="pi pi-step-backward" class="p-button-secondary" label="- Frame"
                 [disabled]="!loaded" (click)="previous()"></button>
         </div>
-        <div class="col">
-            <p-dropdown [options]="seekTimes" [(ngModel)]="seekTime"></p-dropdown>
-        </div>
-        <div class="col">
+        <div class="col text-right">
             <button pButton type="button" icon="pi pi-step-forward" class="p-button-secondary" label="+ Frame"
                 [disabled]="!loaded" (click)="next()"></button>
         </div>
+    </div>
+    <div class="grid">
         <div class="col">
             Time: {{time | number}} / {{duration|number}} s
         </div>
-        <div class="col">
+        <div class="col text-center">
             <p-slider [(ngModel)]="sliderTime" [disabled]="!loaded" [min]="0" [max]="duration" [step]="seekTime"
                 (onSlideEnd)="onSlideEnd()">
             </p-slider>
         </div>
-        <div class="col">
+        <div class="col text-right">
             Frame: {{frames}}
         </div>
     </div>

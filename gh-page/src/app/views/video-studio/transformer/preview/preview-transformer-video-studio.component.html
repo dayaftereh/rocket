@@ -1,0 +1,12 @@
+<p-dialog header="Preview" [(visible)]="visible" (onShow)="onShow()" (onResizeEnd)="onResizeEnd()">
+    <div class="grid" #pln>
+        <div class="col" #canvasParent style="width: 50vw;height: 50vh;">
+            <canvas #canvas></canvas>
+        </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <button pButton type="button" icon="pi pi-refresh" class="p-button-secondary" label="Redraw" (click)="onFrame()"
+            [loading]="loading"></button>
+    </ng-template>
+</p-dialog>

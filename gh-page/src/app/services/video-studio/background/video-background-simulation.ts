@@ -1,12 +1,12 @@
-import { VideoBackgroundOptions } from "./video-background-options"
 import { VideoBackgroundParticle } from "./video-background-particle"
+import { VideoBackgroundSimulationOptions } from "./video-background-simulation-options"
 
 export class VideoBackgroundSimulation {
 
     private particles: VideoBackgroundParticle[]
 
 
-    constructor(private readonly options: VideoBackgroundOptions) {
+    constructor(private readonly options: VideoBackgroundSimulationOptions) {
         this.particles = []
     }
 

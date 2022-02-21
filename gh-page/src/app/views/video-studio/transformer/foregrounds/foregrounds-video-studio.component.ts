@@ -1,4 +1,5 @@
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
+import { LocalStorageService } from "src/app/services/local-storage/local-storage.service";
 import { VideoForegroundItem } from "src/app/services/video-studio/video-foreground-item";
 import { VideoStudioService } from "src/app/services/video-studio/video-studio.service";
 import { ForegroundItemVideoStudioComponent } from "./item/foreground-item-video-studio.component";
@@ -7,12 +8,25 @@ import { ForegroundItemVideoStudioComponent } from "./item/foreground-item-video
     selector: 'app-foregrounds-transformer',
     templateUrl: './foregrounds-video-studio.component.html'
 })
-export class ForegroundsVideoStudioComponent {
+export class ForegroundsVideoStudioComponent implements OnInit {
+
+    private static localStorageKey: string = "foregrounds-transformer-video-studio-key"
 
     items: VideoForegroundItem[]
 
-    constructor(private readonly videoStudioService: VideoStudioService) {
+    constructor(
+        private readonly videoStudioService: VideoStudioService,
+        private readonly localStorageService: LocalStorageService) {
         this.items = []
+    }
+
+    async ngOnInit(): Promise<void> {
+        this.items = this.localStorageService.getObjectOrDefault(
+            ForegroundsVideoStudioComponent.localStorageKey,
+            []
+        )
+
+        await this.videoStudioService.setForegrounds(this.items)
     }
 
     async onAddItem(): Promise<void> {
@@ -20,6 +34,12 @@ export class ForegroundsVideoStudioComponent {
             ...this.items,
             ForegroundItemVideoStudioComponent.defaultItem()
         ]
+
+        this.localStorageService.updateObject(
+            ForegroundsVideoStudioComponent.localStorageKey,
+            this.items
+        )
+
         await this.videoStudioService.setForegrounds(this.items)
     }
 
@@ -28,6 +48,12 @@ export class ForegroundsVideoStudioComponent {
         this.items = [
             ...this.items
         ]
+
+        this.localStorageService.updateObject(
+            ForegroundsVideoStudioComponent.localStorageKey,
+            this.items
+        )
+
         await this.videoStudioService.setForegrounds(this.items)
     }
 
@@ -35,6 +61,10 @@ export class ForegroundsVideoStudioComponent {
         index: number,
         item: VideoForegroundItem
     }): Promise<void> {
+        this.localStorageService.updateObject(
+            ForegroundsVideoStudioComponent.localStorageKey,
+            this.items
+        )
         await this.videoStudioService.setForegrounds(this.items)
     }
 

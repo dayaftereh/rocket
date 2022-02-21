@@ -1,16 +1,24 @@
 <div class="grid">
     <div class="col">
+        <app-export-transformer> </app-export-transformer>
+    </div>
+</div>
+
+<div class="grid">
+    <div class="col">
+        <app-foregrounds-transformer></app-foregrounds-transformer>
+    </div>
+</div>
+
+<div class="grid">
+    <div class="col">
         <app-green-screen-transformer></app-green-screen-transformer>
     </div>
     <div class="col">
         <app-background-transformer></app-background-transformer>
     </div>
 </div>
-<div class="grid">
-    <div class="col">
-        <app-foregrounds-transformer></app-foregrounds-transformer>
-    </div>
-</div>
+
 <div class="grid">
     <div class="col">
         <app-media-transformer></app-media-transformer>
@@ -20,8 +28,11 @@
 <div class="grid">
     <div class="col">
         <span class="p-buttonset">
-            <button pButton type="button" label="Start" class="p-button-success" (click)="start()" ></button>
-            <button pButton type="button" label="Cancel" class="p-button-warning" (click)="cancel()" ></button>
-        </span>       
+            <button pButton type="button" label="Start" class="p-button-success" (click)="onStart()"></button>
+            <button pButton type="button" label="Cancel" class="p-button-warning" (click)="onCancel()"></button>
+            <button pButton type="button" label="Preview" class="p-button-secondary" (click)="onPreview()"></button>
+        </span>
     </div>
 </div>
+
+<app-preview-transformer #preview></app-preview-transformer>

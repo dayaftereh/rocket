@@ -3,10 +3,12 @@ import * as Comlink from 'comlink';
 import { saveAs } from "file-saver";
 import { Observable, Subject } from "rxjs";
 import { VideoBackgroundOptions } from "./background/video-background-options";
+import { VideoExport } from "./video-export";
 import { VideoForegroundItem } from "./video-foreground-item";
 import { VideoFrame } from "./video-frame";
 import { VideoGreenScreenOptions } from "./video-green-screen-options";
-import { VideoInfo } from "./video-info";
+import { VideoMeta } from "./video-meta";
+import { VideoOutput } from "./video-output";
 import { VideoStudioExecutor } from "./video-studio.executor";
 
 @Injectable()
@@ -32,9 +34,12 @@ export class VideoStudioService {
         }
 
         this.promise = new Promise(async resolve => {
+            // create the web worker
             this.worker = new Worker(new URL('./video-studio.worker', import.meta.url), {
                 name: 'VideoStudioWorker'
             })
+
+            // wrap the worker with Comlink.js
             const ExecutorProxy: any = Comlink.wrap<VideoStudioExecutor>(this.worker)
             this.executor = await (new ExecutorProxy())
 
@@ -42,6 +47,11 @@ export class VideoStudioService {
         })
 
         return this.promise
+    }
+
+    async setVideoExport(videoExport: VideoExport): Promise<void> {
+        const executor: VideoStudioExecutor = await this.createOrGetExecutor()
+        await executor.setVideoExport(videoExport)
     }
 
     async setFrame(frame: VideoFrame): Promise<void> {
@@ -71,9 +81,9 @@ export class VideoStudioService {
         await executor.setForegrounds(foregrounds)
     }
 
-    async initialize(info: VideoInfo): Promise<void> {
+    async setVideoMeta(videoMeta: VideoMeta): Promise<void> {
         const executor: VideoStudioExecutor = await this.createOrGetExecutor()
-        await executor.initialize(info)
+        await executor.setVideoMeta(videoMeta)
     }
 
     async greenScreen(): Promise<VideoFrame | undefined> {
@@ -113,8 +123,8 @@ export class VideoStudioService {
 
     async done(): Promise<void> {
         const executor: VideoStudioExecutor = await this.createOrGetExecutor()
-        const url: string = await executor.done()
-        saveAs(url, "out.webm")
+        const output: VideoOutput = await executor.done()
+        saveAs(output.url, output.filename)
 
         this._done.next()
     }

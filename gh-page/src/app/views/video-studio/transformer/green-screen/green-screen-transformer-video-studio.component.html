@@ -1,5 +1,5 @@
 <form [formGroup]="formGroup">
-    <p-card header="GreenScreen">
+    <p-panel header="GreenScreen" [toggleable]="true">
         <div class="card">
             <div class="field-checkbox">
                 <p-inputSwitch id="enabled" formControlName="enabled"></p-inputSwitch>
@@ -10,8 +10,8 @@
                 <p-selectButton [options]="modes" id="mode" formControlName="mode"></p-selectButton>
             </div>
             <div class="field">
-                <label for="colorInput">Color</label>
-                <input type="color" id="colorInput" formControlName="color" class="inputfield">
+                <label for="colorInput">Key-Color</label>
+                <input type="color" id="colorInput" formControlName="key" class="inputfield">
             </div>
             <div class="field">
                 <label for="hueThreshold">Hue-Threshold</label>
@@ -32,5 +32,5 @@
             </div>
         </div>
 
-    </p-card>
+    </p-panel>
 </form>

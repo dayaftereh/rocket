@@ -1,5 +1,5 @@
-import { VideoBackgroundOptions } from "./video-background-options"
 import { Vector2 } from "three"
+import { VideoBackgroundSimulationOptions } from "./video-background-simulation-options"
 
 export class VideoBackgroundParticle {
 
@@ -8,7 +8,7 @@ export class VideoBackgroundParticle {
     private v: Vector2
     private position: Vector2
 
-    constructor(private readonly options: VideoBackgroundOptions) {
+    constructor(private readonly options: VideoBackgroundSimulationOptions) {
         this.v = new Vector2()
         this.position = new Vector2()
     }
@@ -27,7 +27,7 @@ export class VideoBackgroundParticle {
         return p
     }
 
-    static randomEverywhere(options: VideoBackgroundOptions): VideoBackgroundParticle {
+    static randomEverywhere(options: VideoBackgroundSimulationOptions): VideoBackgroundParticle {
         const p: VideoBackgroundParticle = new VideoBackgroundParticle(options)
 
         const width: number = options.width - options.x
@@ -41,7 +41,7 @@ export class VideoBackgroundParticle {
         return p
     }
 
-    static randomBorder(options: VideoBackgroundOptions): VideoBackgroundParticle {
+    static randomBorder(options: VideoBackgroundSimulationOptions): VideoBackgroundParticle {
         const p: VideoBackgroundParticle = new VideoBackgroundParticle(options)
 
         const side: number = Math.random() * 4.0
@@ -78,12 +78,18 @@ export class VideoBackgroundParticle {
 
     render(ctx: any): void {
         const alpha: number = this.speedPercent
+
+        const color: string = `rgba(255, 255, 255, ${alpha})`
+
         ctx.save()
 
-        ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`
+        ctx.shadowBlur = this.radius;
+        ctx.shadowColor = color;
+
+        ctx.fillStyle = color
 
         ctx.beginPath()
-        ctx.arc(this.position.x, this.position.y, this.radius, 0.0, Math.PI * 2.0)
+        ctx.arc(this.position.x, this.position.y, this.radius / 2.0, 0.0, Math.PI * 2.0)
         ctx.fill()
 
         ctx.restore()

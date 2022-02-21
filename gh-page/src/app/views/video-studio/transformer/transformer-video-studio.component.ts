@@ -1,6 +1,7 @@
-import { AfterViewInit, Component, OnDestroy } from "@angular/core";
+import { Component, OnDestroy, ViewChild } from "@angular/core";
 import { Subscription } from "rxjs";
 import { VideoStudioService } from "src/app/services/video-studio/video-studio.service";
+import { PreviewTransformerVideoStudioComponent } from "./preview/preview-transformer-video-studio.component";
 
 @Component({
     templateUrl: "./transformer-video-studio.component.html"
@@ -10,6 +11,9 @@ export class TransformerVideoStudioComponent implements OnDestroy {
     private doneSubscription: Subscription | undefined
     private nextSubscription: Subscription | undefined
 
+    @ViewChild("preview")
+    preview: PreviewTransformerVideoStudioComponent | undefined
+
     constructor(private readonly videoStudioService: VideoStudioService) {
 
     }
@@ -18,14 +22,7 @@ export class TransformerVideoStudioComponent implements OnDestroy {
 
     }
 
-    async start(): Promise<void> {
-        this.videoStudioService.initialize({
-            frameRate: 30,
-            frameDuration: undefined,
-            width: 1920,
-            height: 1080
-        })
-
+    async onStart(): Promise<void> {
         this.nextSubscription = this.videoStudioService.frameAsObservable().subscribe(async () => {
             await this.videoStudioService.next()
         })
@@ -37,7 +34,15 @@ export class TransformerVideoStudioComponent implements OnDestroy {
         await this.videoStudioService.next()
     }
 
-    cancel(): void {
+    onPreview(): void {
+        if (!this.preview) {
+            return
+        }
+
+        this.preview.open()
+    }
+
+    onCancel(): void {
         this.videoStudioService.cancel()
     }
 

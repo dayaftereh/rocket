@@ -1,11 +1,8 @@
 import { VideoGreenScreenMode } from "./video-green-screen-mode";
 
 export interface VideoGreenScreenOptions {
-    key: {
-        r: number,
-        g: number,
-        b: number
-    }
+    key: string
+    enabled: boolean
     hueThreshold: number
     satThreshold: number
     valThreshold: number

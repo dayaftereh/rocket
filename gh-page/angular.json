@@ -32,7 +32,9 @@
                             "src/styles.scss"
                         ],
                         "scripts": [],
-                        "allowedCommonJsDependencies": [],
+                        "allowedCommonJsDependencies": [
+                            "webm-writer"
+                        ],
                         "vendorChunk": true,
                         "extractLicenses": false,
                         "buildOptimizer": false,

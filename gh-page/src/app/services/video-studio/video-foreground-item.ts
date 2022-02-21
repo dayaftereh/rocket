@@ -6,6 +6,8 @@ export interface VideoForegroundItem {
     text: string
     font: string
     fontSize: number
-    fillStyle: string | undefined
-    strokeStyle: string | undefined
+    useFillStyle: boolean
+    fillStyle: string
+    useStrokeStyle: boolean
+    strokeStyle: string
 }

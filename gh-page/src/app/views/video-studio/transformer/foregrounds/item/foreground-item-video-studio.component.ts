@@ -56,6 +56,8 @@ export class ForegroundItemVideoStudioComponent implements OnInit, OnDestroy {
             font: fonts[0],
             fillStyle: "#000000",
             strokeStyle: "#000000",
+            useFillStyle: false,
+            useStrokeStyle: false,
         }
     }
 
@@ -139,8 +141,10 @@ export class ForegroundItemVideoStudioComponent implements OnInit, OnDestroy {
             text,
             fontSize,
             duration,
-            fillStyle: useFillStyle ? fillStyle : undefined,
-            strokeStyle: useStrokeStyle ? strokeStyle : undefined
+            fillStyle,
+            strokeStyle,
+            useFillStyle,
+            useStrokeStyle
         }
     }
 

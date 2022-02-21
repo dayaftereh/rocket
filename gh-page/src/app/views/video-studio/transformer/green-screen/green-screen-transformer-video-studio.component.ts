@@ -3,11 +3,10 @@ import { FormControl, FormGroup } from "@angular/forms";
 import { SelectItem } from "primeng/api";
 import { OverlayPanel } from "primeng/overlaypanel";
 import { Subscription } from "rxjs";
-import { VideoFrame } from "src/app/services/video-studio/video-frame";
+import { LocalStorageService } from "src/app/services/local-storage/local-storage.service";
 import { VideoGreenScreenMode } from "src/app/services/video-studio/video-green-screen-mode";
 import { VideoGreenScreenOptions } from "src/app/services/video-studio/video-green-screen-options";
 import { VideoStudioService } from "src/app/services/video-studio/video-studio.service";
-import { Color } from "src/app/utils/color";
 import { FormUtils } from "src/app/utils/form-utils";
 
 @Component({
@@ -15,6 +14,8 @@ import { FormUtils } from "src/app/utils/form-utils";
     templateUrl: './green-screen-transformer-video-studio.component.html'
 })
 export class GreenScreenTransformerVideoStudioComponent implements OnInit, OnDestroy {
+
+    private static localStorageKey: string = "green-screen-transformer-video-studio-key"
 
     formGroup: FormGroup
 
@@ -28,7 +29,9 @@ export class GreenScreenTransformerVideoStudioComponent implements OnInit, OnDes
 
     private subscriptions: Subscription[]
 
-    constructor(private readonly videoStudioService: VideoStudioService) {
+    constructor(
+        private readonly videoStudioService: VideoStudioService,
+        private readonly localStorageService: LocalStorageService) {
         this.modes = []
         this.subscriptions = []
         this.formGroup = this.createFormGroup()
@@ -37,7 +40,7 @@ export class GreenScreenTransformerVideoStudioComponent implements OnInit, OnDes
     private createFormGroup(): FormGroup {
         return new FormGroup({
             mode: new FormControl(),
-            color: new FormControl(),
+            key: new FormControl(),
             enabled: new FormControl(),
             hueThreshold: new FormControl(),
             satThreshold: new FormControl(),
@@ -46,11 +49,19 @@ export class GreenScreenTransformerVideoStudioComponent implements OnInit, OnDes
         })
     }
 
-    ngOnInit(): void {
-        const formSubscription: Subscription = this.formGroup.valueChanges.subscribe(() => {
-            this.onFormChanged()
-        })
+    private defaultVideoGreenScreenOptions(): VideoGreenScreenOptions {
+        return {
+            enabled: false,
+            key: "#000000",
+            channelThreshold: 126,
+            hueThreshold: 0.5,
+            satThreshold: 0.5,
+            mode: VideoGreenScreenMode.KeyColor,
+            valThreshold: 0.5,
+        }
+    }
 
+    ngOnInit(): void {
         this.modes.push(
             {
                 value: VideoGreenScreenMode.KeyColor,
@@ -69,11 +80,17 @@ export class GreenScreenTransformerVideoStudioComponent implements OnInit, OnDes
                 label: `${VideoGreenScreenMode.ChannelBlue}`
             }
         )
-
+       
+        const formSubscription: Subscription = this.formGroup.valueChanges.subscribe(() => {
+            this.onFormChanged()
+        })
         this.subscriptions.push(formSubscription)
 
-        // trigger form changed
-        this.onFormChanged()
+        const options: VideoGreenScreenOptions = this.localStorageService.getObjectOrDefault(
+            GreenScreenTransformerVideoStudioComponent.localStorageKey,
+            this.defaultVideoGreenScreenOptions()
+        )
+        this.formGroup.patchValue(options)
     }
 
     private onFormChanged(): void {
@@ -87,40 +104,44 @@ export class GreenScreenTransformerVideoStudioComponent implements OnInit, OnDes
         const mode: VideoGreenScreenMode = FormUtils.getValueOrDefault(this.formGroup, "mode", VideoGreenScreenMode.KeyColor)
 
         const keyColor: boolean = mode === VideoGreenScreenMode.KeyColor
-        FormUtils.setControlEnable(this.formGroup, 'color', enabled && keyColor, opts)
+        FormUtils.setControlEnable(this.formGroup, 'key', enabled && keyColor, opts)
         FormUtils.setControlEnable(this.formGroup, 'hueThreshold', enabled && keyColor, opts)
         FormUtils.setControlEnable(this.formGroup, 'satThreshold', enabled && keyColor, opts)
         FormUtils.setControlEnable(this.formGroup, 'valThreshold', enabled && keyColor, opts)
-
         FormUtils.setControlEnable(this.formGroup, 'channelThreshold', enabled && !keyColor, opts)
 
-        const options: VideoGreenScreenOptions | undefined = this.getOptions()
+        const options: VideoGreenScreenOptions = this.getOptions()
+        this.localStorageService.updateObject(
+            GreenScreenTransformerVideoStudioComponent.localStorageKey,
+            options
+        )
+
         this.videoStudioService.setGreenScreen(options)
     }
 
-    private getOptions(): VideoGreenScreenOptions | undefined {
-        const enabled: boolean = FormUtils.getValueOrDefault(this.formGroup, "enabled", false)
-        if (!enabled) {
-            return undefined
-        }
+    private getOptions(): VideoGreenScreenOptions {
+        const defaultOptions: VideoGreenScreenOptions = this.defaultVideoGreenScreenOptions()
 
-        const mode: VideoGreenScreenMode = FormUtils.getValueOrDefault(this.formGroup, "mode", VideoGreenScreenMode.KeyColor)
+        const enabled: boolean = FormUtils.getValueOrDefault(this.formGroup, "enabled", defaultOptions.enabled)
 
-        const color: string = FormUtils.getValueOrDefault(this.formGroup, "color", "#000000")
+        const mode: VideoGreenScreenMode = FormUtils.getValueOrDefault(this.formGroup, "mode", defaultOptions.mode)
 
-        const hueThreshold: number = FormUtils.getValueOrDefault(this.formGroup, "hueThreshold", 0.5)
-        const satThreshold: number = FormUtils.getValueOrDefault(this.formGroup, "satThreshold", 0.5)
-        const valThreshold: number = FormUtils.getValueOrDefault(this.formGroup, "valThreshold", 0.5)
+        const key: string = FormUtils.getValueOrDefault(this.formGroup, "key", defaultOptions.key)
 
-        const channelThreshold: number = FormUtils.getValueOrDefault(this.formGroup, "channelThreshold", 0.0)
+        const hueThreshold: number = FormUtils.getValueOrDefault(this.formGroup, "hueThreshold", defaultOptions.hueThreshold)
+        const satThreshold: number = FormUtils.getValueOrDefault(this.formGroup, "satThreshold", defaultOptions.satThreshold)
+        const valThreshold: number = FormUtils.getValueOrDefault(this.formGroup, "valThreshold", defaultOptions.valThreshold)
+
+        const channelThreshold: number = FormUtils.getValueOrDefault(this.formGroup, "channelThreshold", defaultOptions.channelThreshold)
 
         return {
+            key,
             mode,
+            enabled,
             hueThreshold,
             satThreshold,
             valThreshold,
             channelThreshold,
-            key: Color.hexToRgb(color)
         }
     }
 
