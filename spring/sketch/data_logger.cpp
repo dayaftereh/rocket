@@ -61,8 +61,6 @@ bool DataLogger::setup(Stats *stats, StatusLeds *status_leds, AltitudeManager *a
   // update the led status for initialize
   this->_status_leds->progress();
 
-  
-
   // verify the flash memory
   success = this->verify_flash_memory();
   if (!success)
@@ -301,6 +299,11 @@ void DataLogger::load_data_logger_entry(DataLoggerEntry &entry)
   entry.acceleration_x = acceleration->x;
   entry.acceleration_y = acceleration->y;
   entry.acceleration_z = acceleration->z;
+
+  Vec3f *kalman_acceleration = this->_imu->get_world_kalman_acceleration_normalized();
+  entry.filter_acceleration_x = kalman_acceleration->x;
+  entry.filter_acceleration_y = kalman_acceleration->y;
+  entry.filter_acceleration_z = kalman_acceleration->z;
 
   Vec3f *rotation = this->_imu->get_rotation();
   entry.rotation_x = rotation->x;

@@ -112,12 +112,20 @@ void FlightObserver::launched()
   this->_launched = true;
   this->_launch_time = millis();
 
+  this->_velocity.x = 0.0;
+  this->_velocity.y = 0.0;
+  this->_velocity.z = 0.0;
+
+  this->_last_acceleration.x = 0.0;
+  this->_last_acceleration.y = 0.0;
+  this->_last_acceleration.z = 0.0;
+
   this->_state = FLIGHT_STATE_WAIT_LIFT_OFF;
 }
 
 void FlightObserver::wait_for_lift_off()
 {
-  this->update_velocity();
+  this->update_acceleration_and_velocity();
 
   // check fir lift of speed
   if (this->_velocity.z < this->_config->lift_off_velocity_threshold)
@@ -135,7 +143,7 @@ void FlightObserver::wait_for_lift_off()
 
 void FlightObserver::lift_off()
 {
-  this->update_velocity();
+  this->update_acceleration_and_velocity();
   this->_status_leds->off();
 
   this->_state = FLIGHT_STATE_WAIT_FOR_APOGEE;
@@ -143,7 +151,7 @@ void FlightObserver::lift_off()
 
 void FlightObserver::wait_for_apogee()
 {
-  this->update_velocity();
+  this->update_acceleration_and_velocity();
   // update the altitude
   float altitude = this->_altitude_manager->get_altitude_delta();
   this->_maximum_altitude = max(this->_maximum_altitude, altitude);
@@ -166,7 +174,7 @@ void FlightObserver::wait_for_apogee()
 
 void FlightObserver::apogee()
 {
-  this->update_velocity();
+  this->update_acceleration_and_velocity();
   this->_status_leds->off();
 
   this->_state = FLIGHT_STATE_WAIT_FOR_LANDING;
@@ -175,7 +183,7 @@ void FlightObserver::apogee()
 void FlightObserver::wait_for_landing()
 {
 
-  this->update_velocity();
+  this->update_acceleration_and_velocity();
   // still observe parachute
   this->observe_parachute();
 
@@ -301,12 +309,19 @@ bool FlightObserver::observe_parachute()
   return triggered;
 }
 
-void FlightObserver::update_velocity()
+void FlightObserver::update_acceleration_and_velocity()
 {
   float dt = this->_stats->get_delta();
-  Vec3f *acceleration = this->_imu->get_world_acceleration_normalized();
-  Vec3f vd = acceleration->scale_scalar(dt);
-  this->_velocity = this->_velocity.add(vd);
+  // get the filtered acceleration
+  Vec3f *acceleration = this->_imu->get_world_kalman_acceleration_normalized();
+  // get the delta acceleration
+  Vec3f delta_acceleration = acceleration->subtract(this->_last_acceleration);
+  // store the last acceleration
+  this->_last_acceleration = acceleration->clone();
+  // get the delta velocity
+  Vec3f delta_velocity = delta_acceleration.divide_scalar(dt);
+  // add the delta velocity to current velocity
+  this->_velocity = this->_velocity.add(delta_velocity);
 }
 
 void FlightObserver::update_flight_termination()
@@ -350,6 +365,7 @@ bool FlightObserver::is_launched()
   return this->_launched;
 }
 
-bool FlightObserver::is_locked() {
+bool FlightObserver::is_locked()
+{
   return this->_state == FLIGHT_STATE_LOCKED;
 }

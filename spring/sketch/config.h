@@ -6,7 +6,7 @@
 #include <Arduino.h>
 
 // Serial -----------------------------------------------
-#define SERIAL_BAUD_RATE 9600
+#define SERIAL_BAUD_RATE 115200
 
 // AccessPoint -----------------------------------------------
 #define ACCESS_POINT_SSID "Spring"

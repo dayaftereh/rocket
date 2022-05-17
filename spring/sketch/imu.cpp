@@ -12,6 +12,10 @@ bool IMU::setup(Config *config, Stats *stats, StatusLeds *status_leds)
 
   TwoWire *wire = &Wire;
 
+  this->_kalman_acceleration_x = new SimpleKalmanFilter(2.0, 2.0, 0.001);
+  this->_kalman_acceleration_y = new SimpleKalmanFilter(2.0, 2.0, 0.001);
+  this->_kalman_acceleration_z = new SimpleKalmanFilter(2.0, 2.0, 0.001);
+
   this->_q.set_euler(
       this->_config->rotation_x * DEG_2_RAD,
       this->_config->rotation_y * DEG_2_RAD,
@@ -84,8 +88,12 @@ void IMU::update()
   // invert becaue
   v = v.invert();
   // remove the world gravity
-  //v.z -= GRAVITY_OF_EARTH;
+  // v.z -= GRAVITY_OF_EARTH;
   this->_world_acceleration_normalized = v;
+ 
+  this->_world_kalman_acceleration_normalized.x = this->_kalman_acceleration_x->updateEstimate(v.x);
+  this->_world_kalman_acceleration_normalized.y = this->_kalman_acceleration_y->updateEstimate(v.y);
+  this->_world_kalman_acceleration_normalized.z = this->_kalman_acceleration_z->updateEstimate(v.z);
 }
 
 Vec3f *IMU::get_rotation()
@@ -121,4 +129,8 @@ Quaternion *IMU::get_orientation()
 Vec3f *IMU::get_world_acceleration_normalized()
 {
   return &this->_world_acceleration_normalized;
+}
+
+Vec3f *IMU::get_world_kalman_acceleration_normalized() {
+  return &this->_world_kalman_acceleration_normalized;
 }

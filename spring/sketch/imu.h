@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <Wire.h>
+#include <SimpleKalmanFilter.h>
 
 #include "vec3f.h"
 #include "stats.h"
@@ -28,6 +29,7 @@ public:
   Quaternion *get_orientation();
   Vec3f *get_world_acceleration();
   Vec3f *get_world_acceleration_normalized();
+  Vec3f *get_world_kalman_acceleration_normalized();
 
 private:
   MPU6050 _mpu_6050;
@@ -40,6 +42,11 @@ private:
   Vec3f _rotation;
   Vec3f _world_acceleration;
   Vec3f _world_acceleration_normalized;
+  Vec3f _world_kalman_acceleration_normalized;
+
+  SimpleKalmanFilter *_kalman_acceleration_x;
+  SimpleKalmanFilter *_kalman_acceleration_y;
+  SimpleKalmanFilter *_kalman_acceleration_z;
 
   TwoWire *_wire;
 

@@ -3,7 +3,7 @@
     "version": "0.0.1",
     "description": "website to control and configure the avionics board spring",
     "scripts": {
-        "build": "webpack && rimraf ../sketch/data/bundle*",
+        "build": "webpack && rimraf ./dist/bundle*",
         "webpack": "webpack",
         "start": "webpack serve"
     },

@@ -22,6 +22,10 @@ typedef struct __attribute__((packed)) DataLoggerEntry
   float acceleration_y; // 4
   float acceleration_z; // 4
 
+  float filter_acceleration_x; // 4
+  float filter_acceleration_y; // 4
+  float filter_acceleration_z; // 4
+
   float rotation_x; // 4
   float rotation_y; // 4
   float rotation_z; // 4

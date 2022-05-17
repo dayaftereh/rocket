@@ -3,7 +3,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const InlineChunkHtmlPlugin = require('react-dev-utils/InlineChunkHtmlPlugin');
 
 const srcDir = path.resolve(__dirname, './src')
-const distDir = path.resolve(__dirname, '../sketch/data')
+const distDir = path.resolve(__dirname, './dist')
 
 const packageJson = require(path.resolve(__dirname, 'package.json'))
 
