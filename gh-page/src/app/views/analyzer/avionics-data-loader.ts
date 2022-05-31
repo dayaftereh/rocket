@@ -104,6 +104,16 @@ export class AvionicsDataLoader {
         entry.accelerationZ = dataView.getFloat32(this.index, this.littleEndian)
         this.index += 4
 
+        // filter acceleration
+        entry.filterAccelerationX = dataView.getFloat32(this.index, this.littleEndian)
+        this.index += 4
+
+        entry.filterAccelerationY = dataView.getFloat32(this.index, this.littleEndian)
+        this.index += 4
+
+        entry.filterAccelerationZ = dataView.getFloat32(this.index, this.littleEndian)
+        this.index += 4
+
         // rotation
         entry.rotationX = dataView.getFloat32(this.index, this.littleEndian)
         this.index += 4

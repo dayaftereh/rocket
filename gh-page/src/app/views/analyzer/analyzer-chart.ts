@@ -23,6 +23,10 @@ export class AnalyzerChart extends Chart {
     private datasetAccelerationY: any
     private datasetAccelerationZ: any
 
+    private datasetFilterAccelerationX: any
+    private datasetFilterAccelerationY: any
+    private datasetFilterAccelerationZ: any
+
     private datasetRotationX: any
     private datasetRotationY: any
     private datasetRotationZ: any
@@ -87,6 +91,10 @@ export class AnalyzerChart extends Chart {
         this.datasetAccelerationY = this.createDataset('Acc_Y', 'hsl(340, 100%, 50%)', this.xAxisId, this.yAxisId)
         this.datasetAccelerationZ = this.createDataset('Acc_Z', 'hsl(200, 100%, 50%)', this.xAxisId, this.yAxisId)
 
+        this.datasetFilterAccelerationX = this.createDataset('fAcc_X', 'hsl(25, 100%, 50%)', this.xAxisId, this.yAxisId)
+        this.datasetFilterAccelerationY = this.createDataset('fAcc_Y', 'hsl(345, 100%, 50%)', this.xAxisId, this.yAxisId)
+        this.datasetFilterAccelerationZ = this.createDataset('fAcc_Z', 'hsl(205, 100%, 50%)', this.xAxisId, this.yAxisId)
+
         this.datasetRotationX = this.createDataset('Rot_X', 'hsl(40, 100%, 50%)', this.xAxisId, this.yAxisId)
         this.datasetRotationY = this.createDataset('Rot_Y', 'hsl(320, 100%, 50%)', this.xAxisId, this.yAxisId)
         this.datasetRotationZ = this.createDataset('Rot_Z', 'hsl(180, 100%, 50%)', this.xAxisId, this.yAxisId)
@@ -110,6 +118,10 @@ export class AnalyzerChart extends Chart {
         this.datasetAccelerationY.hidden = true
         this.datasetAccelerationZ.hidden = true
 
+        this.datasetFilterAccelerationX.hidden = true
+        this.datasetFilterAccelerationY.hidden = true
+        this.datasetFilterAccelerationZ.hidden = true
+
         this.data = {
             datasets: [
                 this.datasetState,
@@ -126,6 +138,10 @@ export class AnalyzerChart extends Chart {
                 this.datasetAccelerationX,
                 this.datasetAccelerationY,
                 this.datasetAccelerationZ,
+
+                this.datasetFilterAccelerationX,
+                this.datasetFilterAccelerationY,
+                this.datasetFilterAccelerationZ,
 
                 this.datasetRotationX,
                 this.datasetRotationY,
@@ -226,6 +242,21 @@ export class AnalyzerChart extends Chart {
             this.datasetAccelerationZ.data.push({
                 x: time,
                 y: entry.accelerationZ
+            })
+
+            this.datasetFilterAccelerationX.data.push({
+                x: time,
+                y: entry.filterAccelerationX
+            })
+
+            this.datasetFilterAccelerationY.data.push({
+                x: time,
+                y: entry.filterAccelerationY
+            })
+
+            this.datasetFilterAccelerationZ.data.push({
+                x: time,
+                y: entry.filterAccelerationZ
             })
 
             this.datasetRotationX.data.push({
