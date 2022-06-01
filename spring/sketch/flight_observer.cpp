@@ -313,7 +313,7 @@ void FlightObserver::update_acceleration_and_velocity()
 {
   float dt = this->_stats->get_delta();
   // get the filtered acceleration
-  Vec3f *acceleration = this->_imu->get_world_kalman_acceleration_normalized();
+  Vec3f *acceleration = this->_imu->get_world_acceleration();
   // get the delta acceleration
   Vec3f delta_acceleration = acceleration->subtract(this->_last_acceleration);
   // store the last acceleration

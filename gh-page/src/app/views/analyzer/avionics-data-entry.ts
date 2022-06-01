@@ -16,9 +16,9 @@ export interface AvionicsDataEntry {
     accelerationY: number
     accelerationZ: number
 
-    filterAccelerationX: number
-    filterAccelerationY: number
-    filterAccelerationZ: number
+    accelerationNormalizedX: number
+    accelerationNormalizedY: number
+    accelerationNormalizedZ: number
 
     rotationX: number
     rotationY: number
