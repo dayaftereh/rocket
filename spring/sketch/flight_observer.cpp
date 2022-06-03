@@ -319,7 +319,7 @@ void FlightObserver::update_acceleration_and_velocity()
   // store the last acceleration
   this->_last_acceleration = acceleration->clone();
   // get the delta velocity
-  Vec3f delta_velocity = delta_acceleration.divide_scalar(dt);
+  Vec3f delta_velocity = delta_acceleration.scale_scalar(dt);
   // add the delta velocity to current velocity
   this->_velocity = this->_velocity.add(delta_velocity);
 }
