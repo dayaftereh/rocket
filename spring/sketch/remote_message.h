@@ -32,6 +32,8 @@ typedef struct __attribute__((packed)) RemoteMessage
   bool parachuteVelocity;    // 1
   bool parachuteAltitude;    // 1
   bool parachuteOrientation; // 1
+
+  uint16 flight_observer_state; // 1
 };
 
 #endif // _REMOTE_MESSAGE_H

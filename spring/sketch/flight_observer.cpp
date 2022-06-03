@@ -74,6 +74,8 @@ void FlightObserver::init()
 void FlightObserver::wait_for_launch()
 {
 
+
+
   Vec3f *acceleration_normalize = this->_imu->get_world_acceleration_normalized();
 
   // check if the z acceleration above launch
@@ -106,11 +108,11 @@ void FlightObserver::wait_for_launch()
 
 void FlightObserver::launched()
 {
-  this->_status_leds->off();
-
   // set launched to true
   this->_launched = true;
   this->_launch_time = millis();
+  
+  this->_status_leds->off();
 
   this->_velocity.x = 0.0;
   this->_velocity.y = 0.0;

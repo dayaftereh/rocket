@@ -82,6 +82,10 @@ export class MessageDecoder {
         message.parachuteOrientation = dataView.getInt8(index) !== 0
         index += 1
 
+        // flightObserverState
+        message.flightObserverState = dataView.getUint16(index,this.littleEndian)
+        index += 2
+
         return message
     }
 

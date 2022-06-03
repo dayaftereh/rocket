@@ -345,6 +345,8 @@ void DataLogger::load_remote_message(RemoteMessage &message)
 
   message.locked = this->_flight_observer->is_locked();
 
+  message.flight_observer_state = this->_flight_observer->get_state();
+
   message.parachuteVelocity = this->_parachute_manager->is_velocity_triggered();
   message.parachuteAltitude = this->_parachute_manager->is_altitude_triggered();
   message.parachuteOrientation = this->_parachute_manager->is_orientation_triggered();

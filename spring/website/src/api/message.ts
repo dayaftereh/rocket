@@ -26,4 +26,6 @@ export interface Message {
     parachuteVelocity: boolean
     parachuteAltitude: boolean
     parachuteOrientation: boolean
+
+    flightObserverState: number
 }

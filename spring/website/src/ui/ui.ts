@@ -51,6 +51,8 @@ export class UI {
         const parachuteAltitude: HTMLInputElement = document.querySelector("#parachuteAltitude")
         const parachuteOrientation: HTMLInputElement = document.querySelector("#parachuteOrientation")
 
+        const flightObserverState: HTMLInputElement = document.querySelector("#currentFlightObserverState")
+
         this.api.asObservable().subscribe((message: Message) => {
             currentTime.value = this.formatNumber(message.time)
             currentElapsed.value = message.elapsed.toFixed(5)
@@ -76,6 +78,8 @@ export class UI {
             parachuteVelocity.checked = message.parachuteVelocity
             parachuteAltitude.checked = message.parachuteAltitude
             parachuteOrientation.checked = message.parachuteOrientation
+
+            flightObserverState.value = `${message.flightObserverState}`
 
             unlock.disabled = !message.locked;
 
