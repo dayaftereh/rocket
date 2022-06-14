@@ -9,15 +9,21 @@ bool IST8310::setup(TwoWire *wire)
     this->_wire = wire;
     this->_i2c_address = IST8310_I2C_ADDRESS;
 
-    this->_values.x = 0.0;
-    this->_values.y = 0.0;
-    this->_values.z = 0.0;
+    this->_raw.x = 0.0;
+    this->_raw.y = 0.0;
+    this->_raw.z = 0.0;
 
     bool success = this->soft_reset();
     if (!success)
     {
         return false;
     }
+
+    /*success = this->calibration();
+    if (!success)
+    {
+        return false;
+    }*/
 
     return true;
 }
@@ -129,20 +135,26 @@ bool IST8310::read()
     status = this->_wire->read();
 
     // read low / high x
-    uint8_t x_low = this->_wire->read();
-    int x = word(this->_wire->read(), x_low);
+    int16_t x_low = this->_wire->read();
+    int16_t x_high = this->_wire->read();
+
+    int16_t x = (x_high << 8) | x_low;
 
     // read low / high y
-    uint8_t y_low = this->_wire->read();
-    int y = word(this->_wire->read(), y_low);
+    int16_t y_low = this->_wire->read();
+    int16_t y_high = this->_wire->read();
+
+    int16_t y = (y_high << 8) | y_low;
 
     // read low / high z
-    uint8_t z_low = this->_wire->read();
-    int z = word(this->_wire->read(), z_low);
+    int16_t z_low = this->_wire->read();
+    int16_t z_high = this->_wire->read();
 
-    this->_values.x = float(x);
-    this->_values.y = float(y);
-    this->_values.z = float(z);
+    int16_t z = (z_high << 8) | z_low;
+
+    this->_raw.x = float(x);
+    this->_raw.y = float(y);
+    this->_raw.z = float(z);
 
     return true;
 }
@@ -164,9 +176,9 @@ bool IST8310::set_average(IST8310AverageY y, IST8310AverageXZ xz)
     return true;
 }
 
-Vec3f *IST8310::get_magnetometer()
+Vec3f *IST8310::get_raw()
 {
-    return &this->_values;
+    return &this->_raw;
 }
 
 bool IST8310::set_selftest(bool enabled)
@@ -174,7 +186,7 @@ bool IST8310::set_selftest(bool enabled)
     uint8_t value = 0x0;
     if (enabled)
     {
-        value = B100000;
+        value = 1 << 6;
     }
     bool success = this->write_register(IST8310_REGISTER_STR, value);
     if (!success)
@@ -184,8 +196,74 @@ bool IST8310::set_selftest(bool enabled)
     return true;
 }
 
+bool IST8310::loop_read(Vec3f &sum, size_t loops, int timeout)
+{
+    for (size_t i = 0; i < loops; i++)
+    {
+        bool success = this->read();
+        if (!success)
+        {
+            return false;
+        }
+
+        sum.x += this->_raw.x;
+        sum.y += this->_raw.y;
+        sum.z += this->_raw.z;
+
+        delay(timeout);
+    }
+
+    return true;
+}
+
 bool IST8310::calibration()
 {
+
+    Vec3f test(0.0, 0.0, 0.0);
+    Vec3f normal(0.0, 0.0, 0.0);
+
+    Vec3f *tmp = &normal;
+
+    for (size_t i = 0; i < 2; i++)
+    {
+        if (i == 1)
+        {
+            bool success = this->set_selftest(true);
+            if (!success)
+            {
+                return false;
+            }
+
+            tmp = &test;
+        }
+
+        for (size_t j = 0; j < 30; j++)
+        {
+            bool success = this->read();
+            if (!success)
+            {
+                return false;
+            }
+
+            if (j > 10)
+            {
+                tmp->x += this->_raw.x;
+                tmp->y += this->_raw.y;
+                tmp->z += this->_raw.z;
+            }
+        }
+    }
+
+    bool success = this->set_selftest(false);
+    if (!success)
+    {
+        return false;
+    }
     
+    float x = fabsf(test.x - normal.x);
+    float y = fabsf(test.y - normal.y);
+    float z = fabsf(test.z - normal.z);
+    float length = x + y + z;
+
     return true;
 }

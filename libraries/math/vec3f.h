@@ -1,6 +1,7 @@
 #ifndef _VEC_3F_H
 #define _VEC_3F_H
 
+#include <math.h>
 #include <Arduino.h>
 
 #define VEC_3F_LEN_ZERO_EPSILON 0.00001

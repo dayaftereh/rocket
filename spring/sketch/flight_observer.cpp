@@ -31,6 +31,9 @@ void FlightObserver::update()
   case FLIGHT_STATE_INIT:
     this->init();
     break;
+  case FLIGHT_STATE_AVERAGE_ACCELERATION:
+    this->averageAcceleration();
+    break;
   case FLIGHT_STATE_WAIT_FOR_LANUCH:
     this->wait_for_launch();
     break;
@@ -68,16 +71,34 @@ void FlightObserver::unlock()
 
 void FlightObserver::init()
 {
-  this->_state = FLIGHT_STATE_WAIT_FOR_LANUCH;
+  this->_acceleration_counter = 0;
+  this->_acceleration_buffer.x = 0.0;
+  this->_acceleration_buffer.y = 0.0;
+  this->_acceleration_buffer.z = 0.0;
+  this->_state = FLIGHT_STATE_AVERAGE_ACCELERATION;
+}
+
+void FlightObserver::averageAcceleration()
+{
+  this->_acceleration_counter++;
+
+  // sum up the current acceleration
+  Vec3f *acceleration = this->_imu->get_world_acceleration();
+  this->_acceleration_buffer.x += acceleration->x;
+  this->_acceleration_buffer.y += acceleration->y;
+  this->_acceleration_buffer.z += acceleration->z;
+
+  if (this->_acceleration_counter > 100)
+  {
+    // calculate the average last acceleration
+    this->_last_acceleration = this->_acceleration_buffer.divide_scalar(float(this->_acceleration_counter));
+    this->_state = FLIGHT_STATE_WAIT_FOR_LANUCH;
+  }
 }
 
 void FlightObserver::wait_for_launch()
 {
-
-
-
   Vec3f *acceleration_normalize = this->_imu->get_world_acceleration_normalized();
-
   // check if the z acceleration above launch
   if (acceleration_normalize->z < this->_config->launch_acceleration)
   {
@@ -111,7 +132,7 @@ void FlightObserver::launched()
   // set launched to true
   this->_launched = true;
   this->_launch_time = millis();
-  
+
   this->_status_leds->off();
 
   this->_velocity.x = 0.0;
@@ -326,6 +347,12 @@ void FlightObserver::update_acceleration_and_velocity()
   this->_velocity = this->_velocity.add(delta_velocity);
 }
 
+void FlightObserver::terminate()
+{
+  // set to landed state
+  this->_state = FLIGHT_STATE_LANDED;
+}
+
 void FlightObserver::update_flight_termination()
 {
   if (!this->_launched)
@@ -341,8 +368,7 @@ void FlightObserver::update_flight_termination()
   }
   // open the parachute
   this->_parachute_manager->trigger();
-  // set to landed state
-  this->_state = FLIGHT_STATE_LANDED;
+  this->terminate();
 
   Serial.println(" => flight terminated");
 }

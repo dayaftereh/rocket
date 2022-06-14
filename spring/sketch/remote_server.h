@@ -45,6 +45,7 @@ private:
   
   // unlock
   void handle_unlock();
+  void handle_flight_terminate();
 
   bool _active;
   unsigned long _last_broadcast;

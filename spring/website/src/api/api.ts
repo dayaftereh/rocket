@@ -217,4 +217,15 @@ export class API {
         return response.ok
     }
 
+    async flightTerminate(): Promise<boolean> {
+        const url: string = this.getApiPath('flight', 'terminate')
+        const response: Response = await fetch(url, {
+            method: 'GET',
+            cache: 'no-cache',
+            redirect: 'manual',
+            referrerPolicy: 'no-referrer'
+        })
+        return response.ok
+    }
+
 }

@@ -10,6 +10,7 @@
 #define IST8310_I2C_ADDRESS 0x0E
 
 #define IST8310_RESET_RETRIES 10
+#define IST8310_CALIBRATION_READINGS 10
 
 #define IST8310_REGISTER_WHO_AM_I 0x00
 #define IST8310_REGISTER_CNTL1 0x0A
@@ -50,17 +51,19 @@ public:
 
     bool set_average(IST8310AverageY y, IST8310AverageXZ xz);
 
-    Vec3f *get_magnetometer();
+    Vec3f *get_raw();
 
 private:
     bool read();
+    bool loop_read(Vec3f &sum, size_t loops, int timeout);
+
     bool read_device_id();
     bool set_selftest(bool enabled);
 
     bool read_register(uint8_t reg, uint8_t *value);
     bool write_register(uint8_t reg, uint8_t value);
 
-    Vec3f _values;
+    Vec3f _raw;
 
     uint8_t _device_id;
     uint8_t _i2c_address;

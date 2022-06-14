@@ -55,7 +55,7 @@ void loop()
         error();
     }
 
-    Vec3f *v = ist8310.get_magnetometer();
+    Vec3f *v = ist8310.get_raw();
 
     if (counter > 1000)
     {

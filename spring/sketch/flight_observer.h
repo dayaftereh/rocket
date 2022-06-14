@@ -14,6 +14,7 @@ enum FlightState
 {
   FLIGHT_STATE_LOCKED,
   FLIGHT_STATE_INIT,
+  FLIGHT_STATE_AVERAGE_ACCELERATION,
   FLIGHT_STATE_WAIT_FOR_LANUCH,
   FLIGHT_STATE_LAUNCHED,
   FLIGHT_STATE_WAIT_LIFT_OFF,
@@ -34,6 +35,7 @@ public:
   void update();
 
   void unlock();
+  void terminate();
 
   bool is_locked();
   bool is_launched();
@@ -55,6 +57,8 @@ private:
   void lift_off();
   void launched();
 
+  void averageAcceleration();
+
   Vec3f compute_rocket_direction();
 
   bool observe_parachute();
@@ -69,9 +73,11 @@ private:
 
   float _landing_timer;
   int _landing_counter;
+  int _acceleration_counter;
 
   Vec3f _velocity;
   Vec3f _last_acceleration;
+  Vec3f _acceleration_buffer;
   Vec3f _landing_orientation;
   Vec3f _landing_cumulate_orientation;
 

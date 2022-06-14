@@ -113,6 +113,11 @@ export class UI {
         unlock.addEventListener('click', async () => {
             await this.api.unlock()
         })
+
+        const terminate: HTMLButtonElement = document.querySelector("#terminate")
+        terminate.addEventListener('click', async () => {
+            await this.api.flightTerminate()
+        })
     }
 
     private removeLoading(): void {

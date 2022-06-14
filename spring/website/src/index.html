@@ -266,10 +266,7 @@
                                 <div class="row">
                                     <div class="col">
                                         <label for="currentFlightObserverState" class="form-label">FlightObserverState</label>
-                                        <div class="input-group">
-                                            <input type="number" class="form-control" id="currentFlightObserverState" disabled>
-                                            <span class="input-group-text">&deg;</span>
-                                        </div>
+                                        <input type="number" class="form-control" id="currentFlightObserverState" disabled>
                                     </div>
                                 </div>
 
@@ -304,6 +301,13 @@
 
                                 <div class="row mb-3">
                                     <div class="col text-center">
+                                        <button type="button" class="btn btn-warning btn-lg" id="terminate"
+                                            style="font-size: 3rem;">Terminate</button>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col text-center">
                                         <button type="button" class="btn btn-light btn-lg" id="parachuteOpen"
                                             style="font-size: 3rem;">Open</button>
                                     </div>
@@ -318,7 +322,7 @@
 
                                 <div class="row">
                                     <div class="col text-center">
-                                        <button type="button" class="btn btn-warning btn-lg" id="parachuteTrigger"
+                                        <button type="button" class="btn btn-info btn-lg" id="parachuteTrigger"
                                             style="font-size: 3rem;">Parachute</button>
                                     </div>
                                 </div>
