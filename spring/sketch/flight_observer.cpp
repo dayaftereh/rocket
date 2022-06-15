@@ -83,7 +83,7 @@ void FlightObserver::averageAcceleration()
   this->_acceleration_counter++;
 
   // sum up the current acceleration
-  Vec3f *acceleration = this->_imu->get_world_acceleration();
+  Vec3f *acceleration = this->_imu->get_world_acceleration_normalized();
   this->_acceleration_buffer.x += acceleration->x;
   this->_acceleration_buffer.y += acceleration->y;
   this->_acceleration_buffer.z += acceleration->z;
@@ -336,7 +336,7 @@ void FlightObserver::update_acceleration_and_velocity()
 {
   float dt = this->_stats->get_delta();
   // get the filtered acceleration
-  Vec3f *acceleration = this->_imu->get_world_acceleration();
+  Vec3f *acceleration = this->_imu->get_world_acceleration_normalized();
   // get the delta acceleration
   Vec3f delta_acceleration = acceleration->subtract(this->_last_acceleration);
   // store the last acceleration

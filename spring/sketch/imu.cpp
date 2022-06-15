@@ -88,7 +88,7 @@ void IMU::update()
   // invert becaue
   v = v.invert();
   // remove the world gravity
-  // v.z -= GRAVITY_OF_EARTH;
+  v.z -= GRAVITY_OF_EARTH;
   this->_world_acceleration_normalized = v;
  
   this->_world_kalman_acceleration_normalized.x = this->_kalman_acceleration_x->updateEstimate(v.x);
