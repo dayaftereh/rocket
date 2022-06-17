@@ -1,14 +1,12 @@
-#include "mpu_6050.h"
+#include "mpu6050.h"
 
 MPU6050::MPU6050()
 {
 }
 
-bool MPU6050::setup(Config *config, TwoWire *wire, StatusLeds *status_leds)
+bool MPU6050::setup(TwoWire *wire)
 {
   this->_wire = wire;
-  this->_config = config;
-  this->_status_leds = status_leds;
 
   // Initialize
   this->_address = MPU6050_I2C_ADDRESS;
@@ -20,6 +18,8 @@ bool MPU6050::setup(Config *config, TwoWire *wire, StatusLeds *status_leds)
     Serial.println("fail to communicate with the mpu6050");
     return false;
   }
+
+  Serial.println("1");
 
   success = this->write_data(MPU6050_SMPLRT_DIV_REGISTER, 0); // Set the sample rate to 1000Hz - 8kHz/(7+1) = 1000Hz
   if (!success)
@@ -49,11 +49,7 @@ bool MPU6050::setup(Config *config, TwoWire *wire, StatusLeds *status_leds)
     return false;
   }
 
-  this->_status_leds->progress();
-
   delay(10);
-
-  this->_status_leds->progress();
 
   success = this->calibrate();
   if (!success)
@@ -73,6 +69,7 @@ bool MPU6050::write_data(byte reg, byte data)
   this->_wire->write(data);
 
   byte status = this->_wire->endTransmission();
+  Serial.println(status);
   /*
     0:success
     1:data too long to fit in transmit buffer
@@ -150,10 +147,8 @@ bool MPU6050::calibrate()
   Vec3f gyroscope_offset;
   Vec3f acceleration_offset;
 
-  for (int i = 0; i < MOTION_MANAGER_CALIBRATION_READS; i++)
+  for (int i = 0; i < MPU6050_CALIBRATION_READS; i++)
   {
-    this->_status_leds->progress();
-
     bool success = this->read();
     if (!success)
     {
@@ -167,10 +162,10 @@ bool MPU6050::calibrate()
     delay(2);
   }
 
-  this->_gyroscope_offset = gyroscope_offset.divide_scalar(MOTION_MANAGER_CALIBRATION_READS).invert();
+  this->_gyroscope_offset = gyroscope_offset.divide_scalar(MPU6050_CALIBRATION_READS).invert();
 
   // calculate the scale factor
-  acceleration_offset = acceleration_offset.divide_scalar(MOTION_MANAGER_CALIBRATION_READS);
+  acceleration_offset = acceleration_offset.divide_scalar(MPU6050_CALIBRATION_READS);
   float delta = this->_acceleration_2_g / acceleration_offset.length();
   this->_acceleration_offset = acceleration_offset.scale_scalar(delta - 1.0);
 
@@ -210,16 +205,22 @@ bool MPU6050::read()
   }
 
   // [ax,ay,az,temp,gx,gy,gz]
-
   int16_t ax = (((int16_t)this->_wire->read()) << 8) | this->_wire->read();
   int16_t ay = (((int16_t)this->_wire->read()) << 8) | this->_wire->read();
   int16_t az = (((int16_t)this->_wire->read()) << 8) | this->_wire->read();
 
-  int16_t raw_temperature = ((this->_wire->read()) << 8) | this->_wire->read();
+  Serial.print("ax: ");
+  Serial.print(ax);
+  Serial.print(", ay: ");
+  Serial.print(ay);
+  Serial.print(", az: ");
+  Serial.println(az);
 
-  int16_t gx = (((int16_t)this->_wire->read()) << 8) | this->_wire->read();
-  int16_t gy = (((int16_t)this->_wire->read()) << 8) | this->_wire->read();
-  int16_t gz = (((int16_t)this->_wire->read()) << 8) | this->_wire->read();
+  int16_t raw_temperature = (this->_wire->read() << 8) | this->_wire->read();
+
+  int16_t gx = (this->_wire->read() << 8) | this->_wire->read();
+  int16_t gy = (this->_wire->read() << 8) | this->_wire->read();
+  int16_t gz = (this->_wire->read() << 8) | this->_wire->read();
 
   this->_raw_acceleration.x = (float)ax;
   this->_raw_acceleration.y = (float)ay;
@@ -234,12 +235,12 @@ bool MPU6050::read()
   return true;
 }
 
-void MPU6050::update()
+bool MPU6050::update()
 {
   bool success = this->read();
   if (!success)
   {
-    return;
+    return false;
   }
 
   this->_gyroscope.x = (this->_raw_gyroscope.x + this->_gyroscope_offset.x) / this->_gyroscope_2_deg; // Convert to deg/s
@@ -249,6 +250,8 @@ void MPU6050::update()
   this->_acceleration.x = ((this->_raw_acceleration.x + this->_acceleration_offset.x) / this->_acceleration_2_g) * GRAVITY_OF_EARTH; // Convert to m/s2
   this->_acceleration.y = ((this->_raw_acceleration.y + this->_acceleration_offset.y) / this->_acceleration_2_g) * GRAVITY_OF_EARTH; // Convert to m/s2
   this->_acceleration.z = ((this->_raw_acceleration.z + this->_acceleration_offset.z) / this->_acceleration_2_g) * GRAVITY_OF_EARTH; // Convert to m/s2
+
+  return true;
 }
 
 Vec3f *MPU6050::get_gyroscope()
@@ -259,4 +262,14 @@ Vec3f *MPU6050::get_gyroscope()
 Vec3f *MPU6050::get_acceleration()
 {
   return &this->_acceleration;
+}
+
+Vec3f *MPU6050::get_raw_gyroscope()
+{
+  return &this->_raw_gyroscope;
+}
+
+Vec3f *MPU6050::get_raw_acceleration()
+{
+  return &this->_raw_acceleration;
 }

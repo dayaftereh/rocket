@@ -105,7 +105,8 @@ bool IST8310::write_register(uint8_t reg, uint8_t value)
     this->_wire->beginTransmission(this->_i2c_address);
     this->_wire->write(reg);
     this->_wire->write(value);
-    uint8_t status = _wire->endTransmission();
+    uint8_t status = _wire->endTransmission(true);
+
     return status == 0;
 }
 

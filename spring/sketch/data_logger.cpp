@@ -328,7 +328,7 @@ void DataLogger::load_remote_message(RemoteMessage &message)
   message.gyroscope_y = gyroscope->y;
   message.gyroscope_z = gyroscope->z;
 
-  Vec3f *acceleration = this->_imu->get_world_acceleration();
+  Vec3f *acceleration = this->_imu->get_acceleration();
   message.acceleration_x = acceleration->x;
   message.acceleration_y = acceleration->y;
   message.acceleration_z = acceleration->z;

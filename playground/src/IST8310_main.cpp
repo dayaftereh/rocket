@@ -15,14 +15,14 @@ void error()
 
 void setup()
 {
-    Serial.begin(9600);
+    Serial.begin(115200);
+    while (!Serial);
 
     Wire.begin();
     Wire.setClock(400000);
 
-    delay(500);
-
     Serial.println("Hello");
+    Serial.flush();
 
     bool success = ist8310.setup(&Wire);
     if (!success)
@@ -37,6 +37,9 @@ void setup()
         Serial.println("average error");
         error();
     }
+
+    Serial.println("Success setup");
+    Serial.flush();
 }
 
 uint32_t sum = 0;
