@@ -2,9 +2,11 @@
 #define _IST_8310_H
 
 #include <Wire.h>
+#include <Print.h>
 #include <Arduino.h>
 
-#include <vec3f.h>
+#include "leds.h"
+#include "vec3f.h"
 
 #define IST8310_DEVICE_ID 0x10
 #define IST8310_I2C_ADDRESS 0x0E
@@ -41,7 +43,7 @@ class IST8310
 public:
     IST8310();
 
-    bool setup(TwoWire *wire);
+    bool setup(TwoWire *wire, Print *print, Leds *leds);
 
     bool soft_reset();
 
@@ -52,6 +54,7 @@ public:
     bool set_average(IST8310AverageY y, IST8310AverageXZ xz);
 
     Vec3f *get_raw();
+    Vec3f *get_magnetometer();
 
 private:
     bool read();
@@ -68,6 +71,8 @@ private:
     uint8_t _device_id;
     uint8_t _i2c_address;
 
+    Leds *_leds;
+    Print *_print;
     TwoWire *_wire;
 };
 

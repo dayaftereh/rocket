@@ -1,10 +1,12 @@
 #ifndef _MPU_6050_H
 #define _MPU_6050_H
 
-#include <Arduino.h>
 #include <Wire.h>
+#include <Print.h>
+#include <Arduino.h>
 #include <constants.h>
 
+#include "leds.h"
 #include "vec3f.h"
 
 #define MPU6050_I2C_ADDRESS 0x68
@@ -42,7 +44,7 @@ class MPU6050
 public:
     MPU6050();
 
-    bool setup(TwoWire *wire);
+    bool setup(TwoWire *wire, Print *print, Leds *leds);
 
     bool update();
 
@@ -77,6 +79,8 @@ private:
     Vec3f _raw_gyroscope;
     Vec3f _raw_acceleration;
 
+    Leds *_leds;
+    Print *_print;
     TwoWire *_wire;
 };
 

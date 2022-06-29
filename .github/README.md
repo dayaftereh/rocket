@@ -15,3 +15,7 @@ Web-based tools can be found under [dayaftereh.github.io/rocket](https://dayafte
  * Description of the physical model for a `Water propelled rocket`
  * `DataAnalyzer` for the recorded `flight-data` from the avionics at the SD-card
  * A Video-Studio for creating the [YouTube](https://www.youtube.com/channel/UCh29jQu0kP0h9GDbSB7jyCw) videos
+
+## Tools
+
+https://github.com/mich-w/QtSerialMonitor

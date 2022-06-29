@@ -1,8 +1,10 @@
 #include <vec3f.h>
 #include <Arduino.h>
 #include <IST8310.h>
+#include <status_leds.h>
 
 IST8310 ist8310;
+StatusLeds leds;
 
 void error()
 {
@@ -16,25 +18,23 @@ void error()
 void setup()
 {
     Serial.begin(115200);
-    while (!Serial);
+    while (!Serial)
+        ;
 
     Wire.begin();
     Wire.setClock(400000);
 
-    Serial.println("Hello");
-    Serial.flush();
-
-    bool success = ist8310.setup(&Wire);
+    bool success = ist8310.setup(&Wire, &Serial, &leds);
     if (!success)
     {
-        Serial.println("Error setup");
+        Serial.println("fail to setup ist8310");
         error();
     }
 
     success = ist8310.set_average(IST8310_4_AVERAGE_Y, IST8310_4_AVERAGE_X_Z);
     if (!success)
     {
-        Serial.println("average error");
+        Serial.println("fail to set average");
         error();
     }
 
@@ -54,7 +54,7 @@ void loop()
 
     if (!success)
     {
-        Serial.println("Error update");
+        Serial.println("fail to update ist8310");
         error();
     }
 
@@ -68,15 +68,14 @@ void loop()
 
         float a = atan2(v->x, v->y) * 180.0 / M_PI;
 
-        Serial.print("a: ");
         Serial.print(a, 2);
-        Serial.print(", x: ");
+        Serial.print(" ");
         Serial.print(v->x, 2);
-        Serial.print(", y: ");
+        Serial.print(" ");
         Serial.print(v->y, 2);
-        Serial.print(", z: ");
+        Serial.print(" ");
         Serial.print(v->z, 2);
-        Serial.print(", time: ");
+        Serial.print(" ");
         Serial.println(ms, 2);
     }
 }

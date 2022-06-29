@@ -4,9 +4,11 @@ IST8310::IST8310()
 {
 }
 
-bool IST8310::setup(TwoWire *wire)
+bool IST8310::setup(TwoWire *wire, Print *print, Leds *leds)
 {
     this->_wire = wire;
+    this->_leds = leds;
+    this->_print = print;
     this->_i2c_address = IST8310_I2C_ADDRESS;
 
     this->_raw.x = 0.0;
@@ -182,6 +184,11 @@ Vec3f *IST8310::get_raw()
     return &this->_raw;
 }
 
+Vec3f *IST8310::get_magnetometer()
+{
+    return &this->_raw;
+}
+
 bool IST8310::set_selftest(bool enabled)
 {
     uint8_t value = 0x0;
@@ -211,7 +218,7 @@ bool IST8310::loop_read(Vec3f &sum, size_t loops, int timeout)
         sum.y += this->_raw.y;
         sum.z += this->_raw.z;
 
-        delay(timeout);
+        this->_leds->sleep(timeout);
     }
 
     return true;
@@ -260,7 +267,7 @@ bool IST8310::calibration()
     {
         return false;
     }
-    
+
     float x = fabsf(test.x - normal.x);
     float y = fabsf(test.y - normal.y);
     float z = fabsf(test.z - normal.z);

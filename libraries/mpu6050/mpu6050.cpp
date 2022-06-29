@@ -4,9 +4,11 @@ MPU6050::MPU6050()
 {
 }
 
-bool MPU6050::setup(TwoWire *wire)
+bool MPU6050::setup(TwoWire *wire, Print *print, Leds *leds)
 {
   this->_wire = wire;
+  this->_leds = leds;
+  this->_print = print;
 
   // Initialize
   this->_address = MPU6050_I2C_ADDRESS;
@@ -15,46 +17,44 @@ bool MPU6050::setup(TwoWire *wire)
   bool success = this->write_data(MPU6050_PWR_MGMT_1_REGISTER, 0x01); // PLL with X axis gyroscope reference and disable sleep mode
   if (!success)
   {
-    Serial.println("fail to communicate with the mpu6050");
+    this->_print->println("fail to communicate with the mpu6050");
     return false;
   }
-
-  Serial.println("1");
 
   success = this->write_data(MPU6050_SMPLRT_DIV_REGISTER, 0); // Set the sample rate to 1000Hz - 8kHz/(7+1) = 1000Hz
   if (!success)
   {
-    Serial.println("fail to set the sample rate of the mpu6050");
+    this->_print->println("fail to set the sample rate of the mpu6050");
     return false;
   }
 
   success = this->write_data(MPU6050_CONFIG_REGISTER, 0x00); // Disable FSYNC and set 260 Hz Acc filtering, 256 Hz Gyro filtering, 8 KHz sampling
   if (!success)
   {
-    Serial.println("fail to disable FSYNC on the mpu6050");
+    this->_print->println("fail to disable FSYNC on the mpu6050");
     return false;
   }
 
   success = this->set_gyroscope_config(MPU6050_GYROSCOPE_250_DEG);
   if (!success)
   {
-    Serial.println("fail to configure mpu6050 gyroscope config");
+    this->_print->println("fail to configure mpu6050 gyroscope config");
     return false;
   }
 
   success = this->set_acceleration_config(MPU6050_ACCELERATION_2_G);
   if (!success)
   {
-    Serial.println("fail to configure mpu6050 acceleration config");
+    this->_print->println("fail to configure mpu6050 acceleration config");
     return false;
   }
 
-  delay(10);
+  this->_leds->sleep(10);
 
   success = this->calibrate();
   if (!success)
   {
-    Serial.println("fail to calibrate mpu6050");
+    this->_print->println("fail to calibrate mpu6050");
     return false;
   }
 
@@ -69,7 +69,6 @@ bool MPU6050::write_data(byte reg, byte data)
   this->_wire->write(data);
 
   byte status = this->_wire->endTransmission();
-  Serial.println(status);
   /*
     0:success
     1:data too long to fit in transmit buffer
@@ -103,9 +102,9 @@ bool MPU6050::set_gyroscope_config(MPU6050GyroscopeConfig config_num)
     break;
   }
 
-  Serial.print("gyroscope_2_degree is [ ");
-  Serial.print(this->_gyroscope_2_deg, 4);
-  Serial.println(" ]");
+  this->_print->print("gyroscope_2_degree is [ ");
+  this->_print->print(this->_gyroscope_2_deg, 4);
+  this->_print->println(" ]");
 
   return success;
 }
@@ -133,16 +132,16 @@ bool MPU6050::set_acceleration_config(MPU6050AccelerationConfig config_num)
     break;
   }
 
-  Serial.print("acceleration_2_g is [ ");
-  Serial.print(this->_acceleration_2_g, 4);
-  Serial.println(" ]");
+  this->_print->print("acceleration_2_g is [ ");
+  this->_print->print(this->_acceleration_2_g, 4);
+  this->_print->println(" ]");
 
   return success;
 }
 
 bool MPU6050::calibrate()
 {
-  Serial.println("calibrating mpu6050...");
+  this->_print->println("calibrating mpu6050...");
 
   Vec3f gyroscope_offset;
   Vec3f acceleration_offset;
@@ -152,14 +151,14 @@ bool MPU6050::calibrate()
     bool success = this->read();
     if (!success)
     {
-      Serial.println("fail to read values for calibraten from mpu6050");
+      this->_print->println("fail to read values for calibraten from mpu6050");
       return false;
     }
 
     gyroscope_offset = gyroscope_offset.add(_raw_gyroscope);
     acceleration_offset = acceleration_offset.add(_raw_acceleration);
 
-    delay(2);
+    this->_leds->sleep(2);
   }
 
   this->_gyroscope_offset = gyroscope_offset.divide_scalar(MPU6050_CALIBRATION_READS).invert();
@@ -169,21 +168,21 @@ bool MPU6050::calibrate()
   float delta = this->_acceleration_2_g / acceleration_offset.length();
   this->_acceleration_offset = acceleration_offset.scale_scalar(delta - 1.0);
 
-  Serial.print("gyroscope_offset [ x: ");
-  Serial.print(this->_gyroscope_offset.x, 4);
-  Serial.print(", y: ");
-  Serial.print(this->_gyroscope_offset.y, 4);
-  Serial.print(", z: ");
-  Serial.print(this->_gyroscope_offset.z, 4);
-  Serial.println(" ]");
+  this->_print->print("gyroscope_offset [ x: ");
+  this->_print->print(this->_gyroscope_offset.x, 4);
+  this->_print->print(", y: ");
+  this->_print->print(this->_gyroscope_offset.y, 4);
+  this->_print->print(", z: ");
+  this->_print->print(this->_gyroscope_offset.z, 4);
+  this->_print->println(" ]");
 
-  Serial.print("acceleration_offset [ x: ");
-  Serial.print(this->_acceleration_offset.x, 4);
-  Serial.print(", y: ");
-  Serial.print(this->_acceleration_offset.y, 4);
-  Serial.print(", z: ");
-  Serial.print(this->_acceleration_offset.z, 4);
-  Serial.println(" ]");
+  this->_print->print("acceleration_offset [ x: ");
+  this->_print->print(this->_acceleration_offset.x, 4);
+  this->_print->print(", y: ");
+  this->_print->print(this->_acceleration_offset.y, 4);
+  this->_print->print(", z: ");
+  this->_print->print(this->_acceleration_offset.z, 4);
+  this->_print->println(" ]");
 
   return true;
 }
@@ -208,13 +207,6 @@ bool MPU6050::read()
   int16_t ax = (((int16_t)this->_wire->read()) << 8) | this->_wire->read();
   int16_t ay = (((int16_t)this->_wire->read()) << 8) | this->_wire->read();
   int16_t az = (((int16_t)this->_wire->read()) << 8) | this->_wire->read();
-
-  Serial.print("ax: ");
-  Serial.print(ax);
-  Serial.print(", ay: ");
-  Serial.print(ay);
-  Serial.print(", az: ");
-  Serial.println(az);
 
   int16_t raw_temperature = (this->_wire->read() << 8) | this->_wire->read();
 
