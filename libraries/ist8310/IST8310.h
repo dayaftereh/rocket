@@ -7,6 +7,7 @@
 
 #include "leds.h"
 #include "vec3f.h"
+#include "magnetometer.h"
 
 #define IST8310_DEVICE_ID 0x10
 #define IST8310_I2C_ADDRESS 0x0E
@@ -38,20 +39,18 @@ enum IST8310AverageXZ
     IST8310_16_AVERAGE_X_Z = 0x100
 };
 
-class IST8310
+class IST8310: public Magnetometer
 {
 public:
     IST8310();
 
     bool setup(TwoWire *wire, Print *print, Leds *leds);
-
     bool soft_reset();
-
     bool update();
-
     bool calibration();
-
     bool set_average(IST8310AverageY y, IST8310AverageXZ xz);
+
+    void set_flip_x_y(bool flip);
 
     Vec3f *get_raw();
     Vec3f *get_magnetometer();
@@ -66,10 +65,13 @@ private:
     bool read_register(uint8_t reg, uint8_t *value);
     bool write_register(uint8_t reg, uint8_t value);
 
-    Vec3f _raw;
+    bool _flip_x_y;
 
     uint8_t _device_id;
     uint8_t _i2c_address;
+
+    Vec3f _raw;
+    Vec3f _magnetometer;
 
     Leds *_leds;
     Print *_print;

@@ -14,18 +14,14 @@ bool IST8310::setup(TwoWire *wire, Print *print, Leds *leds)
     this->_raw.x = 0.0;
     this->_raw.y = 0.0;
     this->_raw.z = 0.0;
+    this->_flip_x_y = false;
 
     bool success = this->soft_reset();
     if (!success)
     {
+        this->_print->println("fail to soft reset ist8310");
         return false;
     }
-
-    /*success = this->calibration();
-    if (!success)
-    {
-        return false;
-    }*/
 
     return true;
 }
@@ -52,6 +48,7 @@ bool IST8310::soft_reset()
     bool success = this->write_register(IST8310_REGISTER_CNTL2, reset_bit);
     if (!success)
     {
+        this->_print->println("fail to write soft reset bit to ist8310");
         return false;
     }
 
@@ -165,7 +162,26 @@ bool IST8310::read()
 bool IST8310::update()
 {
     bool success = this->read();
-    return success;
+    if (!success)
+    {
+        return false;
+    }
+
+    float x = this->_raw.x;
+    float y = this->_raw.y;
+
+    // check if x and y needs to be fliped
+    if (this->_flip_x_y)
+    {
+        x = this->_raw.y;
+        y = this->_raw.x;
+    }
+
+    this->_magnetometer.x = x;
+    this->_magnetometer.y = y;
+    this->_magnetometer.z = this->_raw.z;
+
+    return true;
 }
 
 bool IST8310::set_average(IST8310AverageY y, IST8310AverageXZ xz)
@@ -186,7 +202,7 @@ Vec3f *IST8310::get_raw()
 
 Vec3f *IST8310::get_magnetometer()
 {
-    return &this->_raw;
+    return &this->_magnetometer;
 }
 
 bool IST8310::set_selftest(bool enabled)
@@ -202,6 +218,11 @@ bool IST8310::set_selftest(bool enabled)
         return false;
     }
     return true;
+}
+
+void IST8310::set_flip_x_y(bool flip)
+{
+    this->_flip_x_y = flip;
 }
 
 bool IST8310::loop_read(Vec3f &sum, size_t loops, int timeout)

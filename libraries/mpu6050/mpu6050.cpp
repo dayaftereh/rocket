@@ -208,11 +208,11 @@ bool MPU6050::read()
   int16_t ay = (((int16_t)this->_wire->read()) << 8) | this->_wire->read();
   int16_t az = (((int16_t)this->_wire->read()) << 8) | this->_wire->read();
 
-  int16_t raw_temperature = (this->_wire->read() << 8) | this->_wire->read();
+  int16_t raw_temperature = (((int16_t)this->_wire->read()) << 8) | this->_wire->read();
 
-  int16_t gx = (this->_wire->read() << 8) | this->_wire->read();
-  int16_t gy = (this->_wire->read() << 8) | this->_wire->read();
-  int16_t gz = (this->_wire->read() << 8) | this->_wire->read();
+  int16_t gx = (((int16_t)this->_wire->read()) << 8) | this->_wire->read();
+  int16_t gy = (((int16_t)this->_wire->read()) << 8) | this->_wire->read();
+  int16_t gz = (((int16_t)this->_wire->read()) << 8) | this->_wire->read();
 
   this->_raw_acceleration.x = (float)ax;
   this->_raw_acceleration.y = (float)ay;

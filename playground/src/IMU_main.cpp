@@ -4,11 +4,13 @@
 #include <status_leds.h>
 #include <madgwick.h>
 #include <stats.h>
+#include <imu.h>
 
+IMU imu;
 Stats stats;
-MPU6050 mpu;
-IST8310 ist8310;
+MPU6050 mpu6050;
 StatusLeds leds;
+IST8310 ist8310;
 Madgwick madgwick;
 
 void setup()
@@ -27,6 +29,8 @@ void setup()
         leds.error(1);
     }
 
+    ist8310.set_flip_x_y(true);
+
     success = ist8310.set_average(IST8310_4_AVERAGE_Y, IST8310_4_AVERAGE_X_Z);
     if (!success)
     {
@@ -34,7 +38,7 @@ void setup()
         leds.error(2);
     }
 
-    success = mpu.setup(&Wire, &Serial, &leds);
+    success = mpu6050.setup(&Wire, &Serial, &leds);
     if (!success)
     {
         Serial.println("Fail to setup mpu6050");
@@ -48,12 +52,23 @@ void setup()
         leds.error(3);
     }
 
-    success = madgwick.setup(1.0, 1.0, &stats);
+    success = madgwick.setup(0.0, 10.0, &stats);
     if (!success)
     {
         Serial.println("Fail to setup madgwick");
         leds.error(4);
     }
+
+    success = imu.setup(&mpu6050, &mpu6050, &ist8310, &madgwick, &Serial);
+    if (!success)
+    {
+        Serial.println("Fail to setup imu");
+        leds.error(6);
+    }
+
+    Quaternion rotation;
+    rotation.set_euler(0.0, 0.0, 0.0);
+    imu.set_rotation(rotation);
 
     Serial.println("Success setup");
     Serial.flush();
@@ -63,7 +78,7 @@ void loop()
 {
     float delta = stats.update();
 
-    bool success = mpu.update();
+    bool success = mpu6050.update();
     if (!success)
     {
         Serial.println("Fail to update mpu6050");
@@ -77,49 +92,30 @@ void loop()
         leds.error(11);
     }
 
-    Vec3f *gyroscope = mpu.get_gyroscope();
-    Vec3f *acceleration = mpu.get_acceleration();
-    Vec3f *magnetometer = ist8310.get_magnetometer();
-
-    if (magnetometer->length() < 0.0001)
+    success = imu.update();
+    if (!success)
     {
-        return;
+        Serial.println("fail to update imu");
+        leds.error(12);
     }
 
-    Serial.print(delta);
-    Serial.print(" ");
+    Vec3f *acceleration = imu.get_world_acceleration();
+
     Serial.print(acceleration->x);
     Serial.print(" ");
     Serial.print(acceleration->y);
     Serial.print(" ");
-    Serial.print(acceleration->z);
-    Serial.print(" ");
-    Serial.print(gyroscope->x);
-    Serial.print(" ");
-    Serial.print(gyroscope->y);
-    Serial.print(" ");
-    Serial.print(gyroscope->z);
-    Serial.print(" ");
-    Serial.print(magnetometer->x);
-    Serial.print(" ");
-    Serial.print(magnetometer->y);
-    Serial.print(" ");
-    Serial.print(magnetometer->z);
-    Serial.print(" ");
+    Serial.println(acceleration->z);
 
-    Vec3f gyro_rad = gyroscope->scale_scalar(DEG_TO_RAD);
+    /*
+    Quaternion *orientation = imu.get_orientation();
 
-    madgwick.update(
-        gyro_rad.x, gyro_rad.y, gyro_rad.z,
-        acceleration->x, acceleration->y, acceleration->z,
-        magnetometer->x, magnetometer->y, magnetometer->z);
-
-    Quaternion *q = madgwick.get_quaternion();
-    Vec3f euler = q->get_euler().scale_scalar(RAD_TO_DEG);
+     Vec3f euler = orientation->get_euler().scale_scalar(RAD_TO_DEG);
 
     Serial.print(euler.x);
     Serial.print(" ");
     Serial.print(euler.y);
     Serial.print(" ");
     Serial.println(euler.z);
+    */
 }

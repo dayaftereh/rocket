@@ -8,6 +8,8 @@
 
 #include "leds.h"
 #include "vec3f.h"
+#include "gyroscope.h"
+#include "acceleration.h"
 
 #define MPU6050_I2C_ADDRESS 0x68
 #define MPU6050_SMPLRT_DIV_REGISTER 0x19
@@ -39,7 +41,7 @@ enum MPU6050AccelerationConfig
     MPU6050_ACCELERATION_16_G = 0x18
 };
 
-class MPU6050
+class MPU6050: public Gyroscope, public Acceleration
 {
 public:
     MPU6050();
