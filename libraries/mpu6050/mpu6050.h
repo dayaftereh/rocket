@@ -50,6 +50,8 @@ public:
 
     bool update();
 
+    void set_acceleration_offset(Vec3f &offset);
+
     Vec3f *get_gyroscope();
     Vec3f *get_acceleration();
 

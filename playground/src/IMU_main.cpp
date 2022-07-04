@@ -45,6 +45,9 @@ void setup()
         leds.error(2);
     }
 
+    Vec3f offset(-0.8, 0, -2.8);
+    mpu6050.set_acceleration_offset(offset);
+
     success = stats.setup();
     if (!success)
     {
@@ -67,7 +70,7 @@ void setup()
     }
 
     Quaternion rotation;
-    rotation.set_euler(0.0, 0.0, 0.0);
+    rotation.set_euler(DEG_TO_RAD * -90, 0.0, 0.0);
     imu.set_rotation(rotation);
 
     Serial.println("Success setup");
@@ -99,23 +102,21 @@ void loop()
         leds.error(12);
     }
 
+    Quaternion *orientation = imu.get_orientation();
+
+    Vec3f euler = orientation->get_euler().scale_scalar(RAD_TO_DEG);
+    Serial.print(euler.x);
+    Serial.print(" ");
+    Serial.print(euler.y);
+    Serial.print(" ");
+    Serial.print(euler.z);
+
     Vec3f *acceleration = imu.get_world_acceleration();
 
+    Serial.print(" ");
     Serial.print(acceleration->x);
     Serial.print(" ");
     Serial.print(acceleration->y);
     Serial.print(" ");
     Serial.println(acceleration->z);
-
-    /*
-    Quaternion *orientation = imu.get_orientation();
-
-     Vec3f euler = orientation->get_euler().scale_scalar(RAD_TO_DEG);
-
-    Serial.print(euler.x);
-    Serial.print(" ");
-    Serial.print(euler.y);
-    Serial.print(" ");
-    Serial.println(euler.z);
-    */
 }

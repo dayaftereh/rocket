@@ -21,6 +21,8 @@ bool MPU6050::setup(TwoWire *wire, Print *print, Leds *leds)
     return false;
   }
 
+  this->_leds->sleep(100);
+
   success = this->write_data(MPU6050_SMPLRT_DIV_REGISTER, 0); // Set the sample rate to 1000Hz - 8kHz/(7+1) = 1000Hz
   if (!success)
   {
@@ -164,9 +166,9 @@ bool MPU6050::calibrate()
   this->_gyroscope_offset = gyroscope_offset.divide_scalar(MPU6050_CALIBRATION_READS).invert();
 
   // calculate the scale factor
-  acceleration_offset = acceleration_offset.divide_scalar(MPU6050_CALIBRATION_READS);
+  /*acceleration_offset = acceleration_offset.divide_scalar(MPU6050_CALIBRATION_READS);
   float delta = this->_acceleration_2_g / acceleration_offset.length();
-  this->_acceleration_offset = acceleration_offset.scale_scalar(delta - 1.0);
+  this->_acceleration_offset = acceleration_offset.scale_scalar(delta - 1.0);*/
 
   this->_print->print("gyroscope_offset [ x: ");
   this->_print->print(this->_gyroscope_offset.x, 4);
@@ -185,6 +187,11 @@ bool MPU6050::calibrate()
   this->_print->println(" ]");
 
   return true;
+}
+
+void MPU6050::set_acceleration_offset(Vec3f &offset)
+{
+  this->_acceleration_offset = offset.divide_scalar(GRAVITY_OF_EARTH).scale_scalar(this->_acceleration_2_g);
 }
 
 bool MPU6050::read()

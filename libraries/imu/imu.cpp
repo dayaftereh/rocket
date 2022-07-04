@@ -41,13 +41,27 @@ bool IMU::update()
     // set the raw orientation
     this->_raw_orientation = raw->clone();
     // calculate the orientation
-    this->_orientation = raw->multiply(this->_rotation);
-    // get the acceleration ponting z axis doen
-    Vec3f z_acceleration = this->_orientation.multiply_vec(*acceleration);    
-    // invert the gravity of earth
-    z_acceleration.z -= 2.0 * GRAVITY_OF_EARTH;
-    // calculate acceleration back to world using invere orientation
-    this->_world_acceleration = this->_orientation.inverse().multiply_vec(z_acceleration);
+    this->_orientation = this->_raw_orientation.multiply(this->_rotation);
+
+    // get the acceleration pointing z based on orientation
+    Vec3f z_acceleration = this->_rotation.multiply_vec(*acceleration);
+
+    Vec3f frame_acceleration = this->_orientation.multiply_vec(z_acceleration);
+
+    frame_acceleration.z += -2.0 * GRAVITY_OF_EARTH;
+
+    Vec3f _world_acceleration = this->_orientation.inverse().multiply_vec(frame_acceleration);
+
+    /* // make the gravity_z
+     Vec3f gravity_z(0.0, 0.0, -2.0 * GRAVITY_OF_EARTH);
+
+     Vec3f v = this->_rotation.inverse().multiply_vec(gravity_z);
+     z_acceleration = z_acceleration.add(v);
+
+     // calculate acceleration back to world using invere orientation
+     Vec3f _world_acceleration = this->_raw_orientation.inverse().multiply_vec(z_acceleration);*/
+
+    this->_world_acceleration = _world_acceleration; // this->_rotation.multiply_vec(_world_acceleration);
 
     return true;
 }
