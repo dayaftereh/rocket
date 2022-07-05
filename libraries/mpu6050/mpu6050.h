@@ -59,6 +59,11 @@ public:
     Vec3f *get_raw_acceleration();
 
 private:
+
+    uin8_t get_device_id();
+
+    bool reset();
+
     bool read();
     bool calibrate();
 

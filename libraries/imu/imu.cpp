@@ -12,6 +12,10 @@ bool IMU::setup(Gyroscope *gyroscope, Acceleration *acceleration, Magnetometer *
     this->_magnetometer = magnetometer;
     this->_acceleration = acceleration;
 
+    this->_world_acceleration_x.set_tunings(0.1, 0.01);
+    this->_world_acceleration_y.set_tunings(0.1, 0.01);
+    this->_world_acceleration_z.set_tunings(0.1, 0.01);
+
     return true;
 }
 
@@ -43,32 +47,35 @@ bool IMU::update()
     // calculate the orientation
     this->_orientation = this->_raw_orientation.multiply(this->_rotation);
 
-    // get the acceleration pointing z based on orientation
-    Vec3f z_acceleration = this->_rotation.multiply_vec(*acceleration);
-
-    Vec3f frame_acceleration = this->_orientation.multiply_vec(z_acceleration);
-
+    // get the raw acceleration
+    Vec3f raw_acceleration = acceleration->clone();
+    // calculate the z frame orientation acceleration based on the _raw_orientation
+    Vec3f frame_acceleration = this->_raw_orientation.multiply_vec(raw_acceleration);
+    // subtract the twice the gravity
     frame_acceleration.z += -2.0 * GRAVITY_OF_EARTH;
+    // calculate back the raw world acceleration without the rortation
+    Vec3f raw_world_acceleration = this->_raw_orientation.inverse().multiply_vec(frame_acceleration);
+    // apply now the given rotation
+    this->_world_acceleration = this->_rotation.inverse().multiply_vec(raw_world_acceleration);
 
-    Vec3f _world_acceleration = this->_orientation.inverse().multiply_vec(frame_acceleration);
-
-    /* // make the gravity_z
-     Vec3f gravity_z(0.0, 0.0, -2.0 * GRAVITY_OF_EARTH);
-
-     Vec3f v = this->_rotation.inverse().multiply_vec(gravity_z);
-     z_acceleration = z_acceleration.add(v);
-
-     // calculate acceleration back to world using invere orientation
-     Vec3f _world_acceleration = this->_raw_orientation.inverse().multiply_vec(z_acceleration);*/
-
-    this->_world_acceleration = _world_acceleration; // this->_rotation.multiply_vec(_world_acceleration);
+    // use the kalman to filter the acceleration
+    this->_world_acceleration_filtered.x = this->_world_acceleration_x.update_estimate(this->_world_acceleration.x);
+    this->_world_acceleration_filtered.y = this->_world_acceleration_y.update_estimate(this->_world_acceleration.y);
+    this->_world_acceleration_filtered.z = this->_world_acceleration_z.update_estimate(this->_world_acceleration.z);
 
     return true;
 }
 
-void IMU::set_rotation(Quaternion rotation)
+void IMU::set_rotation(Quaternion &rotation)
 {
     this->_rotation = rotation;
+}
+
+void IMU::set_filter_tunings(float mea, float p)
+{
+    this->_world_acceleration_x.set_tunings(mea, p);
+    this->_world_acceleration_y.set_tunings(mea, p);
+    this->_world_acceleration_z.set_tunings(mea, p);
 }
 
 Quaternion *IMU::get_raw_orientation()
@@ -84,4 +91,9 @@ Quaternion *IMU::get_orientation()
 Vec3f *IMU::get_world_acceleration()
 {
     return &this->_world_acceleration;
+}
+
+Vec3f *IMU::get_world_acceleration_filtered()
+{
+    return &this->_world_acceleration_filtered;
 }

@@ -4,6 +4,7 @@
 #include <Print.h>
 #include <Arduino.h>
 
+#include "kalman.h"
 #include "madgwick.h"
 #include "constants.h"
 #include "gyroscope.h"
@@ -20,15 +21,22 @@ public:
 
     bool update();
 
-    void set_rotation(Quaternion rotation);
+    void set_rotation(Quaternion &rotation);
+    void set_filter_tunings(float mea, float p);
 
     Vec3f *get_world_acceleration();
+    Vec3f *get_world_acceleration_filtered();
 
     Quaternion *get_orientation();
     Quaternion *get_raw_orientation();
 
 private:
     Vec3f _world_acceleration;
+    Vec3f _world_acceleration_filtered;
+
+    Kalman _world_acceleration_x;
+    Kalman _world_acceleration_y;
+    Kalman _world_acceleration_z;
 
     Quaternion _rotation;
     Quaternion _orientation;
