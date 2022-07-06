@@ -13,8 +13,16 @@ bool MPU6050::setup(TwoWire *wire, Print *print, Leds *leds)
   // Initialize
   this->_address = MPU6050_I2C_ADDRESS;
 
+  // test the connection
+  bool success = this->test_connection();
+  if (!success)
+  {
+    this->_print->println("fail to test the connection to the mpu6050");
+    return false;
+  }
+
   // setup the mpu6050
-  bool success = this->write_data(MPU6050_PWR_MGMT_1_REGISTER, 0x01); // PLL with X axis gyroscope reference and disable sleep mode
+  success = this->write_data(MPU6050_PWR_MGMT_1_REGISTER, 0x01); // PLL with X axis gyroscope reference and disable sleep mode
   if (!success)
   {
     this->_print->println("fail to communicate with the mpu6050");
@@ -251,6 +259,80 @@ bool MPU6050::update()
   this->_acceleration.z = ((this->_raw_acceleration.z + this->_acceleration_offset.z) / this->_acceleration_2_g) * GRAVITY_OF_EARTH; // Convert to m/s2
 
   return true;
+}
+
+bool MPU6050::test_connection()
+{
+  uint8_t device_id = this->get_device_id();
+  return device_id == 0x34;
+}
+
+uin8_t MPU6050::get_device_id()
+{
+  // reguest the who i am register
+  this->_wire->beginTransmission(this->_address);
+  this->_wire->write(MPU6050_WHO_AM_I_REGISTER);
+  int status = this->_wire->endTransmission(false);
+  if (!status != 0)
+  {
+    return 0;
+  }
+
+  // read the byte from wire
+  int length = 1;
+  int received = this->_wire->requestFrom(this->_address, length);
+  if (received != length)
+  {
+    return 0;
+  }
+
+  // read the data
+  uin8_t data = this->_wire->read();
+  // get the who_i_am
+  uin8_t who_i_am = data >> 1;
+
+  return who_i_am;
+}
+
+bool MPU6050::reset()
+{
+  // write the reset bit
+  uin8_t reset_bit = 0B10000000;
+  bool success = this->write_data(MPU6050_PWR_MGMT_1_REGISTER, reset_bit);
+  if (!success)
+  {
+    return false;
+  }
+  // wait 100ms
+  this->_leds->sleep(100);
+
+  // write the sensors reset bits
+  reset_bit = 0B111;
+  success = this->write_data(MPU6050_SINGLE_PATH_RESET_REGISTER, reset_bit);
+  if (!success)
+  {
+    return false;
+  }
+
+  // wait 100ms
+  this->_leds->sleep(100);
+
+  // try to connect with the mpu6050 after reset
+  int tries = 10;
+  while (tries > 0)
+  {
+    // try the device connection
+    bool success = test_connection();
+    if (success)
+    {
+      return
+    }
+
+    // decriment tries
+    tries--;
+    // sleep
+    this->_leds->sleep(10);
+  }
 }
 
 Vec3f *MPU6050::get_gyroscope()

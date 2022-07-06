@@ -4,21 +4,156 @@ StatusLeds::StatusLeds()
 {
 }
 
-void StatusLeds::setup(int error_pin, int status_pin, Print *print)
+void StatusLeds::setup(StatusLedsConfig *config, Print *print)
 {
-    this->_error_pin = error_pin;
-    this->_status_pin = status_pin;
+    this->_print = print;
+    this->_config = config;
 
-    pinMode(this->_error_pin, OUTPUT);
-    pinMode(this->_status_pin, OUTPUT);
+    pinMode(this->_config->red_pin, OUTPUT);
+    pinMode(this->_config->green_pin, OUTPUT);
+
+    this->off_red();
+    this->off_green();
+}
+
+void StatusLeds::on_red()
+{
+    this->_red_led = true;
+}
+
+void StatusLeds::off_red()
+{
+    this->_red_led = false;
+}
+
+void StatusLeds::on_green()
+{
+    this->_green_led = true;
+}
+
+void StatusLeds::off_green()
+{
+    this->_green_led = false;
+}
+
+void StatusLeds::toggle_red()
+{
+    this->_red_out = !this->_red_out;
+}
+
+void StatusLeds::toggle_green()
+{
+    this->_green_out = !this->_green_out;
+}
+
+void StatusLeds::flash_red(int count, int timeout)
+{
+    // flash the the given cout with the timeout
+    for (int i = 0; i < count; i++)
+    {
+        this->off_red();
+        this->sleep(timeout);
+        this->on_red();
+        this->sleep(timeout);
+    }
+
+    this->off_red();
+}
+
+void StatusLeds::flash_green(int count, int timeout)
+{
+    // flash the the given cout with the timeout
+    for (int i = 0; i < count; i++)
+    {
+        this->off_green();
+        this->sleep(timeout);
+        this->on_green();
+        this->sleep(timeout);
+    }
+
+    this->off_green();
+}
+
+void StatusLeds::singal_red(int timeout)
+{
+    this->_signal_red = true;
+    this->_timeout_red = timeout;
+    this->_timeout_red = millis();
+}
+
+void StatusLeds::singal_green(int timeout)
+{
+    this->_signal_green = true;
+    this->_timeout_green = timeout;
+    this->_timer_green = millis();
 }
 
 void StatusLeds::error(int error)
 {
+    // stop red and green
+    this->stop_red();
+    this->stop_green();
+
+    // turn of green
+    this->off_green();
+
+    // flush the error code
+    int count = abs(error);
+
     while (true)
     {
-        this->sleep(10);
+        // flash the error code
+        this->flash_red(count, 500);
+        // wait a short time
+        this->sleep(750);
+        // flash the reset
+        this->flash_red(3, 150);
     }
+}
+
+void StatusLeds::update_red(unsigned long now)
+{
+    if (!this->_signal_red)
+    {
+        this->_red_out = this->_red_led;
+        return;
+    }
+
+    unsigned long elapsed = now - this->_timer_red;
+    if (elapsed < this->_timeout_red)
+    {
+        return;
+    }
+    this->_timer_red = now;
+    this->toggle_red();
+}
+
+void StatusLeds::update_green(unsigned long now)
+{
+    if (!this->_signal_green)
+    {
+        this->_green_out = this->_green_led;
+        return;
+    }
+
+    unsigned long elapsed = now - this->_timer_green;
+    if (elapsed < this->_timeout_green)
+    {
+        return;
+    }
+
+    this->_timer_green = now;
+    this->toggle_green();
+}
+
+void StatusLeds::stop_red()
+{
+    this->_signal_red = false;
+}
+
+void StatusLeds::stop_green()
+{
+    this->_signal_green = false;
 }
 
 void StatusLeds::sleep(int timeout)
@@ -37,4 +172,11 @@ void StatusLeds::sleep(int timeout)
 
 void StatusLeds::update()
 {
+    unsigned long now = millis();
+
+    this->update_red(now);
+    this->update_green(now);
+
+    digitalWrite(this->_config->red_pin, this->_red_out);
+    digitalWrite(this->_config->green_pin, this->_green_out);
 }

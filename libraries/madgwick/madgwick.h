@@ -6,6 +6,7 @@
 #include "vec3f.h"
 #include "stats.h"
 #include "quaternion.h"
+#include "madgwick_config.h"
 
 //=====================================================================================================
 // Description:
@@ -31,9 +32,7 @@ class Madgwick
 public:
   Madgwick();
 
-  bool setup(float kI, float kP, Stats *stats);
-
-  void set_tunings(float kI, float kP);
+  bool setup(MadgwickConfig *config, Stats *stats);
 
   void update(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz);
 
@@ -47,6 +46,7 @@ private:
   Vec3f integral_error;
 
   Stats *_stats;
+  MadgwickConfig *_config;
 };
 
 #endif // _MADWICK_H

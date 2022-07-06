@@ -4,18 +4,12 @@ Madgwick::Madgwick()
 {
 }
 
-bool Madgwick::setup(float kI, float kP, Stats *stats)
+bool Madgwick::setup(MadgwickConfig *config, Stats *stats)
 {
   this->_stats = stats;
-  this->set_tunings(kI, kP);
+  this->_config = config;
 
   return true;
-}
-
-void Madgwick::set_tunings(float kI, float kP)
-{
-  this->_kI = kI;
-  this->_kP = kP;
 }
 
 void Madgwick::update(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz)
@@ -79,7 +73,7 @@ void Madgwick::update(float gx, float gy, float gz, float ax, float ay, float az
   integral_error.y += ey;
   integral_error.z += ez;
 
-  if (!(this->_kI > 0.0))
+  if (!(this->_config->kI > 0.0))
   {
     // prevent integral wind up
     integral_error.x = 0.0;
@@ -88,9 +82,9 @@ void Madgwick::update(float gx, float gy, float gz, float ax, float ay, float az
   }
 
   // adjusted gyroscope measurements
-  gx = gx + this->_kP * ex + this->_kI * integral_error.x;
-  gy = gy + this->_kP * ey + this->_kI * integral_error.y;
-  gz = gz + this->_kP * ez + this->_kI * integral_error.z;
+  gx = gx + this->_config->kP * ex + this->_config->kI * integral_error.x;
+  gy = gy + this->_config->kP * ey + this->_config->kI * integral_error.y;
+  gz = gz + this->_config->kP * ez + this->_config->kI * integral_error.z;
 
   // integrate quaternion rate and normalise
   q0 = q0 + (-q1 * gx - q2 * gy - q3 * gz) * (0.5 * dt);

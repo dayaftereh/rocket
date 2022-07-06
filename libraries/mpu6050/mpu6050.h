@@ -16,7 +16,9 @@
 #define MPU6050_CONFIG_REGISTER 0x1a
 #define MPU6050_GYROSCOPE_CONFIG_REGISTER 0x1b
 #define MPU6050_ACCELERATION_CONFIG_REGISTER 0x1c
+#define MPU6050_SINGLE_PATH_RESET_REGISTER 0x68
 #define MPU6050_PWR_MGMT_1_REGISTER 0x6b
+#define MPU6050_WHO_AM_I_REGISTER 0x75
 
 #define MPU6050_ACCELERATION_OUT_REGISTER 0x3B
 
@@ -61,6 +63,8 @@ public:
 private:
 
     uin8_t get_device_id();
+
+    bool test_connection();
 
     bool reset();
 
