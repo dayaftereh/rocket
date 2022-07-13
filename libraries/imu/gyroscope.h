@@ -6,7 +6,6 @@
 class Gyroscope
 {
 public:
-    virtual bool update() = 0;
     virtual Vec3f *get_gyroscope() = 0;
 };
 

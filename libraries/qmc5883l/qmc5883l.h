@@ -1,14 +1,16 @@
 #ifndef _QMC5883L_H
 #define _QMC5883L_H
 
-#include <Arduino.h>
 #include <Wire.h>
+#include <Print.h>
+#include <Arduino.h>
 
+#include "leds.h"
 #include "vec3f.h"
-#include "config.h"
-#include "status_leds.h"
+#include "magnetometer.h"
 
 #define QMC5883L_I2C_ADDRESS 0x0D
+#define QMC5883L_CALIBRATION_READS 100
 
 enum QMC5883LMode
 {
@@ -43,12 +45,12 @@ enum QMC5883LOSR
     QMC5883L_OSR_64 = 0b11000000,
 
 };
-class QMC5883L
+class QMC5883L : public Magnetometer
 {
 public:
     QMC5883L();
 
-    bool setup(Config *config, TwoWire *wire, StatusLeds *status_leds);
+    bool setup(TwoWire *wire, Print *print, Leds *leds);
 
     void update();
 
@@ -71,9 +73,9 @@ private:
     Vec3f _raw_magnetometer;
     Vec3f _magnetometer_offset;
 
+    Leds *_leds;
+    Print *_print;
     TwoWire *_wire;
-    Config *_config;
-    StatusLeds *_status_leds;
 };
 
 #endif // _QMC5883L_H

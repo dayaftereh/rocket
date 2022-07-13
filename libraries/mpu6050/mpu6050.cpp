@@ -13,11 +13,11 @@ bool MPU6050::setup(TwoWire *wire, Print *print, Leds *leds)
   // Initialize
   this->_address = MPU6050_I2C_ADDRESS;
 
-  // test the connection
-  bool success = this->test_connection();
+  // reset the mpu6050
+  bool success = this->reset();
   if (!success)
   {
-    this->_print->println("fail to test the connection to the mpu6050");
+    this->_print->println("fail to connect and reset the mpu6050");
     return false;
   }
 
@@ -79,6 +79,7 @@ bool MPU6050::write_data(byte reg, byte data)
   this->_wire->write(data);
 
   byte status = this->_wire->endTransmission();
+  
   /*
     0:success
     1:data too long to fit in transmit buffer
@@ -267,13 +268,13 @@ bool MPU6050::test_connection()
   return device_id == 0x34;
 }
 
-uin8_t MPU6050::get_device_id()
+uint8_t MPU6050::get_device_id()
 {
   // reguest the who i am register
   this->_wire->beginTransmission(this->_address);
   this->_wire->write(MPU6050_WHO_AM_I_REGISTER);
   int status = this->_wire->endTransmission(false);
-  if (!status != 0)
+  if (status != 0)
   {
     return 0;
   }
@@ -287,9 +288,9 @@ uin8_t MPU6050::get_device_id()
   }
 
   // read the data
-  uin8_t data = this->_wire->read();
+  uint8_t data = this->_wire->read();
   // get the who_i_am
-  uin8_t who_i_am = data >> 1;
+  uint8_t who_i_am = data >> 1;
 
   return who_i_am;
 }
@@ -297,7 +298,7 @@ uin8_t MPU6050::get_device_id()
 bool MPU6050::reset()
 {
   // write the reset bit
-  uin8_t reset_bit = 0B10000000;
+  uint8_t reset_bit = 0B10000000;
   bool success = this->write_data(MPU6050_PWR_MGMT_1_REGISTER, reset_bit);
   if (!success)
   {
@@ -322,10 +323,10 @@ bool MPU6050::reset()
   while (tries > 0)
   {
     // try the device connection
-    bool success = test_connection();
+    bool success = this->test_connection();
     if (success)
     {
-      return
+      return true;
     }
 
     // decriment tries
@@ -333,6 +334,8 @@ bool MPU6050::reset()
     // sleep
     this->_leds->sleep(10);
   }
+
+  return false;
 }
 
 Vec3f *MPU6050::get_gyroscope()

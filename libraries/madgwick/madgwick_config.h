@@ -3,8 +3,8 @@
 
 typedef struct
 {
-    float kI;
-    float kP;
+    float madgwick_ki;
+    float madgwick_kp;
 } MadgwickConfig;
 
 #endif // _MADWICK_CONFIG_H

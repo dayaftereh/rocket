@@ -5,8 +5,7 @@
 
 class Acceleration
 {
-public:   
-    virtual bool update() = 0;
+public:
     virtual Vec3f *get_acceleration() = 0;
 };
 

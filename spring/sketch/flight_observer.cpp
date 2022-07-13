@@ -83,7 +83,7 @@ void FlightObserver::averageAcceleration()
   this->_acceleration_counter++;
 
   // sum up the current acceleration
-  Vec3f *acceleration = this->_imu->get_world_acceleration_normalized();
+  Vec3f *acceleration = this->_imu->get_world_acceleration_filtered();
   this->_acceleration_buffer.x += acceleration->x;
   this->_acceleration_buffer.y += acceleration->y;
   this->_acceleration_buffer.z += acceleration->z;
@@ -98,7 +98,7 @@ void FlightObserver::averageAcceleration()
 
 void FlightObserver::wait_for_launch()
 {
-  Vec3f *acceleration_normalize = this->_imu->get_world_acceleration_normalized();
+  Vec3f *acceleration_normalize = this->_imu->get_world_acceleration_filtered();
   // check if the z acceleration above launch
   if (acceleration_normalize->z < this->_config->launch_acceleration)
   {
@@ -133,15 +133,14 @@ void FlightObserver::launched()
   this->_launched = true;
   this->_launch_time = millis();
 
-  this->_status_leds->off();
+  this->_status_leds->off_green();
+  this->_status_leds->stop_green();
 
   this->_velocity.x = 0.0;
   this->_velocity.y = 0.0;
   this->_velocity.z = 0.0;
 
-  this->_last_acceleration.x = 0.0;
-  this->_last_acceleration.y = 0.0;
-  this->_last_acceleration.z = 0.0;
+  this->update_acceleration_and_velocity();
 
   this->_state = FLIGHT_STATE_WAIT_LIFT_OFF;
 }
@@ -160,14 +159,14 @@ void FlightObserver::wait_for_lift_off()
   Serial.print(this->_velocity.z);
   Serial.println(" => lift-off!");
 
-  this->_status_leds->on();
+  this->_status_leds->on_green();
   this->_state = FLIGHT_STATE_LIFT_OFF;
 }
 
 void FlightObserver::lift_off()
 {
   this->update_acceleration_and_velocity();
-  this->_status_leds->off();
+  this->_status_leds->off_green();
 
   this->_state = FLIGHT_STATE_WAIT_FOR_APOGEE;
 }
@@ -186,7 +185,7 @@ void FlightObserver::wait_for_apogee()
     return;
   }
 
-  this->_status_leds->on();
+  this->_status_leds->on_green();
 
   Serial.print("maximum_altitude: ");
   Serial.print(this->_maximum_altitude);
@@ -198,7 +197,7 @@ void FlightObserver::wait_for_apogee()
 void FlightObserver::apogee()
 {
   this->update_acceleration_and_velocity();
-  this->_status_leds->off();
+  this->_status_leds->off_green();
 
   this->_state = FLIGHT_STATE_WAIT_FOR_LANDING;
 }
@@ -210,9 +209,10 @@ void FlightObserver::wait_for_landing()
   // still observe parachute
   this->observe_parachute();
 
-  Vec3f *acceleration = this->_imu->get_world_acceleration_normalized();
+  Vec3f *acceleration = this->_imu->get_world_acceleration_filtered();
+
   // check if the z acceleration lower landing acceleration
-  if (abs(acceleration->z) > this->_config->landing_acceleration)
+  if (acceleration->length() < this->_config->landing_acceleration)
   {
     return;
   }
@@ -225,10 +225,11 @@ void FlightObserver::wait_for_landing()
   }
 
   // get current rotation
-  Vec3f *rotation = this->_imu->get_rotation();
+  Quaternion *orientation = this->_imu->get_orientation();
+  Vec3f rotation = orientation->get_euler().scale_scalar(RAD_TO_DEG);
   // cumulate the current rotations
   this->_landing_counter++;
-  this->_landing_cumulate_orientation = this->_landing_cumulate_orientation.add(*rotation);
+  this->_landing_cumulate_orientation = this->_landing_cumulate_orientation.add(rotation);
 
   // update the timer
   float t = this->_stats->get_delta();
@@ -242,14 +243,14 @@ void FlightObserver::wait_for_landing()
   // reset timer
   this->_landing_timer = 0.0;
   // get avarage orientation
-  Vec3f orientation = this->_landing_cumulate_orientation.divide_scalar(this->_landing_counter);
+  Vec3f avarage_orientation = this->_landing_cumulate_orientation.divide_scalar(this->_landing_counter);
   // reset counter and cumulate vector
   this->_landing_counter = 0;
   this->_landing_cumulate_orientation = Vec3f(0.0, 0.0, 0.0);
 
   // get the delta rotation
-  Vec3f delta = orientation.subtract(this->_landing_orientation);
-  this->_landing_orientation = orientation;
+  Vec3f delta = avarage_orientation.subtract(this->_landing_orientation);
+  this->_landing_orientation = avarage_orientation;
 
   float changed = delta.length();
   if (changed > this->_config->landing_orientation_threshold)
@@ -265,7 +266,7 @@ void FlightObserver::wait_for_landing()
 void FlightObserver::landed()
 {
   // turn the led back on
-  this->_status_leds->on();
+  this->_status_leds->on_green();
 
   // set launched back to false
   this->_launched = false;
@@ -336,13 +337,14 @@ void FlightObserver::update_acceleration_and_velocity()
 {
   float dt = this->_stats->get_delta();
   // get the filtered acceleration
-  Vec3f *acceleration = this->_imu->get_world_acceleration_normalized();
+  Vec3f *acceleration = this->_imu->get_world_acceleration_filtered();
   // get the delta acceleration
-  Vec3f delta_acceleration = acceleration->subtract(this->_last_acceleration);
+  Vec3f tick_acceleration = acceleration->add(this->_last_acceleration).divide_scalar(2.0);
   // store the last acceleration
   this->_last_acceleration = acceleration->clone();
+
   // get the delta velocity
-  Vec3f delta_velocity = delta_acceleration.scale_scalar(dt);
+  Vec3f delta_velocity = tick_acceleration.scale_scalar(dt);
   // add the delta velocity to current velocity
   this->_velocity = this->_velocity.add(delta_velocity);
 }

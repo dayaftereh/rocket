@@ -26,12 +26,8 @@ bool ParachuteManager::setup(Config *config, StatusLeds *status_leds)
     Serial.println("parachute manager is using output flag");
   }
 
-  this->_status_leds->progress();
-
   // wait for servo setup
-  delay(100);
-
-  this->_status_leds->progress();
+  this->_status_leds->sleep(100);
 
   // reset the bools
   this->reset();

@@ -5,8 +5,7 @@
 
 class Magnetometer
 {
-public:   
-    virtual bool update() = 0;
+public:       
     virtual Vec3f *get_magnetometer() = 0;
 };
 

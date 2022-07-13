@@ -59,7 +59,7 @@ bool DataLogger::setup(Stats *stats, StatusLeds *status_leds, AltitudeManager *a
   }
 
   // update the led status for initialize
-  this->_status_leds->progress();
+  this->_status_leds->update();
 
   // verify the flash memory
   success = this->verify_flash_memory();
@@ -121,7 +121,7 @@ bool DataLogger::sd_card_speed_test()
   byte buf[length];
   for (int i = 0; i < length; i++)
   {
-    this->_status_leds->progress();
+    this->_status_leds->update();
     buf[i] = random(0, 255);
   }
 
@@ -130,7 +130,7 @@ bool DataLogger::sd_card_speed_test()
   for (int i = 0; i < writes; i++)
   {
     speedtest.write(buf, length);
-    this->_status_leds->progress();
+    this->_status_leds->update();
   }
 
   float elapsed = ((float)(millis() - start)) / 1000.0;
@@ -154,7 +154,7 @@ bool DataLogger::open_data_file()
     filename = filename + ".dat";
 
     // update the led status for initialize
-    this->_status_leds->progress();
+    this->_status_leds->update();
 
     // check if the data file already exists
     bool exists = SD.exists(filename);
@@ -217,7 +217,7 @@ bool DataLogger::flash_memory_speed_test()
   byte buf[length];
   for (int i = 0; i < length; i++)
   {
-    this->_status_leds->progress();
+    this->_status_leds->update();
     buf[i] = random(0, 255);
   }
 
@@ -233,7 +233,7 @@ bool DataLogger::flash_memory_speed_test()
       Serial.println("fail to write to flash memory");
       return false;
     }*/
-    this->_status_leds->progress();
+    this->_status_leds->update();
   }
 
   float elapsed = ((float)(millis() - start)) / 1000.0;
@@ -266,7 +266,7 @@ bool DataLogger::flash_memory_speed_test()
         return false;
       }
     }
-    this->_status_leds->progress();
+    this->_status_leds->update();
   }
 
   elapsed = ((float)(millis() - start)) / 1000.0;
@@ -300,15 +300,16 @@ void DataLogger::load_data_logger_entry(DataLoggerEntry &entry)
   entry.acceleration_y = acceleration->y;
   entry.acceleration_z = acceleration->z;
 
-  Vec3f *acceleration_normalized = this->_imu->get_world_acceleration_normalized();
-  entry.filter_acceleration_x = acceleration_normalized->x;
-  entry.filter_acceleration_y = acceleration_normalized->y;
-  entry.filter_acceleration_z = acceleration_normalized->z;
+  Vec3f *acceleration_filtered = this->_imu->get_world_acceleration_filtered();
+  entry.filter_acceleration_x = acceleration_filtered->x;
+  entry.filter_acceleration_y = acceleration_filtered->y;
+  entry.filter_acceleration_z = acceleration_filtered->z;
 
-  Vec3f *rotation = this->_imu->get_rotation();
-  entry.rotation_x = rotation->x;
-  entry.rotation_y = rotation->y;
-  entry.rotation_z = rotation->z;
+  Quaternion *orientation = this->_imu->get_orientation();
+  Vec3f rotation = orientation->get_euler().scale_scalar(RAD_TO_DEG);
+  entry.rotation_x = rotation.x;
+  entry.rotation_y = rotation.y;
+  entry.rotation_z = rotation.z;
 
   entry.parachuteVelocity = this->_parachute_manager->is_velocity_triggered();
   entry.parachuteAltitude = this->_parachute_manager->is_altitude_triggered();
@@ -328,7 +329,7 @@ void DataLogger::load_remote_message(RemoteMessage &message)
   message.gyroscope_y = gyroscope->y;
   message.gyroscope_z = gyroscope->z;
 
-  Vec3f *acceleration = this->_imu->get_acceleration();
+  Vec3f *acceleration = this->_imu->get_world_acceleration_filtered();
   message.acceleration_x = acceleration->x;
   message.acceleration_y = acceleration->y;
   message.acceleration_z = acceleration->z;
@@ -338,10 +339,11 @@ void DataLogger::load_remote_message(RemoteMessage &message)
   message.magnetometer_y = magnetometer->y;
   message.magnetometer_z = magnetometer->z;
 
-  Vec3f *rotation = this->_imu->get_rotation();
-  message.rotation_x = rotation->x;
-  message.rotation_y = rotation->y;
-  message.rotation_z = rotation->z;
+  Quaternion *orientation = this->_imu->get_orientation();
+  Vec3f rotation = orientation->get_euler().scale_scalar(RAD_TO_DEG);
+  message.rotation_x = rotation.x;
+  message.rotation_y = rotation.y;
+  message.rotation_z = rotation.z;
 
   message.locked = this->_flight_observer->is_locked();
 
@@ -427,12 +429,16 @@ void DataLogger::write_entities_count_2_file()
 bool DataLogger::done()
 {
   this->_flushed = true;
+  this->_status_leds->singal_green(250);
 
   // check if flash memory enabled
   if (!DATA_LOGGER_USE_FLASH)
   {
     // flush the bytes to file
     this->_data_file.flush();
+
+    this->_status_leds->stop_green();
+    this->_status_leds->on_green();
     return true;
   }
 
@@ -451,7 +457,7 @@ bool DataLogger::done()
   for (uint32_t i = 0; i < data_size; i += buf_length)
   {
     // update the status led
-    this->_status_leds->finalize();
+    this->_status_leds->update();
     // read the data from flash memory
     this->_flash.readByteArray(i, buf, buf_length);
 
@@ -466,6 +472,9 @@ bool DataLogger::done()
 
   // flush the bytes to file
   this->_data_file.flush();
+
+  this->_status_leds->stop_green();
+  this->_status_leds->on_green();
 
   return true;
 }

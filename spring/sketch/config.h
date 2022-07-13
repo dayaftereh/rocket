@@ -4,6 +4,7 @@
 #define RUNDIAGNOSTIC
 
 #include <Arduino.h>
+#include <madgwick_config.h>
 
 // Serial -----------------------------------------------
 #define SERIAL_BAUD_RATE 115200
@@ -50,7 +51,6 @@
 #define PARACHUTE_MANAGER_PIN D4
 
 // Constants -----------------------------------------------
-#define GRAVITY_OF_EARTH (9.80665F)
 #define RAD_2_DEG (180.0 / PI)
 #define DEG_2_RAD (PI / 180.0)
 
@@ -62,17 +62,13 @@ enum IMUUpAxes
 };
 
 // Config struct for the eeprom
-typedef struct
+struct Config : public MadgwickConfig
 {
   // parachute
   bool parachute_servo;
   int parachute_timeout;
   int parachute_servo_open_angle;
-  int parachute_servo_close_angle;
-
-  // ki and kp for madgwick update
-  float madgwick_ki;
-  float madgwick_kp;
+  int parachute_servo_close_angle; 
 
   // rotation
   float rotation_x;
@@ -97,6 +93,6 @@ typedef struct
   float landing_orientation_timeout;
   float landing_orientation_threshold;
 
-} Config;
+};
 
 #endif // _CONFIG_H

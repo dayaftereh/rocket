@@ -24,6 +24,10 @@ public:
     void set_rotation(Quaternion &rotation);
     void set_filter_tunings(float mea, float p);
 
+    Vec3f *get_gyroscope();
+    Vec3f *get_acceleration();
+    Vec3f *get_magnetometer();
+
     Vec3f *get_world_acceleration();
     Vec3f *get_world_acceleration_filtered();
 

@@ -97,3 +97,18 @@ Vec3f *IMU::get_world_acceleration_filtered()
 {
     return &this->_world_acceleration_filtered;
 }
+
+Vec3f *IMU::get_gyroscope()
+{
+    return this->_gyroscope->get_gyroscope();
+}
+
+Vec3f *IMU::get_acceleration()
+{
+    return this->_acceleration->get_acceleration();
+}
+
+Vec3f *IMU::get_magnetometer()
+{
+    return this->_magnetometer->get_magnetometer();
+}

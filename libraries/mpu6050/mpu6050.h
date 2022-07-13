@@ -62,7 +62,7 @@ public:
 
 private:
 
-    uin8_t get_device_id();
+    uint8_t get_device_id();
 
     bool test_connection();
 

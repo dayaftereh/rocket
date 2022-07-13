@@ -9,8 +9,15 @@ void StatusLeds::setup(StatusLedsConfig *config, Print *print)
     this->_print = print;
     this->_config = config;
 
-    pinMode(this->_config->red_pin, OUTPUT);
-    pinMode(this->_config->green_pin, OUTPUT);
+    if (this->_config->red_pin >= 0)
+    {
+        pinMode(this->_config->red_pin, OUTPUT);
+    }
+
+    if (this->_config->green_pin >= 0)
+    {
+        pinMode(this->_config->green_pin, OUTPUT);
+    }
 
     this->off_red();
     this->off_green();
@@ -94,7 +101,8 @@ void StatusLeds::error(int error)
     this->stop_red();
     this->stop_green();
 
-    // turn of green
+    // turn of red and green
+    this->off_red();
     this->off_green();
 
     // flush the error code
@@ -102,12 +110,30 @@ void StatusLeds::error(int error)
 
     while (true)
     {
-        // flash the error code
-        this->flash_red(count, 500);
+        if (this->_config->redirect_error_2_green)
+        {
+            // flash the error code
+            this->flash_green(count, 500);
+        }
+        else
+        {
+            // flash the error code
+            this->flash_red(count, 500);
+        }
+
         // wait a short time
         this->sleep(750);
-        // flash the reset
-        this->flash_red(3, 150);
+
+        if (this->_config->redirect_error_2_green)
+        {
+            // flash the reset
+            this->flash_green(3, 150);
+        }
+        else
+        {
+            // flash the reset
+            this->flash_red(3, 150);
+        }
     }
 }
 
@@ -177,6 +203,15 @@ void StatusLeds::update()
     this->update_red(now);
     this->update_green(now);
 
-    digitalWrite(this->_config->red_pin, this->_red_out);
-    digitalWrite(this->_config->green_pin, this->_green_out);
+    if (this->_config->red_pin >= 0)
+    {
+        pinMode(this->_config->red_pin, OUTPUT);
+        digitalWrite(this->_config->red_pin, this->_red_out);
+    }
+
+    if (this->_config->green_pin >= 0)
+    {
+        pinMode(this->_config->green_pin, OUTPUT);
+        digitalWrite(this->_config->green_pin, this->_green_out);
+    }
 }

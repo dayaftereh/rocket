@@ -1,14 +1,14 @@
-#include "qmc_5883l.h"
+#include "qmc5883l.h"
 
 QMC5883L::QMC5883L()
 {
 }
 
-bool QMC5883L::setup(Config *config, TwoWire *wire, StatusLeds *status_leds)
+bool QMC5883L::setup(TwoWire *wire, Print *print, Leds *leds)
 {
   this->_wire = wire;
-  this->_config = config;
-  this->_status_leds = status_leds;
+  this->_leds = leds;
+  this->_print = print;
 
   // Initialize
   this->_address = QMC5883L_I2C_ADDRESS;
@@ -17,21 +17,21 @@ bool QMC5883L::setup(Config *config, TwoWire *wire, StatusLeds *status_leds)
   bool success = this->write_data(0x0B, 0x01);
   if (!success)
   {
-    Serial.println("fail to communicate and setup qmc5883l");
+    this->_print->println("fail to communicate and setup qmc5883l");
     return false;
   }
 
   success = this->configure(QMC5883L_MODE_CONTINUOUS, QMC5883L_ODR_200HZ, QMC5883L_RNG_2G, QMC5883L_OSR_512);
   if (!success)
   {
-    Serial.println("fail to communicate and setup qmc5883l");
+    this->_print->println("fail to communicate and setup qmc5883l");
     return false;
   }
 
   success = this->calibrate();
   if (!success)
   {
-    Serial.println("fail to calibrate qmc5883l");
+    this->_print->println("fail to calibrate qmc5883l");
     return false;
   }
 
@@ -73,24 +73,21 @@ bool QMC5883L::configure(QMC5883LMode mode, QMC5883LORD ord, QMC5883LRNG rnd, QM
 
 bool QMC5883L::calibrate()
 {
-  Serial.println("calibrating qmc5883l...");
+  this->_print->println("calibrating qmc5883l...");
 
   float max_raw = 1e12;
   float min_raw = -max_raw;
 
-
   Vec3f max_bias(min_raw, min_raw, min_raw);
   Vec3f min_bias(max_raw, max_raw, max_raw);
 
-  for (int i = 0; i < MOTION_MANAGER_CALIBRATION_READS; i++)
+  for (int i = 0; i < QMC5883L_CALIBRATION_READS; i++)
   {
-
-    this->_status_leds->progress();
 
     bool success = this->read();
     if (!success)
     {
-      Serial.println("fail to read values for calibraten from qmc5883l");
+      this->_print->println("fail to read values for calibraten from qmc5883l");
       return false;
     }
 
@@ -103,20 +100,20 @@ bool QMC5883L::calibrate()
     min_bias.z = min(min_bias.z, this->_raw_magnetometer.z);
     max_bias.z = max(max_bias.z, this->_raw_magnetometer.z);
 
-    delay(2);
+    this->_leds->sleep(2);
   }
 
   this->_magnetometer_offset.x = 0.0;
   this->_magnetometer_offset.y = 0.0;
   this->_magnetometer_offset.z = 0.0;
 
-  Serial.print("magnetometer offset [ x: ");
-  Serial.print(this->_magnetometer_offset.x, 4);
-  Serial.print(", y: ");
-  Serial.print(this->_magnetometer_offset.y, 4);
-  Serial.print(", z: ");
-  Serial.print(this->_magnetometer_offset.z, 4);
-  Serial.println(" ]");
+  this->_print->print("magnetometer offset [ x: ");
+  this->_print->print(this->_magnetometer_offset.x, 4);
+  this->_print->print(", y: ");
+  this->_print->print(this->_magnetometer_offset.y, 4);
+  this->_print->print(", z: ");
+  this->_print->print(this->_magnetometer_offset.z, 4);
+  this->_print->println(" ]");
 
   return true;
 }
@@ -137,15 +134,13 @@ bool QMC5883L::read()
     return false;
   }
 
-  int16_t x = this->_wire->read() | (this->_wire->read() << 8);
-  int16_t y = this->_wire->read() | (this->_wire->read() << 8);
-  int16_t z = this->_wire->read() | (this->_wire->read() << 8);
-
+  int16_t x = ((int16_t)this->_wire->read()) | (this->_wire->read() << 8);
+  int16_t y = ((int16_t)this->_wire->read()) | (this->_wire->read() << 8);
+  int16_t z = ((int16_t)this->_wire->read()) | (this->_wire->read() << 8);
 
   this->_raw_magnetometer.x = (float)x;
   this->_raw_magnetometer.y = (float)y;
   this->_raw_magnetometer.z = (float)z;
-
 
   byte overflow = this->_wire->read() & 0x02;
   bool success = (overflow << 2) == 0;

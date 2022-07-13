@@ -7,6 +7,7 @@
 #include <ESP8266WebServer.h>
 #include <WebSockets4WebServer.h>
 
+#include "imu.h"
 #include "data_logger.h"
 #include "remote_message.h"
 #include "config_manager.h"
@@ -18,7 +19,7 @@ class RemoteServer
 public:
   RemoteServer();
 
-  bool setup(ConfigManager *config_manager, DataLogger *data_logger, ParachuteManager *parachute_manager, FlightObserver *flight_observer);
+  bool setup(ConfigManager *config_manager, DataLogger *data_logger, ParachuteManager *parachute_manager, FlightObserver *flight_observer, IMU *imu);
 
   void update();
 
@@ -42,7 +43,7 @@ private:
   void handle_open_parachute();
   void handle_close_parachute();
   void handle_trigger_parachute();
-  
+
   // unlock
   void handle_unlock();
   void handle_flight_terminate();
@@ -53,6 +54,7 @@ private:
   ESP8266WebServer _web_server;
   WebSockets4WebServer _web_socket;
 
+  IMU *_imu;
   DataLogger *_data_logger;
   ConfigManager *_config_manager;
   FlightObserver *_flight_observer;

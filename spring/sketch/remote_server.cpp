@@ -4,10 +4,11 @@ RemoteServer::RemoteServer() : _web_server(REMOTE_SERVER_PORT)
 {
 }
 
-bool RemoteServer::setup(ConfigManager *config_manager, DataLogger *data_logger, ParachuteManager *parachute_manager, FlightObserver *flight_observer)
+bool RemoteServer::setup(ConfigManager *config_manager, DataLogger *data_logger, ParachuteManager *parachute_manager, FlightObserver *flight_observer, IMU *imu)
 {
   Serial.println("starting remote server...");
 
+  this->_imu = imu;
   this->_data_logger = data_logger;
   this->_config_manager = config_manager;
   this->_flight_observer = flight_observer;
@@ -35,7 +36,7 @@ bool RemoteServer::setup(ConfigManager *config_manager, DataLogger *data_logger,
 
   this->_web_server.on("/api/flight/terminate", HTTP_GET, std::bind(&RemoteServer::handle_flight_terminate, this));
 
-  //parachute
+  // parachute
   this->_web_server.on("/api/parachute/open", HTTP_GET, std::bind(&RemoteServer::handle_open_parachute, this));
   this->_web_server.on("/api/parachute/close", HTTP_GET, std::bind(&RemoteServer::handle_close_parachute, this));
   this->_web_server.on("/api/parachute/trigger", HTTP_GET, std::bind(&RemoteServer::handle_trigger_parachute, this));
@@ -255,6 +256,11 @@ void RemoteServer::handle_update_configuration()
   {
     config->rotation_z = doc["rotationZ"];
   }
+
+  // setup the imu rotation
+  Quaternion rotation;
+  rotation.set_euler(DEG_TO_RAD * config->rotation_x, DEG_TO_RAD * config->rotation_y, DEG_TO_RAD * config->rotation_z);
+  this->_imu->set_rotation(rotation);
 
   // launch
   bool has_launch_angle = doc.containsKey("launchAngle");
