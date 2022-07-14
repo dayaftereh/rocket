@@ -85,7 +85,7 @@ void StatusLeds::singal_red(int timeout)
 {
     this->_signal_red = true;
     this->_timeout_red = timeout;
-    this->_timeout_red = millis();
+    this->_timer_red = millis();
 }
 
 void StatusLeds::singal_green(int timeout)

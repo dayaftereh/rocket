@@ -12,37 +12,57 @@ MPU6050 mpu6050;
 StatusLeds leds;
 IST8310 ist8310;
 Madgwick madgwick;
+StatusLedsConfig ledsConfig;
+MadgwickConfig madgwickConfig;
 
 void setup()
 {
     Serial.begin(115200);
-    while (!Serial)
-        ;
 
     Wire.begin();
     Wire.setClock(400000);
 
-    bool success = ist8310.setup(&Wire, &Serial, &leds);
+    while (!Serial)
+    {
+        delay(10);
+    }
+
+    delay(1000);
+
+    Serial.println("Starting...");
+
+    ledsConfig.red_pin = 2;
+    ledsConfig.green_pin = 4;
+    ledsConfig.redirect_error_2_green = false;
+    leds.setup(&ledsConfig, &Serial);
+
+    bool success = stats.setup();
     if (!success)
     {
-        Serial.println("fail to setup ist8310");
+        Serial.println("fail to setup stats");
         leds.error(1);
     }
 
-    ist8310.set_flip_x_y(true);
+    success = ist8310.setup(&Wire, &Serial, &leds);
+    if (!success)
+    {
+        Serial.println("fail to setup ist8310");
+        leds.error(2);
+    }
 
+    ist8310.set_flip_x_y(true);
     success = ist8310.set_average(IST8310_4_AVERAGE_Y, IST8310_4_AVERAGE_X_Z);
     if (!success)
     {
         Serial.println("fail to set average");
-        leds.error(2);
+        leds.error(3);
     }
 
     success = mpu6050.setup(&Wire, &Serial, &leds);
     if (!success)
     {
         Serial.println("Fail to setup mpu6050");
-        leds.error(2);
+        leds.error(4);
     }
 
     Vec3f offset(-0.7, 0, -2.8);
@@ -52,21 +72,23 @@ void setup()
     if (!success)
     {
         Serial.println("Fail to setup stats");
-        leds.error(3);
+        leds.error(5);
     }
 
-    success = madgwick.setup(0.0, 10.0, &stats);
+    madgwickConfig.madgwick_ki = 0.0;
+    madgwickConfig.madgwick_kp = 10.0;
+    success = madgwick.setup(&madgwickConfig, &stats);
     if (!success)
     {
         Serial.println("Fail to setup madgwick");
-        leds.error(4);
+        leds.error(6);
     }
 
     success = imu.setup(&mpu6050, &mpu6050, &ist8310, &madgwick, &Serial);
     if (!success)
     {
         Serial.println("Fail to setup imu");
-        leds.error(6);
+        leds.error(7);
     }
 
     Quaternion rotation;
@@ -114,7 +136,6 @@ void loop()
 
     Vec3f *acceleration = imu.get_world_acceleration();
 
-    
     Serial.print(acceleration->x);
     Serial.print(" ");
     Serial.print(acceleration->y);
