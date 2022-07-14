@@ -52,7 +52,7 @@ bool MPU6050::setup(TwoWire *wire, Print *print, Leds *leds)
     return false;
   }
 
-  success = this->set_acceleration_config(MPU6050_ACCELERATION_2_G);
+  success = this->set_acceleration_config(MPU6050_ACCELERATION_4_G);
   if (!success)
   {
     this->_print->println("fail to configure mpu6050 acceleration config");

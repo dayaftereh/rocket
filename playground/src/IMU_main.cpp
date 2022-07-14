@@ -5,12 +5,14 @@
 #include <madgwick.h>
 #include <stats.h>
 #include <imu.h>
+#include <qmc5883l.h>
 
 IMU imu;
 Stats stats;
 MPU6050 mpu6050;
 StatusLeds leds;
 IST8310 ist8310;
+QMC5883L qmc5883l;
 Madgwick madgwick;
 StatusLedsConfig ledsConfig;
 MadgwickConfig madgwickConfig;
@@ -43,7 +45,14 @@ void setup()
         leds.error(1);
     }
 
-    success = ist8310.setup(&Wire, &Serial, &leds);
+    success = qmc5883l.setup(&Wire, &Serial, &leds);
+    if (!success)
+    {
+        Serial.println("fail to setup qmc5883l");
+        leds.error(2);
+    }
+
+    /*success = ist8310.setup(&Wire, &Serial, &leds);
     if (!success)
     {
         Serial.println("fail to setup ist8310");
@@ -56,7 +65,7 @@ void setup()
     {
         Serial.println("fail to set average");
         leds.error(3);
-    }
+    }*/
 
     success = mpu6050.setup(&Wire, &Serial, &leds);
     if (!success)
@@ -65,7 +74,7 @@ void setup()
         leds.error(4);
     }
 
-    Vec3f offset(-0.7, 0, -2.8);
+    Vec3f offset(0, 0, 0);
     mpu6050.set_acceleration_offset(offset);
 
     success = stats.setup();
@@ -76,7 +85,7 @@ void setup()
     }
 
     madgwickConfig.madgwick_ki = 0.0;
-    madgwickConfig.madgwick_kp = 10.0;
+    madgwickConfig.madgwick_kp = 5.0;
     success = madgwick.setup(&madgwickConfig, &stats);
     if (!success)
     {
@@ -84,7 +93,7 @@ void setup()
         leds.error(6);
     }
 
-    success = imu.setup(&mpu6050, &mpu6050, &ist8310, &madgwick, &Serial);
+    success = imu.setup(&mpu6050, &mpu6050, &qmc5883l, &madgwick, &Serial);
     if (!success)
     {
         Serial.println("Fail to setup imu");
@@ -92,7 +101,9 @@ void setup()
     }
 
     Quaternion rotation;
-    rotation.set_euler(DEG_TO_RAD * -90, 0.0, 0.0);
+
+    // spring  
+    rotation.set_euler(DEG_TO_RAD * -84.6, DEG_TO_RAD * 2.8, DEG_TO_RAD * 0.0);
     imu.set_rotation(rotation);
 
     Serial.println("Success setup");
@@ -110,12 +121,14 @@ void loop()
         leds.error(10);
     }
 
-    success = ist8310.update();
+    /*success = ist8310.update();
     if (!success)
     {
         Serial.println("fail to update ist8310");
         leds.error(11);
-    }
+    }*/
+
+    qmc5883l.update();
 
     success = imu.update();
     if (!success)
@@ -124,7 +137,7 @@ void loop()
         leds.error(12);
     }
 
-    /*Quaternion *orientation = imu.get_orientation();
+    Quaternion *orientation = imu.get_orientation();
 
     Vec3f euler = orientation->get_euler().scale_scalar(RAD_TO_DEG);
     Serial.print(euler.x);
@@ -132,16 +145,16 @@ void loop()
     Serial.print(euler.y);
     Serial.print(" ");
     Serial.print(euler.z);
-    Serial.print(" ");*/
+    Serial.print(" ");
 
-    Vec3f *acceleration = imu.get_world_acceleration();
+    /*Vec3f *acceleration = imu.get_acceleration();
 
     Serial.print(acceleration->x);
     Serial.print(" ");
     Serial.print(acceleration->y);
     Serial.print(" ");
     Serial.print(acceleration->z);
-    Serial.print(" ");
+    Serial.print(" ");*/
 
     Vec3f *acceleration_filtered = imu.get_world_acceleration_filtered();
 
