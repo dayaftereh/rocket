@@ -26,21 +26,30 @@ public:
 
     Vec3f *get_gyroscope();
     Vec3f *get_acceleration();
+    Vec3f *get_acceleration_filtered();
     Vec3f *get_magnetometer();
 
     Vec3f *get_world_acceleration();
     Vec3f *get_world_acceleration_filtered();
 
+    Vec3f *get_zeroed_acceleration();
+    Vec3f *get_zeroed_acceleration_filtered();
+
     Quaternion *get_orientation();
     Quaternion *get_raw_orientation();
 
 private:
+    Vec3f _acceleration_filtered;
+
     Vec3f _world_acceleration;
     Vec3f _world_acceleration_filtered;
 
-    Kalman _world_acceleration_x;
-    Kalman _world_acceleration_y;
-    Kalman _world_acceleration_z;
+    Vec3f _zeroed_acceleration;
+    Vec3f _zeroed_acceleration_filtered;
+
+    Kalman _acceleration_x;
+    Kalman _acceleration_y;
+    Kalman _acceleration_z;
 
     Quaternion _rotation;
     Quaternion _orientation;
@@ -53,4 +62,4 @@ private:
     Magnetometer *_magnetometer;
 };
 
-#endif // _LEDS_H
+#endif // _IMU_H

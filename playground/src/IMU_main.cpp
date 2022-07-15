@@ -101,7 +101,6 @@ void setup()
     }
 
     Quaternion rotation;
-
     // spring  
     rotation.set_euler(DEG_TO_RAD * -84.6, DEG_TO_RAD * 2.8, DEG_TO_RAD * 0.0);
     imu.set_rotation(rotation);

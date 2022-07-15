@@ -12,6 +12,8 @@ public:
     Vec3f();
     Vec3f(float x, float y, float z);
 
+    Vec3f set(float x, float y, float z);
+
     Vec3f invert();
     Vec3f add(Vec3f &n);
     Vec3f subtract(Vec3f &n);

@@ -14,6 +14,12 @@ Vec3f::Vec3f(float x, float y, float z)
     this->z = z;
 }
 
+Vec3f Vec3f::set(float x, float y, float z)
+{
+    Vec3f v(x, y, z);
+    return v;
+}
+
 Vec3f Vec3f::scale_scalar(float s)
 {
     Vec3f v(this->x * s, this->y * s, this->z * s);
