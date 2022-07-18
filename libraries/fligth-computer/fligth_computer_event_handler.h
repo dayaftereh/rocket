@@ -12,6 +12,7 @@ public:
     virtual void meco() = 0;
     virtual void apogee() = 0;
     virtual void landed() = 0;
+    virtual void terminated() = 0;
     virtual void idle() = 0;
 };
 

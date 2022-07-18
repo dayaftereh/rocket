@@ -17,15 +17,15 @@ public:
     FlightComputer();
 
     bool setup(FlightComputerConfig *config, FlightComputerEventHandler *handler, IMU *imu, Stats *stats, Print *print);
-
-    unlock();
-
-    FlightComputerState get_state();
-
     void update();
 
-private:
+    void abort();
+    void unlock();
 
+    Vec3f *get_velocity();
+    FlightComputerState get_state();
+
+private:
     // states
     void locked();
     void startup();
@@ -45,16 +45,23 @@ private:
     void wait_for_landed();
     void landed();
 
+    void terminating();
     void idle();
 
     // utils
+    void set_state(FlightComputerState state);
     void update_thrust_velocity();
     void update_freefall_velocity();
+    void update_flight_termination();
 
-    bool _launched;    
+    bool _launched;
+    int _landed_orientation_counter;
+
     uint32_t _launch_time;
+    uint32_t _landed_orientation_timer;
 
     Vec3f _velocity;
+    Vec3f _last_orientation;
 
     FlightComputerState _state;
 
