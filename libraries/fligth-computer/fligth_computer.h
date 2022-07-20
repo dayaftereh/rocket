@@ -22,6 +22,9 @@ public:
     void abort();
     void unlock();
 
+    bool is_launched();
+    uint32_t get_inflight_time();
+
     Vec3f *get_velocity();
     FlightComputerState get_state();
 

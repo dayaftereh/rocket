@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 
+
 #define RED_LED_PIN 2
 #define GREEN_LED_PIN 4
 
@@ -16,5 +17,12 @@
 #define IMU_X_ROTATION (DEG_TO_RAD * -75.1)
 #define IMU_Y_ROTATION (DEG_TO_RAD * 4.3)
 #define IMU_Z_ROTATION (DEG_TO_RAD * 0)
+
+#define DATA_LOGGER_LOOP_TYPE 1
+#define DATA_LOGGER_USE_FLASH true
+#define DATA_LOGGER_FLUSH_CS 17
+#define DATA_LOGGER_SD_CARD_CS 5
+
+#define LOOP_CONTROLLER_STARTUP_TIMEOUT (10*1000)
 
 #endif // _CONFIG_H

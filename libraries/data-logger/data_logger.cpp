@@ -10,6 +10,10 @@ bool DataLogger::setup(DataLoggerConfig *config, Leds *leds, Print *print)
     this->_print = print;
     this->_config = config;
 
+    this->_flash_type_address = 4;
+    this->_flash_entities_address = 6;
+    this->_entities_address_offset = 12;
+
     // initialize sd card
     bool success = this->init_sd();
     if (!success)
@@ -54,7 +58,7 @@ bool DataLogger::init_sd()
     }
 
     // open the data file
-    success = this->open_data_file();
+    success = this->open_next_data_file();
     if (!success)
     {
         return false;
@@ -127,7 +131,7 @@ bool DataLogger::open_next_data_file()
         this->_print->println(" ]");
 
         // write the type to the data file
-        this->data_file.write(this->_config->type);
+        this->_data_file.write(this->_config->type);
 
         return true;
     }
@@ -145,7 +149,7 @@ bool DataLogger::init_flash()
     bool success = this->_flash->begin();
     if (!success)
     {
-        this->_print->println(this->_flash.error(true));
+        this->_print->println(this->_flash->error(true));
         this->_print->println("fail to initialize flash memory.");
         return false;
     }
@@ -157,18 +161,12 @@ bool DataLogger::init_flash()
         return false;
     }
 
-    // set the starting flash address
-    this->_flash_address = 0;
-
     // check if flash is ready and not data left
     success = this->inspect_flash();
     if (!success)
     {
         return false;
     }
-
-    // set to start address [ type(uint8_t) + entities(uint32_t) ]
-    this->_flash_address = 1 + 4;
 
     return true;
 }
@@ -208,12 +206,14 @@ bool DataLogger::inspect_flash()
     // read the type from the flash
     uint8_t type = this->_flash->readByte(this->_flash_type_address);
 
-    if (type != this->_config->type)
+    if (type != this->_config->type || this->_config->force_full_flush_erase)
     {
         this->_print->print("erase full flash, because type miss match [ ");
         this->_print->print(type);
         this->_print->print(" != ");
         this->_print->print(this->_config->type);
+        this->_print->print(" ] or force of full flush erase [ ");
+        this->_print->print(this->_config->force_full_flush_erase);
         this->_print->println(" ]");
 
         // clean up and ready the flash
@@ -241,11 +241,14 @@ bool DataLogger::inspect_flash()
     }
 
     // open next data file
-    success = this->open_data_file();
+    success = this->open_next_data_file();
     if (!success)
     {
         return false;
     }
+
+    // reset entities to zero
+    this->_entities = 0;
 
     return true;
 }
@@ -270,7 +273,7 @@ bool DataLogger::erase_full_flash()
         }
 
         // erase the section
-        bool success = this->_flash.eraseSection(address, length);
+        bool success = this->_flash->eraseSection(address, length);
         if (!success)
         {
             this->_print->print("fail to erase section [ addr: ");
@@ -285,29 +288,50 @@ bool DataLogger::erase_full_flash()
         // update the leds
         this->_leds->update();
     }
-
-    // write the type to flash
+    // write the data entry type to the flash
     bool success = this->_flash->writeByte(this->_flash_type_address, this->_config->type);
     if (!success)
     {
-        this->_print->println("fail to write flash type");
+        this->_print->println("fail to write data type to flush");
         return false;
     }
+
+    // zero the entities
+    this->_entities = 0;
+    // write the zero count to flash
+    success = this->update_flash_entities();
+    if (!success)
+    {
+        return false;
+    }
+
+    this->_print->println("full flush erase successful completed");
 
     return true;
 }
 
+uint32_t DataLogger::entry_address(uint32_t i)
+{
+    // calculate the entry address
+    uint32_t address = this->_entities_address_offset + (i * this->_config->entry_size);
+    return address;
+}
+
 bool DataLogger::copy_flash_2_sd()
 {
+    this->_print->print("starting copy of [ ");
+    this->_print->print(this->_entities);
+    this->_print->println(" ] entities to sd card");
+
     // copy entry by entry
     for (uint32_t i = 0; i < this->_entities; i++)
     {
         // create a copy buffer for 1 entry
         uint8_t buf[this->_config->entry_size];
         // calculate the entry address
-        uint32_t address = (1 + 4) + (i * this->_config->entry_size);
+        uint32_t address = this->entry_address(i);
         // read the data entry from flash memory
-        bool success = this->_flash.readByteArray(address, buf, this->_config->entry_size);
+        bool success = this->_flash->readByteArray(address, buf, this->_config->entry_size);
         if (!success)
         {
             this->_print->print("fail to read data entry [ i: ");
@@ -336,11 +360,15 @@ bool DataLogger::copy_flash_2_sd()
     // close the data file
     this->_data_file.close();
 
+    this->_print->print("successful copied [ ");
+    this->_print->print(this->_entities);
+    this->_print->println(" ] entities to sd card and starting erase entities from flush");
+
     // erase now the _entities
     for (uint32_t i = 0; i < this->_entities; i++)
     {
         // calculate the entry address
-        uint32_t address = (1 + 4) + (i * this->_config->entry_size);
+        uint32_t address = this->entry_address(i);
         bool success = this->_flash->eraseSection(address, this->_config->entry_size);
         if (!success)
         {
@@ -355,13 +383,16 @@ bool DataLogger::copy_flash_2_sd()
         }
     }
 
-    // zero the current entities
-    bool success = this->_flash->writeULong(this->_flash_entities_address, 0);
+    // zero the entities
+    this->_entities = 0;
+    // write the zero count to flash
+    bool success = this->update_flash_entities();
     if (!success)
     {
-        this->_print->println("fail to zero entities count on flash");
         return false;
     }
+
+    this->_print->println("successful erased all entities from flush");
 
     return true;
 }
@@ -382,7 +413,14 @@ bool DataLogger::write(uint8_t *buf)
 bool DataLogger::write_flash(uint8_t *buf)
 {
     // calculate the next entry address
-    uint32_t address = (1 + 4) + (this->_entities * this->_config->entry_size);
+    uint32_t address = this->entry_address(this->_entities);
+
+    // check if the flash is full
+    if (address > this->_flash->getCapacity())
+    {
+        return true;
+    }
+
     // write the entry data
     bool success = this->_flash->writeByteArray(address, buf, this->_config->entry_size);
     if (!success)
@@ -399,6 +437,25 @@ bool DataLogger::write_flash(uint8_t *buf)
 
     // increment the entities by one
     this->_entities++;
+    success = this->update_flash_entities();
+    if (!success)
+    {
+        return false;
+    }
+
+    return true;
+}
+
+bool DataLogger::update_flash_entities()
+{
+    // clear up the entities count section
+    bool success = this->_flash->eraseSection(this->_flash_entities_address, 4);
+    if (!success)
+    {
+        this->_print->println("fail to erase entities count section on flash");
+        return false;
+    }
+
     // update the current entities count at the flash
     success = this->_flash->writeULong(this->_flash_entities_address, this->_entities);
     if (!success)
@@ -414,4 +471,19 @@ bool DataLogger::write_sd(uint8_t *buf)
 {
     uint32_t n = (uint32_t)this->_data_file.write(buf, this->_config->entry_size);
     return n == this->_config->entry_size;
+}
+
+bool DataLogger::done()
+{
+    // check if use flash given
+    if (!this->_config->use_flash)
+    {
+        // flush the sd card file and close
+        this->_data_file.flush();
+        this->_data_file.close();
+        return true;
+    }
+    // copy data from flash 2 sd card
+    bool success = this->copy_flash_2_sd();
+    return success;
 }

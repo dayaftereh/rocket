@@ -280,7 +280,7 @@ uint8_t MPU6050::get_device_id()
   }
 
   // read the byte from wire
-  int length = 1;
+  uint8_t length = 1;
   int received = this->_wire->requestFrom(this->_address, length);
   if (received != length)
   {

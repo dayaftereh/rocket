@@ -6,9 +6,12 @@
 #include <mpu6050.h>
 #include <madgwick.h>
 #include <status_leds.h>
+#include <data_logger.h>
 
 #include "error.h"
 #include "config.h"
+#include "data_log_entry.h"
+#include "loop_controller.h"
 
 // System
 Stats stats;
@@ -20,7 +23,18 @@ IMU imu;
 IST8310 ist8310;
 MPU6050 mpu6050;
 Madgwick madgwick;
-MadgwickConfig madgwickConfig;
+MadgwickConfig madgwick_config;
+
+// DataLogger
+DataLogger data_logger;
+DataLoggerConfig data_logger_config;
+
+// FlightController
+FlightComputer flight_computer;
+FlightComputerConfig flight_computer_config;
+
+// Loop
+LoopController loop_controller;
 
 void setup_status_leds()
 {
@@ -56,9 +70,9 @@ bool setup_imu()
     Vec3f offset(ACCELERATION_X_OFFSET, ACCELERATION_Y_OFFSET, ACCELERATION_Z_OFFSET);
     mpu6050.set_acceleration_offset(offset);
 
-    madgwickConfig.madgwick_ki = MADGWICK_KI;
-    madgwickConfig.madgwick_kp = MADGWICK_KP;
-    success = madgwick.setup(&madgwickConfig, &stats);
+    madgwick_config.madgwick_ki = MADGWICK_KI;
+    madgwick_config.madgwick_kp = MADGWICK_KP;
+    success = madgwick.setup(&madgwick_config, &stats);
     if (!success)
     {
         Serial.println("fail to setup madgwick");
@@ -80,6 +94,54 @@ bool setup_imu()
     return true;
 }
 
+bool setup_data_logger()
+{
+    data_logger_config.force_full_flush_erase = false;
+    data_logger_config.type = DATA_LOGGER_LOOP_TYPE;
+    data_logger_config.flash_cs = DATA_LOGGER_FLUSH_CS;
+    data_logger_config.use_flash = DATA_LOGGER_USE_FLASH;
+    data_logger_config.sd_card_cs = DATA_LOGGER_SD_CARD_CS;
+    // get the size of the data logger entry
+    DataLoggerEntry entry;
+    data_logger_config.entry_size = sizeof(entry);
+
+    // set up the data logegr
+    bool success = data_logger.setup(&data_logger_config, &leds, &Serial);
+    if (!success)
+    {
+        Serial.println("fail to setup data logger");
+        leds.error(ERROR_DATA_LOGGER);
+    }
+
+    return true;
+}
+
+bool setup_flight_computer()
+{
+    flight_computer_config.flight_terminate_timeout = (10 * 1000);
+
+    flight_computer_config.launch_acceleration_threshold = 0.75;
+
+    flight_computer_config.lift_off_velocity_threshold = 0.5;
+
+    flight_computer_config.meco_acceleration_threshold = 0.5;
+
+    flight_computer_config.apogee_velocity_threshold = 0.1;
+
+    flight_computer_config.landed_orientation_count = 1000;
+    flight_computer_config.landed_orientation_threshold = 0.5;
+    flight_computer_config.landed_acceleration_threshold = 0.5;
+    flight_computer_config.landed_change_detect_timeout = (2 * 1000);
+
+    bool success = flight_computer.setup(&flight_computer_config, &loop_controller, &imu, &stats, &Serial);
+    if (!success)
+    {
+        return false;
+    }
+
+    return true;
+}
+
 void setup()
 {
     Serial.begin(115200);
@@ -87,11 +149,15 @@ void setup()
     Wire.begin();
     Wire.setClock(400000);
 
+    SPI.begin();
+
     setup_status_leds();
 
     leds.sleep(1000);
 
     Serial.println("Starting...");
+
+    // ######################
 
     bool success = stats.setup();
     if (!success)
@@ -100,66 +166,54 @@ void setup()
         leds.error(ERROR_STATS);
     }
 
+    // ######################
+
     success = setup_imu();
     if (!success)
     {
         return;
     }
 
+    // ######################
+
+    success = setup_data_logger();
+    if (!success)
+    {
+        return;
+    }
+
+    // ######################
+    success = setup_flight_computer();
+    if (!success)
+    {
+        Serial.println("fail to setup flight computer");
+        leds.error(ERROR_FLIGHT_COMPUTER);
+        return;
+    }
+
+    // ######################
+    success = loop_controller.setup(&imu, &flight_computer, &data_logger, &leds, &stats, &Serial);
+    if (!success)
+    {
+        Serial.println("fail to setup loop controller");
+        leds.error(ERROR_LOOP_CONTROLLER);
+        return;
+    }
+
+    Serial.println("successful completed setup");
+
+    Serial.flush();
+    // lets chill
+    leds.sleep(1000);
     // set green flushing off
     leds.stop_green();
     // turn green on
     leds.on_green();
-
-    Serial.flush();
-}
-
-void output_imu_data()
-{
-    // output the orientation
-    Quaternion *orientation = imu.get_orientation();
-    Vec3f euler = orientation->get_euler().scale_scalar(RAD_TO_DEG);
-    Serial.print(euler.x);
-    Serial.print(" ");
-    Serial.print(euler.y);
-    Serial.print(" ");
-    Serial.print(euler.z);
-    Serial.print(" ");
-
-     // acceleration
-    Vec3f *acceleration = imu.get_acceleration_filtered();
-    Serial.print(acceleration->x);
-    Serial.print(" ");
-    Serial.print(acceleration->y);
-    Serial.print(" ");
-    Serial.print(acceleration->z);
-    Serial.print(" ");
-
-    // world acceleration
-    Vec3f *world_acceleration = imu.get_world_acceleration_filtered();
-    Serial.print(world_acceleration->x);
-    Serial.print(" ");
-    Serial.print(world_acceleration->y);
-    Serial.print(" ");
-    Serial.print(world_acceleration->z);
-    Serial.print(" ");
-
-    // zerored acceleration
-    Vec3f *zeroed_acceleration = imu.get_zeroed_acceleration_filtered();
-    Serial.print(zeroed_acceleration->x);
-    Serial.print(" ");
-    Serial.print(zeroed_acceleration->y);
-    Serial.print(" ");
-    Serial.print(zeroed_acceleration->z);
-    Serial.print(" ");
-    // the length of zerored acceleration
-    Serial.println(zeroed_acceleration->length());
 }
 
 void loop()
 {
     stats.update();
-
     leds.update();
 
     bool success = mpu6050.update();
@@ -182,6 +236,12 @@ void loop()
         Serial.println("fail to update imu");
         leds.error(ERROR_IMU);
     }
+    flight_computer.update();
 
-    output_imu_data();
+    success = loop_controller.update();
+    if (!success)
+    {
+        Serial.println("fail to update loop controller");
+        leds.error(ERROR_LOOP_CONTROLLER);
+    }
 }

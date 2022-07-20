@@ -141,7 +141,7 @@ void FlightComputer::wait_for_lift_off()
     this->update_thrust_velocity();
 
     // check if lift off velocity reached
-    if (this->_velocity.length() < this->_config->.lift_off_velocity_threshold)
+    if (this->_velocity.length() < this->_config->lift_off_velocity_threshold)
     {
         return;
     }
@@ -241,7 +241,7 @@ void FlightComputer::wait_for_landed()
     {
         // reset the counter, because orientation changed too much
         this->_landed_orientation_counter = 0;
-        return
+        return;
     }
 
     // increment the counter
@@ -262,7 +262,7 @@ void FlightComputer::wait_for_landed()
 
     // check if the landed orientation timer exceeded
     uint32_t delta = millis() - this->_landed_orientation_timer;
-    if (delta < this->_config.landed_change_detect_timeout)
+    if (delta < this->_config->landed_change_detect_timeout)
     {
         return;
     }
@@ -343,4 +343,39 @@ void FlightComputer::update_freefall_velocity()
     // sum up the velocity by v1 = v0 + a * t
     Vec3f v = acceleration->scale_scalar(delta);
     this->_velocity = this->_velocity.add(v);
+}
+
+bool FlightComputer::is_launched()
+{
+    return this->_launched;
+}
+
+uint32_t FlightComputer::get_inflight_time()
+{
+    if (!this->_launched)
+    {
+        return 0;
+    }
+    return millis() - this->_launch_time;
+}
+
+Vec3f *FlightComputer::get_velocity()
+{
+    return &this->_velocity;
+}
+
+FlightComputerState FlightComputer::get_state()
+{
+    return this->_state;
+}
+
+void FlightComputer::set_state(FlightComputerState state)
+{
+    this->_print->print("changing flight computer state from [ ");
+    this->_print->print(this->_state);
+    this->_print->print(" ] to [ ");
+    this->_print->print(state);
+    this->_print->println(" ]");
+
+    this->_state = state;
 }
