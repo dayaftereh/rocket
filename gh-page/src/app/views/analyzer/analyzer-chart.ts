@@ -1,5 +1,7 @@
 import { Chart } from "src/app/utils/chart";
 import { AvionicsDataEntry } from "./avionics-data-entry";
+import { AvionicsDataEntryType } from "./avionics-data-entry-type";
+import { AvionicsLoopEntry } from "./avionics-loop-entry";
 
 export class AnalyzerChart extends Chart {
 
@@ -8,30 +10,27 @@ export class AnalyzerChart extends Chart {
     }
 
     private datasetState: any
-
     private datasetElapsed: any
-
-    private datasetVoltage: any
-    private datasetAltitude: any
-    private datasetMaximumAltitude: any
-
-    private datasetParachuteVelocity: any
-    private datasetParachuteAltitude: any
-    private datasetParachuteOrientation: any
-
-    private datasetAccelerationX: any
-    private datasetAccelerationY: any
-    private datasetAccelerationZ: any
-
-    private datasetAccelerationNormalizedX: any
-    private datasetAccelerationNormalizedY: any
-    private datasetAccelerationNormalizedZ: any
 
     private datasetRotationX: any
     private datasetRotationY: any
     private datasetRotationZ: any
 
-    private datasetVelocity: any
+    private datasetRawAccelerationX: any
+    private datasetRawAccelerationY: any
+    private datasetRawAccelerationZ: any
+
+    private datasetAccelerationX: any
+    private datasetAccelerationY: any
+    private datasetAccelerationZ: any
+
+    private datasetWorldAccelerationX: any
+    private datasetWorldAccelerationY: any
+    private datasetWorldAccelerationZ: any
+
+    private datasetZeroedAccelerationX: any
+    private datasetZeroedAccelerationY: any
+    private datasetZeroedAccelerationZ: any
 
     private datasetVelocityX: any
     private datasetVelocityY: any
@@ -73,234 +72,205 @@ export class AnalyzerChart extends Chart {
             }
         })
 
+        let h: number = 0
+        const nextHSL = () => {
+            const n: number = h
+            h = (h + 10) % 360
+            return `hsl(${n}, 100%, 50%)`
+        }
+
         this.plugins = this.createDefaultPlugins()
 
-        this.datasetState = this.createDataset('State', '#fff', this.xAxisId, this.yAxisId)
+        this.datasetState = this.createDataset('State', '#f00', this.xAxisId, this.yAxisId)
+        this.datasetElapsed = this.createDataset('Elapsed', '#0f0', this.xAxisId, this.yAxisId)
 
-        this.datasetElapsed = this.createDataset('Elapsed (s)', '#f0f', this.xAxisId, this.yAxisId)
+        this.datasetRotationX = this.createDataset('Rot_X', nextHSL(), this.xAxisId, this.yAxisId)
+        this.datasetRotationY = this.createDataset('Rot_Y', nextHSL(), this.xAxisId, this.yAxisId)
+        this.datasetRotationZ = this.createDataset('Rot_Z', nextHSL(), this.xAxisId, this.yAxisId)
 
-        this.datasetVoltage = this.createDataset('Volt (V)', '#ff0', this.xAxisId, this.yAxisId)
-        this.datasetAltitude = this.createDataset('Alt (m)', '#0ff', this.xAxisId, this.yAxisId)
-        this.datasetMaximumAltitude = this.createDataset('M_Alt', 'hsl(80, 100%, 50%)', this.xAxisId, this.yAxisId)
+        this.datasetRawAccelerationX = this.createDataset('R_Acc_X', nextHSL(), this.xAxisId, this.yAxisId)
+        this.datasetRawAccelerationY = this.createDataset('R_Acc_Y', nextHSL(), this.xAxisId, this.yAxisId)
+        this.datasetRawAccelerationZ = this.createDataset('R_Acc_Z', nextHSL(), this.xAxisId, this.yAxisId)
 
-        this.datasetParachuteVelocity = this.createDataset('P_Velo', '#f00', this.xAxisId, this.yAxisId)
-        this.datasetParachuteAltitude = this.createDataset('P_Alt', '#0f0', this.xAxisId, this.yAxisId)
-        this.datasetParachuteOrientation = this.createDataset('P_Ori', '#00f', this.xAxisId, this.yAxisId)
+        this.datasetAccelerationX = this.createDataset('Acc_X', nextHSL(), this.xAxisId, this.yAxisId)
+        this.datasetAccelerationY = this.createDataset('Acc_Y', nextHSL(), this.xAxisId, this.yAxisId)
+        this.datasetAccelerationZ = this.createDataset('Acc_Z', nextHSL(), this.xAxisId, this.yAxisId)
 
-        this.datasetAccelerationX = this.createDataset('Acc_X', 'hsl(20, 100%, 50%)', this.xAxisId, this.yAxisId)
-        this.datasetAccelerationY = this.createDataset('Acc_Y', 'hsl(340, 100%, 50%)', this.xAxisId, this.yAxisId)
-        this.datasetAccelerationZ = this.createDataset('Acc_Z', 'hsl(200, 100%, 50%)', this.xAxisId, this.yAxisId)
+        this.datasetWorldAccelerationX = this.createDataset('W_Acc_X', nextHSL(), this.xAxisId, this.yAxisId)
+        this.datasetWorldAccelerationY = this.createDataset('W_Acc_Y', nextHSL(), this.xAxisId, this.yAxisId)
+        this.datasetWorldAccelerationZ = this.createDataset('W_Acc_Z', nextHSL(), this.xAxisId, this.yAxisId)
 
-        this.datasetAccelerationNormalizedX = this.createDataset('nAcc_X', 'hsl(25, 100%, 50%)', this.xAxisId, this.yAxisId)
-        this.datasetAccelerationNormalizedY = this.createDataset('nAcc_Y', 'hsl(345, 100%, 50%)', this.xAxisId, this.yAxisId)
-        this.datasetAccelerationNormalizedZ = this.createDataset('nAcc_Z', 'hsl(205, 100%, 50%)', this.xAxisId, this.yAxisId)
+        this.datasetZeroedAccelerationX = this.createDataset('Z_Acc_X', nextHSL(), this.xAxisId, this.yAxisId)
+        this.datasetZeroedAccelerationY = this.createDataset('Z_Acc_Y', nextHSL(), this.xAxisId, this.yAxisId)
+        this.datasetZeroedAccelerationZ = this.createDataset('Z_Acc_Z', nextHSL(), this.xAxisId, this.yAxisId)
 
-        this.datasetRotationX = this.createDataset('Rot_X', 'hsl(40, 100%, 50%)', this.xAxisId, this.yAxisId)
-        this.datasetRotationY = this.createDataset('Rot_Y', 'hsl(320, 100%, 50%)', this.xAxisId, this.yAxisId)
-        this.datasetRotationZ = this.createDataset('Rot_Z', 'hsl(180, 100%, 50%)', this.xAxisId, this.yAxisId)
+        this.datasetZeroedAccelerationX = this.createDataset('Z_Acc_X', nextHSL(), this.xAxisId, this.yAxisId)
+        this.datasetZeroedAccelerationY = this.createDataset('Z_Acc_Y', nextHSL(), this.xAxisId, this.yAxisId)
+        this.datasetZeroedAccelerationZ = this.createDataset('Z_Acc_Z', nextHSL(), this.xAxisId, this.yAxisId)
 
-        this.datasetVelocity = this.createDataset('Velo', 'hsl(140, 100%, 50%)', this.xAxisId, this.yAxisId)
+        this.datasetVelocityX = this.createDataset('Vel_X', nextHSL(), this.xAxisId, this.yAxisId)
+        this.datasetVelocityY = this.createDataset('Vel_Y', nextHSL(), this.xAxisId, this.yAxisId)
+        this.datasetVelocityZ = this.createDataset('Vel_Z', nextHSL(), this.xAxisId, this.yAxisId)
 
-        this.datasetVelocityX = this.createDataset('Velo_X', 'hsl(60, 100%, 50%)', this.xAxisId, this.yAxisId)
-        this.datasetVelocityY = this.createDataset('Velo_Y', 'hsl(300, 100%, 50%)', this.xAxisId, this.yAxisId)
-        this.datasetVelocityZ = this.createDataset('Velo_Z', 'hsl(160, 100%, 50%)', this.xAxisId, this.yAxisId)
-
-        this.datasetState.hidden = true
-        this.datasetElapsed.hidden = true
-        this.datasetVoltage.hidden = true
-        this.datasetMaximumAltitude.hidden = true
-
-        this.datasetVelocityX.hidden = true
-        this.datasetVelocityY.hidden = true
-        this.datasetVelocityZ.hidden = true
-
-        this.datasetAccelerationX.hidden = true
-        this.datasetAccelerationY.hidden = true
-        this.datasetAccelerationZ.hidden = true
-
-        this.datasetAccelerationNormalizedX.hidden = true
-        this.datasetAccelerationNormalizedY.hidden = true
-        this.datasetAccelerationNormalizedZ.hidden = true
 
         this.data = {
             datasets: [
                 this.datasetState,
                 this.datasetElapsed,
 
-                this.datasetVoltage,
-                this.datasetAltitude,
-                this.datasetMaximumAltitude,
+                this.datasetRotationX,
+                this.datasetRotationY,
+                this.datasetRotationZ,
 
-                this.datasetParachuteVelocity,
-                this.datasetParachuteAltitude,
-                this.datasetParachuteOrientation,
+                this.datasetRawAccelerationX,
+                this.datasetRawAccelerationY,
+                this.datasetRawAccelerationZ,
 
                 this.datasetAccelerationX,
                 this.datasetAccelerationY,
                 this.datasetAccelerationZ,
 
-                this.datasetAccelerationNormalizedX,
-                this.datasetAccelerationNormalizedY,
-                this.datasetAccelerationNormalizedZ,
+                this.datasetWorldAccelerationX,
+                this.datasetWorldAccelerationY,
+                this.datasetWorldAccelerationZ,
 
-                this.datasetRotationX,
-                this.datasetRotationY,
-                this.datasetRotationZ,
+                this.datasetZeroedAccelerationX,
+                this.datasetZeroedAccelerationY,
+                this.datasetZeroedAccelerationZ,
 
                 this.datasetVelocityX,
                 this.datasetVelocityY,
                 this.datasetVelocityZ,
 
-                this.datasetVelocity,
             ]
         }
     }
 
-
-
     load(entities: AvionicsDataEntry[]): void {
+        this.clearAllDatasets()
 
-        this.datasetState.data = []
-
-        this.datasetElapsed.data = []
-        this.datasetVoltage.data = []
-
-        this.datasetAltitude.data = []
-        this.datasetMaximumAltitude.data = []
-
-        this.datasetParachuteVelocity.data = []
-        this.datasetParachuteAltitude.data = []
-        this.datasetParachuteOrientation.data = []
-
-        this.datasetAccelerationX.data = []
-        this.datasetAccelerationY.data = []
-        this.datasetAccelerationZ.data = []
-
-        this.datasetRotationX.data = []
-        this.datasetRotationY.data = []
-        this.datasetRotationZ.data = []
-
-        this.datasetVelocityX.data = []
-        this.datasetVelocityY.data = []
-        this.datasetVelocityZ.data = []
-
-        this.datasetVelocity.data = []
+        console.log(entities)
 
         entities.forEach((entry: AvionicsDataEntry) => {
-            const time: number = entry.time / 1000.0
 
             this.datasetState.data.push({
-                x: time,
+                x: entry.time,
                 y: entry.state
             })
 
             this.datasetElapsed.data.push({
-                x: time,
+                x: entry.time,
                 y: entry.elapsed
             })
 
-            this.datasetVoltage.data.push({
-                x: time,
-                y: entry.voltage
-            })
-
-            this.datasetAltitude.data.push({
-                x: time,
-                y: entry.altitude
-            })
-
-            this.datasetMaximumAltitude.data.push({
-                x: time,
-                y: entry.maximumAltitude
-            })
-
-            this.datasetParachuteVelocity.data.push({
-                x: time,
-                y: entry.parachuteVelocity ? 1 : 0
-            })
-
-            this.datasetParachuteAltitude.data.push({
-                x: time,
-                y: entry.parachuteAltitude ? 1 : 0
-            })
-
-            this.datasetParachuteOrientation.data.push({
-                x: time,
-                y: entry.parachuteOrientation ? 1 : 0
-            })
-
-            this.datasetAccelerationX.data.push({
-                x: time,
-                y: entry.accelerationX
-            })
-
-            this.datasetAccelerationY.data.push({
-                x: time,
-                y: entry.accelerationY
-            })
-
-            this.datasetAccelerationZ.data.push({
-                x: time,
-                y: entry.accelerationZ
-            })
-
-            this.datasetAccelerationNormalizedX.data.push({
-                x: time,
-                y: entry.accelerationNormalizedX
-            })
-
-            this.datasetAccelerationNormalizedY.data.push({
-                x: time,
-                y: entry.accelerationNormalizedY
-            })
-
-            this.datasetAccelerationNormalizedZ.data.push({
-                x: time,
-                y: entry.accelerationNormalizedZ
-            })
-
-            this.datasetRotationX.data.push({
-                x: time,
-                y: entry.rotationX
-            })
-
-            this.datasetRotationY.data.push({
-                x: time,
-                y: entry.rotationY
-            })
-
-            this.datasetRotationZ.data.push({
-                x: time,
-                y: entry.rotationZ
-            })
-
-            this.datasetVelocityX.data.push({
-                x: time,
-                y: entry.velocityX
-            })
-
-            this.datasetVelocityY.data.push({
-                x: time,
-                y: entry.velocityY
-            })
-
-            this.datasetVelocityZ.data.push({
-                x: time,
-                y: entry.velocityZ
-            })
-
-            const velocity: number = Math.sqrt(
-                entry.velocityX * entry.velocityX
-                + entry.velocityY * entry.velocityY
-                + entry.velocityZ * entry.velocityZ
-            )
-
-            this.datasetVelocity.data.push({
-                x: time,
-                y: velocity
-            })
+            if (entry.type === AvionicsDataEntryType.Loop) {
+                this.loadLoop(entry as AvionicsLoopEntry)
+            }
 
         })
+    }
+
+    private loadLoop(entry: AvionicsLoopEntry): void {
+        this.datasetRotationX.data.push({
+            x: entry.time,
+            y: entry.rotationX
+        })
+
+        this.datasetRotationY.data.push({
+            x: entry.time,
+            y: entry.rotationY
+        })
+
+        this.datasetRotationZ.data.push({
+            x: entry.time,
+            y: entry.rotationZ
+        })
+
+
+        this.datasetRawAccelerationX.data.push({
+            x: entry.time,
+            y: entry.rawAccelerationX
+        })
+
+        this.datasetRawAccelerationY.data.push({
+            x: entry.time,
+            y: entry.rawAccelerationY
+        })
+
+        this.datasetRawAccelerationZ.data.push({
+            x: entry.time,
+            y: entry.rawAccelerationZ
+        })
+
+
+        this.datasetAccelerationX.data.push({
+            x: entry.time,
+            y: entry.accelerationX
+        })
+
+        this.datasetAccelerationY.data.push({
+            x: entry.time,
+            y: entry.accelerationY
+        })
+
+        this.datasetAccelerationZ.data.push({
+            x: entry.time,
+            y: entry.accelerationZ
+        })
+
+
+        this.datasetWorldAccelerationX.data.push({
+            x: entry.time,
+            y: entry.worldAccelerationX
+        })
+
+        this.datasetWorldAccelerationY.data.push({
+            x: entry.time,
+            y: entry.worldAccelerationY
+        })
+
+        this.datasetWorldAccelerationZ.data.push({
+            x: entry.time,
+            y: entry.worldAccelerationZ
+        })
+
+
+        this.datasetZeroedAccelerationX.data.push({
+            x: entry.time,
+            y: entry.zeroedAccelerationX
+        })
+
+        this.datasetZeroedAccelerationY.data.push({
+            x: entry.time,
+            y: entry.zeroedAccelerationY
+        })
+
+        this.datasetZeroedAccelerationZ.data.push({
+            x: entry.time,
+            y: entry.zeroedAccelerationZ
+        })
+
+
+        this.datasetVelocityX.data.push({
+            x: entry.time,
+            y: entry.velocityX
+        })
+
+        this.datasetVelocityY.data.push({
+            x: entry.time,
+            y: entry.velocityY
+        })
+
+        this.datasetVelocityZ.data.push({
+            x: entry.time,
+            y: entry.velocityZ
+        })
+    }
+
+    clearAllDatasets(): void {
+        this.data.datasets.forEach((dataset: any) => {
+            dataset.data = []
+        });
     }
 
     unselectAllDatasets(): void {
@@ -311,12 +281,5 @@ export class AnalyzerChart extends Chart {
 
     onSelectTriggerOverview(): void {
         this.unselectAllDatasets()
-
-        this.datasetParachuteVelocity.hidden = false
-        this.datasetParachuteAltitude.hidden = false
-        this.datasetParachuteOrientation.hidden = false
-
-        this.datasetVelocityZ.hidden = false
-        this.datasetAccelerationZ.hidden = false        
     }
 }

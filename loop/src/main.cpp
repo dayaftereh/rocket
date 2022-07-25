@@ -105,6 +105,10 @@ bool setup_data_logger()
     DataLoggerEntry entry;
     data_logger_config.entry_size = sizeof(entry);
 
+    Serial.print("size of the entry [");
+    Serial.print(data_logger_config.entry_size);
+    Serial.println(" ]");
+
     // set up the data logegr
     bool success = data_logger.setup(&data_logger_config, &leds, &Serial);
     if (!success)

@@ -1,16 +1,15 @@
 import { AvionicsDataEntry } from "./avionics-data-entry"
+import { AvionicsDataEntryType, int2Type } from "./avionics-data-entry-type"
+import { AvionicsLoopEntry } from "./avionics-loop-entry"
 
 export class AvionicsDataLoader {
 
-    private entryLength: number
-    private littleEndian: boolean
-
     private index: number
+    private littleEndian: boolean
 
     constructor() {
         this.index = 0
-        this.littleEndian = true
-        this.entryLength = (2 * 1) + (14 * 4) + (3 * 1)
+        this.littleEndian = false
     }
 
     private async loadArrayBuffer(file: File): Promise<ArrayBuffer> {
@@ -47,25 +46,37 @@ export class AvionicsDataLoader {
         const buf: ArrayBuffer = await this.loadArrayBuffer(file)
         // create the data view
         const dataView: DataView = new DataView(buf)
+        // find the decoder function for the data type
+        const decodeFunction = this.findDecoderFunction(dataView)
 
-        const entities: AvionicsDataEntry[] = this.readEntities(dataView)
-        return entities
+        const entities: AvionicsDataEntry[] = []
+
+        while (true) {
+            // try to decode the next entry
+            const next: AvionicsDataEntry | undefined = decodeFunction(dataView)
+            if (!next) {
+                return entities
+            }
+            // add the next entry
+            entities.push(next)
+        }
     }
 
-    private readEntities(dataView: DataView): AvionicsDataEntry[] {
-        const list: AvionicsDataEntry[] = []
 
-        while ((this.index + this.entryLength) <= dataView.byteLength) {
-            const entry: AvionicsDataEntry = this.readEntry(dataView)
-            list.push(entry)
+
+    private findDecoderFunction(dataView: DataView): (dataView: DataView) => (AvionicsDataEntry | undefined) {
+        const t: number = dataView.getUint8(this.index)
+        const type: AvionicsDataEntryType = int2Type(t)
+        this.index += 1
+
+        if (type === AvionicsDataEntryType.Loop) {
+            return this.decodeLoop.bind(this)
         }
 
-        return list
+        throw new Error(`Unknown avionics data entry type for  [ ${t} ]`)
     }
 
-    private readEntry(dataView: DataView): AvionicsDataEntry {
-        const entry: AvionicsDataEntry = {} as AvionicsDataEntry
-
+    private decodeDefault(entry: AvionicsDataEntry, dataView: DataView): void {
         entry.time = dataView.getUint32(this.index, this.littleEndian)
         this.index += 4
 
@@ -74,47 +85,21 @@ export class AvionicsDataLoader {
 
         entry.elapsed = dataView.getFloat32(this.index, this.littleEndian)
         this.index += 4
+    }
 
-        entry.voltage = dataView.getFloat32(this.index, this.littleEndian)
-        this.index += 4
+    private decodeLoop(dataView: DataView): AvionicsLoopEntry | undefined {
+        const requiredLength: number = (4 + 4) + 2 + (4 + 4 + 4) + (4 + 4 + 4) + (4 + 4 + 4) + (4 + 4 + 4) + (4 + 4 + 4) + (4 + 4 + 4)
+        // check if a entry is left
+        if ((dataView.byteLength - this.index) < requiredLength) {
+            return undefined
+        }
 
-        entry.altitude = dataView.getFloat32(this.index, this.littleEndian)
-        this.index += 4
+        const entry: AvionicsLoopEntry = {
+            type: AvionicsDataEntryType.Loop
+        } as AvionicsLoopEntry
 
-        entry.maximumAltitude = dataView.getFloat32(this.index, this.littleEndian)
-        this.index += 4
+        this.decodeDefault(entry, dataView)
 
-        // velocity
-        entry.velocityX = dataView.getFloat32(this.index, this.littleEndian)
-        this.index += 4
-
-        entry.velocityY = dataView.getFloat32(this.index, this.littleEndian)
-        this.index += 4
-
-        entry.velocityZ = dataView.getFloat32(this.index, this.littleEndian)
-        this.index += 4
-
-        // acceleration
-        entry.accelerationX = dataView.getFloat32(this.index, this.littleEndian)
-        this.index += 4
-
-        entry.accelerationY = dataView.getFloat32(this.index, this.littleEndian)
-        this.index += 4
-
-        entry.accelerationZ = dataView.getFloat32(this.index, this.littleEndian)
-        this.index += 4
-
-        // filter acceleration
-        entry.accelerationNormalizedX = dataView.getFloat32(this.index, this.littleEndian)
-        this.index += 4
-
-        entry.accelerationNormalizedY = dataView.getFloat32(this.index, this.littleEndian)
-        this.index += 4
-
-        entry.accelerationNormalizedZ = dataView.getFloat32(this.index, this.littleEndian)
-        this.index += 4
-
-        // rotation
         entry.rotationX = dataView.getFloat32(this.index, this.littleEndian)
         this.index += 4
 
@@ -124,17 +109,56 @@ export class AvionicsDataLoader {
         entry.rotationZ = dataView.getFloat32(this.index, this.littleEndian)
         this.index += 4
 
-        // parachute
-        entry.parachuteVelocity = dataView.getInt8(this.index) !== 0
-        this.index += 1
 
-        // parachute
-        entry.parachuteAltitude = dataView.getInt8(this.index) !== 0
-        this.index += 1
+        entry.rawAccelerationX = dataView.getFloat32(this.index, this.littleEndian)
+        this.index += 4
 
-        // parachute
-        entry.parachuteOrientation = dataView.getInt8(this.index) !== 0
-        this.index += 1
+        entry.rawAccelerationY = dataView.getFloat32(this.index, this.littleEndian)
+        this.index += 4
+
+        entry.rawAccelerationZ = dataView.getFloat32(this.index, this.littleEndian)
+        this.index += 4
+
+
+        entry.accelerationX = dataView.getFloat32(this.index, this.littleEndian)
+        this.index += 4
+
+        entry.accelerationY = dataView.getFloat32(this.index, this.littleEndian)
+        this.index += 4
+
+        entry.accelerationZ = dataView.getFloat32(this.index, this.littleEndian)
+        this.index += 4
+
+
+        entry.worldAccelerationX = dataView.getFloat32(this.index, this.littleEndian)
+        this.index += 4
+
+        entry.worldAccelerationY = dataView.getFloat32(this.index, this.littleEndian)
+        this.index += 4
+
+        entry.worldAccelerationZ = dataView.getFloat32(this.index, this.littleEndian)
+        this.index += 4
+
+
+        entry.zeroedAccelerationX = dataView.getFloat32(this.index, this.littleEndian)
+        this.index += 4
+
+        entry.zeroedAccelerationY = dataView.getFloat32(this.index, this.littleEndian)
+        this.index += 4
+
+        entry.zeroedAccelerationZ = dataView.getFloat32(this.index, this.littleEndian)
+        this.index += 4
+
+
+        entry.velocityX = dataView.getFloat32(this.index, this.littleEndian)
+        this.index += 4
+
+        entry.velocityY = dataView.getFloat32(this.index, this.littleEndian)
+        this.index += 4
+
+        entry.velocityZ = dataView.getFloat32(this.index, this.littleEndian)
+        this.index += 4
+
 
         return entry
     }
