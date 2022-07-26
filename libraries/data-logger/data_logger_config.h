@@ -12,7 +12,7 @@ typedef struct
     bool force_full_flush_erase;
     
     uint8_t type;
-    size_t entry_size;
+    uint16_t entry_size;
 } DataLoggerConfig;
 
 #endif // _DATA_LOGGER_CONFIG_H

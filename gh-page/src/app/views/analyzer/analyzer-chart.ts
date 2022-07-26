@@ -44,6 +44,11 @@ export class AnalyzerChart extends Chart {
         scales[this.xAxisId] = this.createLinearAxis("x")
         scales[this.yAxisId] = this.createLinearAxis("y")
 
+        scales[this.xAxisId].title = {
+            display: true,
+            text: 'ms'
+        }
+
         this.options = this.createDefaultOptions({
             scales,
             plugins: {
@@ -75,14 +80,14 @@ export class AnalyzerChart extends Chart {
         let h: number = 0
         const nextHSL = () => {
             const n: number = h
-            h = (h + 10) % 360
+            h = (h + 13) % 360
             return `hsl(${n}, 100%, 50%)`
         }
 
         this.plugins = this.createDefaultPlugins()
 
-        this.datasetState = this.createDataset('State', '#f00', this.xAxisId, this.yAxisId)
-        this.datasetElapsed = this.createDataset('Elapsed', '#0f0', this.xAxisId, this.yAxisId)
+        this.datasetState = this.createDataset('State', nextHSL(), this.xAxisId, this.yAxisId)
+        this.datasetElapsed = this.createDataset('Elapsed', nextHSL(), this.xAxisId, this.yAxisId)
 
         this.datasetRotationX = this.createDataset('Rot_X', nextHSL(), this.xAxisId, this.yAxisId)
         this.datasetRotationY = this.createDataset('Rot_Y', nextHSL(), this.xAxisId, this.yAxisId)
@@ -148,8 +153,6 @@ export class AnalyzerChart extends Chart {
 
     load(entities: AvionicsDataEntry[]): void {
         this.clearAllDatasets()
-
-        console.log(entities)
 
         entities.forEach((entry: AvionicsDataEntry) => {
 
@@ -279,7 +282,4 @@ export class AnalyzerChart extends Chart {
         });
     }
 
-    onSelectTriggerOverview(): void {
-        this.unselectAllDatasets()
-    }
 }

@@ -34,16 +34,12 @@ void LoopController::startup()
     this->_print->println("rocket in startup");
 
     this->_leds->off_red();
-    this->_leds->off_green();
-
-    this->_leds->singal_red(750);
-    this->_leds->singal_green(500);
+    this->_leds->singal_red(1000);
 }
 
 void LoopController::launched()
 {
     this->_leds->off_green();
-    this->_leds->stop_green();
     this->_leds->singal_red(250);
     this->_print->println("launched");
 }
@@ -67,6 +63,7 @@ void LoopController::landed()
 {
     this->_print->println("landed");
 
+    this->_leds->off_red();
     this->_leds->stop_red();
     this->_leds->singal_green(500);
 

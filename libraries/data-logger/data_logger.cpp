@@ -12,7 +12,7 @@ bool DataLogger::setup(DataLoggerConfig *config, Leds *leds, Print *print)
 
     this->_flash_type_address = 4;
     this->_flash_entities_address = 6;
-    this->_entities_address_offset = 12;
+    this->_entities_address_offset = 100;
 
     // initialize sd card
     bool success = this->init_sd();
@@ -133,6 +133,13 @@ bool DataLogger::open_next_data_file()
         // write the type to the data file
         this->_data_file.write(this->_config->type);
 
+        // write the entry size to file
+        uint8_t size_low = lowByte(this->_config->entry_size);
+        uint8_t size_high = highByte(this->_config->entry_size);
+        // write the entry size to file (first high then low)
+        this->_data_file.write(size_high);
+        this->_data_file.write(size_low);
+
         return true;
     }
 
@@ -223,15 +230,17 @@ bool DataLogger::inspect_flash()
 
     // read the entities from flash
     this->_entities = this->_flash->readULong(this->_flash_entities_address);
+
+    this->_print->print("flash contains [ ");
+    this->_print->print(this->_entities);
+    this->_print->println(" ] entities");
+
     // if no entities on the flash we are done
     if (this->_entities <= 0)
     {
         return true;
     }
 
-    this->_print->print("flash contains [ ");
-    this->_print->print(this->_entities);
-    this->_print->println(" ] entities, start copy to sd card");
     // copy the flash to sd
     bool success = this->copy_flash_2_sd();
     if (!success)
@@ -431,7 +440,8 @@ bool DataLogger::write_flash(uint8_t *buf)
         this->_print->print(address, HEX);
         this->_print->print(", len: ");
         this->_print->print(this->_config->entry_size);
-        this->_print->println(" ] to flash");
+        this->_print->print(" ] to flash, because ");
+        this->_print->println(this->_flash->error(true));
         return false;
     }
 
@@ -448,19 +458,14 @@ bool DataLogger::write_flash(uint8_t *buf)
 
 bool DataLogger::update_flash_entities()
 {
-    // clear up the entities count section
-    bool success = this->_flash->eraseSection(this->_flash_entities_address, 4);
-    if (!success)
-    {
-        this->_print->println("fail to erase entities count section on flash");
-        return false;
-    }
 
     // update the current entities count at the flash
-    success = this->_flash->writeULong(this->_flash_entities_address, this->_entities);
+    bool success = this->_flash->writeULong(this->_flash_entities_address, this->_entities);
     if (!success)
     {
-        this->_print->println("fail to update entities count on flash");
+        this->_print->print("fail to update entities count on flash [");
+        this->_print->print(this->_flash->error(true));
+        this->_print->println(" ]");
         return false;
     }
 

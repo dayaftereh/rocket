@@ -58,15 +58,6 @@ export class AnalyzerComponent implements OnInit, OnDestroy {
         }
     }
 
-    onSelectTriggerOverview(): void {
-        this.analyzerChart.onSelectTriggerOverview()
-
-        // reload the chart
-        if (this.chart) {
-            this.chart.refresh()
-        }
-    }
-
     ngOnDestroy(): void {
         this.subscriptions.forEach((subscription: Subscription) => {
             subscription.unsubscribe()

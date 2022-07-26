@@ -105,7 +105,7 @@ bool setup_data_logger()
     DataLoggerEntry entry;
     data_logger_config.entry_size = sizeof(entry);
 
-    Serial.print("size of the entry [");
+    Serial.print("size of the entry [ ");
     Serial.print(data_logger_config.entry_size);
     Serial.println(" ]");
 
