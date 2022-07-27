@@ -8,6 +8,7 @@
 #include <status_leds.h>
 #include <data_logger.h>
 
+#include "io.h"
 #include "error.h"
 #include "config.h"
 #include "data_log_entry.h"
@@ -34,6 +35,7 @@ FlightComputer flight_computer;
 FlightComputerConfig flight_computer_config;
 
 // Loop
+IO io;
 LoopController loop_controller;
 
 void setup_status_leds()
@@ -187,6 +189,15 @@ void setup()
     }
 
     // ######################
+    success = io.setup(&Serial);
+    if (!success)
+    {
+        Serial.println("fail to setup io");
+        leds.error(ERROR_IO);
+        return;
+    }
+
+    // ######################
     success = setup_flight_computer();
     if (!success)
     {
@@ -196,7 +207,7 @@ void setup()
     }
 
     // ######################
-    success = loop_controller.setup(&imu, &flight_computer, &data_logger, &leds, &stats, &Serial);
+    success = loop_controller.setup(&imu, &flight_computer, &data_logger, &io, &leds, &stats, &Serial);
     if (!success)
     {
         Serial.println("fail to setup loop controller");

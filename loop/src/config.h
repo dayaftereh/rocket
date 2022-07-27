@@ -25,4 +25,8 @@
 
 #define LOOP_CONTROLLER_STARTUP_TIMEOUT (10*1000)
 
+#define IO_L1_PIN 32
+#define IO_L2_PIN 33
+#define IO_VOLTAGE_PIN 34
+
 #endif // _CONFIG_H

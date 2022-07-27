@@ -2,8 +2,9 @@
 
 LoopController::LoopController() {}
 
-bool LoopController::setup(IMU *imu, FlightComputer *flight_computer, DataLogger *data_logger, StatusLeds *leds, Stats *stats, Print *print)
+bool LoopController::setup(IMU *imu, FlightComputer *flight_computer, DataLogger *data_logger, IO *io, StatusLeds *leds, Stats *stats, Print *print)
 {
+    this->_io = io;
     this->_imu = imu;
     this->_leds = leds;
     this->_stats = stats;
@@ -33,6 +34,9 @@ void LoopController::startup()
 {
     this->_print->println("rocket in startup");
 
+    this->_io->off_l1();
+    this->_io->off_l2();
+
     this->_leds->off_red();
     this->_leds->singal_red(1000);
 }
@@ -56,12 +60,17 @@ void LoopController::meco()
 
 void LoopController::apogee()
 {
+    this->_io->on_l1();
+
     this->_print->println("apogee");
 }
 
 void LoopController::landed()
 {
     this->_print->println("landed");
+
+    this->_io->off_l1();
+    this->_io->off_l2();
 
     this->_leds->off_red();
     this->_leds->stop_red();
@@ -77,6 +86,9 @@ void LoopController::landed()
 void LoopController::terminated()
 {
     this->_print->println("terminated");
+
+    this->_io->off_l1();
+    this->_io->off_l2();
 
     this->_leds->stop_red();
     this->_leds->singal_green(500);

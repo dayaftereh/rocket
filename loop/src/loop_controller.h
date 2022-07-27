@@ -9,6 +9,7 @@
 #include <data_logger.h>
 #include <fligth_computer.h>
 
+#include "io.h"
 #include "config.h"
 #include "data_log_entry.h"
 
@@ -17,7 +18,7 @@ class LoopController : public FlightComputerEventHandler
 public:
     LoopController();
 
-    bool setup(IMU *imu, FlightComputer *flight_computer, DataLogger *data_logger, StatusLeds *leds, Stats *stats, Print *print);
+    bool setup(IMU *imu, FlightComputer *flight_computer, DataLogger *data_logger, IO *io, StatusLeds *leds, Stats *stats, Print *print);
     bool update();
 
     // flight computer
@@ -38,6 +39,7 @@ private:
     bool _first_update;
     uint32_t _startup_timer;
 
+    IO *_io;
     IMU *_imu;
     Stats *_stats;
     Print *_print;

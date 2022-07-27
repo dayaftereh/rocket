@@ -11,6 +11,7 @@ enum Error
     ERROR_STATS,
     ERROR_FLIGHT_COMPUTER,
     ERROR_LOOP_CONTROLLER,
+    ERROR_IO,
 };
 
 #endif // _ERROR_H
