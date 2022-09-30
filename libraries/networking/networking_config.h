@@ -5,7 +5,6 @@
 
 typedef struct
 {
-    bool access_point;
     char *ssid;
     char *password;
 } NetworkConfig;

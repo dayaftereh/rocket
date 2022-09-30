@@ -1,5 +1,5 @@
-#ifndef _NETWORKING_H
-#define _NETWORKING_H
+#ifndef _NETWORK_SERVER
+#define _NETWORK_SERVER
 
 #include <WiFi.h>
 #include <Print.h>
@@ -7,19 +7,17 @@
 
 #include "networking_config.h"
 
-class Networking
+class NetworkServer
 {
 public:
-    Networking();
+    NetworkServer();
 
     bool setup(NetworkConfig *config, Print *print);
     void update();
 
 private:
-    bool setup_access_point();
-
     Print *_print;
     NetworkConfig *_config;
 }
 
-#endif // _NETWORKING_H
+#endif // _NETWORK_SERVER
