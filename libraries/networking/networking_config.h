@@ -7,6 +7,6 @@ typedef struct
 {
     char *ssid;
     char *password;
-} NetworkConfig;
+} NetworkingConfig;
 
 #endif // _NETWORKING_CONFIG_H

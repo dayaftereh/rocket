@@ -1,6 +1,6 @@
 #include "network_server.h"
 
-NetworkServer::NetworkServer()
+NetworkServer::NetworkServer() : _server(80)
 {
 }
 
@@ -34,9 +34,34 @@ bool NetworkServer::setup(NetworkConfig *config, Print *print)
     this->_print->print(ip);
     this->_print->println(" ]");
 
+    if (this->_config->captive_portal)
+    {
+        success = this->setup_captive_portal();
+        if (!success)
+        {
+            return false;
+        }
+    }
+
+    this->_server.begin();
+
+    return true;
+}
+
+bool NetworkServer::setup_captive_portal()
+{
+    // start the dns server with any host
+    this->_dns_server..start(53, "*", WiFi.softAPIP());
+
+    this->_server.addHandler(new CaptiveRequestHandler()).setFilter(ON_AP_FILTER);
+
     return true;
 }
 
 void NetworkServer::update()
 {
+    if (this->_config->captive_portal)
+    {
+        this->_dns_server.processNextRequest();
+    }
 }
