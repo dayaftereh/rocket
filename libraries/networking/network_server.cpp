@@ -2,6 +2,9 @@
 
 NetworkServer::NetworkServer() : _server(80), _ws("/api/ws")
 {
+    this->_websocket_handler = NULL;
+    this->_websocket_connected_handler = NULL;
+    this->_websocket_disconnected_handler = NULL;
 }
 
 bool NetworkServer::setup(NetworkConfig *config, Print *print)
@@ -106,6 +109,26 @@ void NetworkServer::on_websocket_event(AsyncWebSocketClient *client, AwsEventTyp
             this->on_websocket_event(client, data, len);
         }
     }
+    else if (type == WS_EVT_CONNECT && this->_websocket_connected_handler != NULL)
+    {
+        this->_websocket_connected_handler(client);
+    }
+    else if (type == WS_EVT_DISCONNECT && this->_websocket_disconnected_handler != NULL)
+    {
+        this->_websocket_disconnected_handler(client);
+    }
+    else if (type == WS_EVT_ERROR)
+    {
+        char *message = reinterpret_cast<char *>(data);
+        uint16_t error_code = *reinterpret_cast<uint16_t *>(arg);
+
+        this->_print->print("websocket [ ");
+        this->_print->print(client->id());
+        this->_print->print(" ] has error [ ");
+        this->_print->print(error_code);
+        this->_print->print(" ] :: ");
+        this->_print->println(message);
+    }
 }
 
 void NetworkServer::on_websocket_message(AsyncWebSocketClient *client, uint8_t *data, size_t len)
@@ -125,4 +148,33 @@ void NetworkServer::on_websocket_message(AsyncWebSocketClient *client, uint8_t *
 void NetworkServer::set_websocket_handler(NetworkWebsocketHandler handler)
 {
     this->_websocket_handler = handler;
+}
+
+void NetworkServer::set_websocket_connected_handler(NetworkWebsocketClientHandler handler)
+{
+    this->_websocket_connected_handler = handler;
+}
+
+void NetworkServer::set_websocket_disconnected_handler(NetworkWebsocketClientHandler handler)
+{
+    this->_websocket_disconnected_handler = handler;
+}
+
+void NetworkServer::broadcast(uint8_t *data, size_t size)
+{
+    this->_ws.binaryAll(data, size);
+}
+
+void NetworkServer::send(uint8_t *data, size_t size, int num, ...)
+{
+    va_list arg_l;
+    va_start(arg_l, num);
+
+    for (int i = 0; i < num; i++)
+    {
+        uint32_t id = va_arg(arg_l, uint32_t);
+        this->_ws.binary(id, data, size);
+    }
+    
+    va_end(arg_l);
 }
