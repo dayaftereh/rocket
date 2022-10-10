@@ -1,0 +1,24 @@
+<div class="grid grid-nogutter">
+    <div class="col">
+        <button pButton type="button" label="{{ 'views.chart.btn.reset' | translate }}" icon="pi pi-search"
+            class="p-button-secondary" (click)="resetZoom()"></button>
+    </div>
+    <div class="col">
+        <div class="field grid">
+            <label for="zoomMode" class="col-4">
+                {{ 'views.chart.zoom-mode.lbl' | translate }}
+            </label>
+            <div class="col-6">
+                <p-dropdown inputId="zoomMode" styleClass="w-full" [options]="zoomOptions" [(ngModel)]="zoomMode"
+                    (onChange)="onZoomChanged()"></p-dropdown>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-nogutter">
+    <div class="col">
+        <p-chart #chart width="98%" [height]="height" [type]="type" [data]="lrocketChart?.data" [plugins]="lrocketChart?.plugins"
+            [options]="lrocketChart?.options"></p-chart>
+    </div>
+</div>

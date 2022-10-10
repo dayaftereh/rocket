@@ -31,8 +31,8 @@ export class FormUtils {
     }
 
     static getValueOrDefault<T>(formGroup: FormGroup, name: string, defaultValue: T): T {
-        const value: T = FormUtils.getValue(formGroup, name)
-        if (value === undefined) {
+        const value: T | undefined = FormUtils.getValue(formGroup, name)
+        if (value === undefined || value === null) {
             return defaultValue
         }
         return value

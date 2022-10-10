@@ -14,8 +14,8 @@ export class Color {
         const max: number = Math.max(r, g, b)
         const min: number = Math.min(r, g, b)
 
-        let h: number
-        let s: number
+        let h: number = 0
+        let s: number = 0
         let v: number = max;
 
         const d: number = max - min

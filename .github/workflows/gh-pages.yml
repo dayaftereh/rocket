@@ -1,11 +1,11 @@
 name: GitHub Pages
 
-on:
-  push:
-    branches:
-      - main
-    paths:
-      - gh-page/**
+#on:
+#  push:
+#   branches:
+#     - main
+#   paths:
+#     - gh-page/**
 
 jobs:
   publish:

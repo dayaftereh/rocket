@@ -13,8 +13,8 @@ export class MultipleSimulationService {
 
     private localStorageKey: string = 'multiple-simulation'
 
-    private worker: Worker
-    private executor: MultipleSimulationExecutor
+    private worker: Worker | undefined
+    private executor: MultipleSimulationExecutor | undefined
 
     private running: BehaviorSubject<boolean>
     private steps: Subject<MultipleSimulationStep>
@@ -37,7 +37,7 @@ export class MultipleSimulationService {
         const ExecutorProxy: any = Comlink.wrap<MultipleSimulationExecutor>(this.worker)
         this.executor = await (new ExecutorProxy())
 
-        this.executor.subscribe(Comlink.proxy(async (step: MultipleSimulationStep) => {
+        this.executor!.subscribe(Comlink.proxy(async (step: MultipleSimulationStep) => {
             this.steps.next(step)
         }))
     }
@@ -95,7 +95,7 @@ export class MultipleSimulationService {
         try {
             this.running.next(true)
 
-            const result: MultipleSimulationStep[] = await this.executor.compute(constants, config)
+            const result: MultipleSimulationStep[] = await this.executor!.compute(constants, config)
             return result
         } finally {
             this.running.next(false)

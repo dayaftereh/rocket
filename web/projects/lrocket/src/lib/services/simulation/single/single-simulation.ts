@@ -18,7 +18,11 @@ export class SingleSimulation {
         private readonly config: SingleSimulationConfig,
         private readonly subject: Subject<SingleSimulationStep>,
     ) {
-
+        this.mass = 0.0
+        this.time = 0.0
+        this.height = 0.0
+        this.velocity = 0.0
+        this.expelledAirMass = 0.0
     }
 
     private get emptyRocketMass(): number {

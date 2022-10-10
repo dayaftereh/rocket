@@ -14,8 +14,8 @@ export class SingleSimulationService {
 
     private localStorageKey: string = 'single-simulation'
 
-    private worker: Worker
-    private executor: SingleSimulationExecutor
+    private worker: Worker | undefined
+    private executor: SingleSimulationExecutor | undefined
 
     private running: BehaviorSubject<boolean>
     private steps: Subject<SingleSimulationStep>
@@ -38,7 +38,7 @@ export class SingleSimulationService {
         const ExecutorProxy: any = Comlink.wrap<SingleSimulationExecutor>(this.worker)
         this.executor = await (new ExecutorProxy())
 
-        this.executor.subscribe(Comlink.proxy(async (step: SingleSimulationStep) => {
+        this.executor!.subscribe(Comlink.proxy(async (step: SingleSimulationStep) => {
             this.steps.next(step)
         }))
     }
@@ -87,7 +87,7 @@ export class SingleSimulationService {
         try {
             this.running.next(true)
 
-            const result: SingleSimulationResult = await this.executor.compute(constants, config)
+            const result: SingleSimulationResult = await this.executor!.compute(constants, config)
             return result
         } finally {
             this.running.next(false)
