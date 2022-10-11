@@ -1,5 +1,5 @@
-#ifndef _CAPTIVE_REQUEST_HANDLER
-#define _CAPTIVE_REQUEST_HANDLER
+#ifndef _CAPTIVE_REQUEST_HANDLER_H
+#define _CAPTIVE_REQUEST_HANDLER_H
 
 #include <ESPAsyncWebServer.h>
 
@@ -11,6 +11,6 @@ public:
 
     bool canHandle(AsyncWebServerRequest *request);
     void handleRequest(AsyncWebServerRequest *request);
-}
+};
 
-#endif // _CAPTIVE_REQUEST_HANDLER
+#endif // _CAPTIVE_REQUEST_HANDLER_H

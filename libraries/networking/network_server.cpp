@@ -7,7 +7,7 @@ NetworkServer::NetworkServer() : _server(80), _ws("/api/ws")
     this->_websocket_disconnected_handler = NULL;
 }
 
-bool NetworkServer::setup(NetworkConfig *config, Print *print)
+bool NetworkServer::setup(NetworkingServerConfig *config, Print *print)
 {
     this->_print = print;
     this->_config = config;
@@ -29,7 +29,7 @@ bool NetworkServer::setup(NetworkConfig *config, Print *print)
     }
 
     IPAddress ip = WiFi.softAPIP();
-    String mac = Wifif.softAPmacAddress();
+    String mac = WiFi.softAPmacAddress();
 
     this->_print->print("AP station started [ ");
     this->_print->print(mac);
@@ -52,7 +52,7 @@ bool NetworkServer::setup(NetworkConfig *config, Print *print)
                       { this->on_websocket_event(client, type, arg, data, len); });
 
     // add the websocket handler to the server
-    this->server.addHandler(&this->_ws);
+    this->_server.addHandler(&this->_ws);
 
     // start the spiffs to serve the web resources
     success = SPIFFS.begin();
@@ -63,7 +63,7 @@ bool NetworkServer::setup(NetworkConfig *config, Print *print)
     }
 
     // register the static resource serve handler with index.html as fallback
-    this->server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
+    this->_server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
     // start the server
     this->_server.begin();
 
@@ -73,7 +73,7 @@ bool NetworkServer::setup(NetworkConfig *config, Print *print)
 bool NetworkServer::setup_captive_portal()
 {
     // start the dns server with any host
-    this->_dns_server..start(53, "*", WiFi.softAPIP());
+    this->_dns_server.start(53, "*", WiFi.softAPIP());
 
     this->_server.addHandler(new CaptiveRequestHandler()).setFilter(ON_AP_FILTER);
 
@@ -106,7 +106,7 @@ void NetworkServer::on_websocket_event(AsyncWebSocketClient *client, AwsEventTyp
         AwsFrameInfo *info = reinterpret_cast<AwsFrameInfo *>(arg);
         if (info->opcode == WS_BINARY)
         {
-            this->on_websocket_event(client, data, len);
+            this->on_websocket_message(client, data, len);
         }
     }
     else if (type == WS_EVT_CONNECT && this->_websocket_connected_handler != NULL)

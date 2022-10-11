@@ -1,11 +1,11 @@
-#ifndef _WEB_MESSAGE
-#define _WEB_MESSAGE
+#ifndef _WEB_MESSAGE_H
+#define _WEB_MESSAGE_H
 
 #include <Arduino.h>
 
-typedef struct __attribute__ ((packed)) WebMessage
+typedef struct __attribute__((packed))
 {
     uint8_t message_type;
-};
+} WebMessage;
 
-#endif
+#endif // _WEB_MESSAGE_H

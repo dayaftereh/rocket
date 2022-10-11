@@ -1,5 +1,5 @@
-#ifndef _NETWORK_SERVER
-#define _NETWORK_SERVER
+#ifndef _NETWORK_SERVER_H
+#define _NETWORK_SERVER_H
 
 #include <stdarg.h>
 
@@ -39,7 +39,7 @@ private:
     int message_type(uint8_t *data, size_t len);
 
     void on_websocket_message(AsyncWebSocketClient *client, uint8_t *data, size_t len);
-    void on_websocket_event(AsyncWebSocketClient *client, AwsEventType type, void *arg uint8_t *data, size_t len);
+    void on_websocket_event(AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len);
 
     AsyncWebSocket _ws;
     DNSServer _dns_server;
@@ -51,6 +51,6 @@ private:
 
     Print *_print;
     NetworkingServerConfig *_config;
-}
+};
 
-#endif // _NETWORK_SERVER
+#endif // _NETWORK_SERVER_H

@@ -4,7 +4,7 @@ NetworkClient::NetworkClient()
 {
 }
 
-bool NetworkClient::setup(NetworkConfig *config, Leds *leds, Print *print)
+bool NetworkClient::setup(NetworkingClientConfig *config, Leds *leds, Print *print)
 {
     this->_leds = leds;
     this->_print = print;
@@ -28,8 +28,8 @@ bool NetworkClient::setup(NetworkConfig *config, Leds *leds, Print *print)
         return false;
     }
 
-    IPAddress ip = Wifi.localIP();
-    String mac = Wifi.macAddress();
+    IPAddress ip = WiFi.localIP();
+    String mac = WiFi.macAddress();
 
     this->_print->print("Wifi station connected with [ ");
     this->_print->print(mac);
