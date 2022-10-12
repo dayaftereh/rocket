@@ -11,7 +11,7 @@
 #define RED_LED_PIN 1
 #define GREEN_LED_PIN 1
 
-typedef struct : public NetworkingServerConfig {
+typedef struct __attribute__((packed)) : public NetworkingServerConfig {
     
 } Config;
 

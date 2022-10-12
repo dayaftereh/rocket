@@ -46,7 +46,7 @@ void setup()
     Config *config = config_manager.get_config();
 
     // setup the launch server
-    success = launch_computer.setup(config, &leds);
+    success = launch_computer.setup(config, &launch_pad_server, &leds, &Serial);
     if (!success)
     {
         Serial.println("fail to setup launch computer");
@@ -78,5 +78,4 @@ void loop()
 {
     leds.update();
     launch_computer.update();
-    launch_pad_server.update();
 }

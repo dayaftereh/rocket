@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 
-typedef struct
+typedef struct __attribute__((packed))
 {
     char ssid[25];
     char password[25];

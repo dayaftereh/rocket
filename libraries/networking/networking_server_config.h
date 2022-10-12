@@ -3,7 +3,7 @@
 
 #include "networking_config.h"
 
-typedef struct : public NetworkingConfig
+typedef struct __attribute__((packed)) : public NetworkingConfig
 {
     bool captive_portal;
 } NetworkingServerConfig;
