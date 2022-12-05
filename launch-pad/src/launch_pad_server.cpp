@@ -19,7 +19,7 @@ bool LaunchPadServer::setup(ConfigManager *config_manager, LaunchComputer *launc
     this->_network_server.set_websocket_disconnected_handler([=](AsyncWebSocketClient *client)
                                                              { this->on_disconnected(client); });
     // register the websocket message handler
-    this->_network_server.set_websocket_handler([=](AsyncWebSocketClient *client, uint8_t message_type, uint8_t *data, size_t len)
+    this->_network_server.set_websocket_handler([=](AsyncWebSocketClient *client, WebMessageType message_type, uint8_t *data, size_t len)
                                                 { 
                                                     int id = (int)client->id();
                                                     this->on_message(id, message_type, data, len); });
@@ -54,7 +54,7 @@ void LaunchPadServer::on_disconnected(AsyncWebSocketClient *client)
     }
 }
 
-void LaunchPadServer::on_message(int id, uint8_t messageType, uint8_t *data, size_t len)
+void LaunchPadServer::on_message(int id, WebMessageType messageType, uint8_t *data, size_t len)
 {
     switch (messageType)
     {
@@ -66,11 +66,17 @@ void LaunchPadServer::on_message(int id, uint8_t messageType, uint8_t *data, siz
         this->on_hello_control_center(id);
         return;
         // LaunchPad
-    case GET_LAUNCH_PAD_CONFIG_MESSAGE_TYPE:
+    case LAUNCH_PAD_ABORT_MESSAGE_TYPE:
+        this->on_launch_pad_abort();
+        return;
+    case LAUNCH_PAD_START_MESSAGE_TYPE:
+        this->on_launch_pad_start();
+        return;
+    case REQUEST_LAUNCH_PAD_CONFIG_MESSAGE_TYPE:
         this->send_launch_pad_config();
         return;
-    case SET_LAUNCH_PAD_CONFIG_MESSAGE_TYPE:
-        this->on_set_launch_pad_config(data, len);
+    case LAUNCH_PAD_CONFIG_MESSAGE_TYPE:
+        this->on_launch_pad_config(data, len);
         return;
         // Rocket
     case ROCKET_STATUS_MESSAGE_TYPE:
@@ -79,13 +85,10 @@ void LaunchPadServer::on_message(int id, uint8_t messageType, uint8_t *data, siz
     case ROCKET_TELEMETRY_MESSAGE_TYPE:
         this->send_to_control_center(data, len);
         return;
-    case ROCKET_FLIGHT_PLAN_MESSAGE_TYPE:
-        this->send_to_control_center(data, len);
+    case ROCKET_CONFIG_MESSAGE_TYPE:
+        this->on_rocket_config(id, data, len);
         return;
-    case GET_ROCKET_FLIGHT_PLAN_MESSAGE_TYPE:
-        this->send_to_rocket(data, len);
-        return;
-    case SET_ROCKET_FLIGHT_PLAN_MESSAGE_TYPE:
+    case REQUEST_ROCKET_CONFIG_MESSAGE_TYPE:
         this->send_to_rocket(data, len);
         return;
     }
@@ -159,7 +162,7 @@ void LaunchPadServer::send_launch_pad_config()
     this->send_to_control_center(data, sizeof(message));
 }
 
-void LaunchPadServer::on_set_launch_pad_config(uint8_t *data, size_t len)
+void LaunchPadServer::on_launch_pad_config(uint8_t *data, size_t len)
 {
     // get the message
     LaunchPadConfigMessage *message = reinterpret_cast<LaunchPadConfigMessage *>(data);
@@ -175,6 +178,43 @@ void LaunchPadServer::on_set_launch_pad_config(uint8_t *data, size_t len)
     this->_config_manager->write();
     // send the changed launch-pad configuration
     this->send_launch_pad_config();
+}
+
+void LaunchPadServer::on_launch_pad_start()
+{
+    // start the launch computer
+    this->_launch_computer->start();
+}
+
+void LaunchPadServer::on_launch_pad_abort()
+{
+    // abort the launch computer
+    this->_launch_computer->abort();
+}
+
+void LaunchPadServer::on_rocket_status(uint8_t *data, size_t len)
+{
+    // forward the message to control center
+    this->send_to_control_center(data, len);
+    // get the rocket status
+    RocketStatusMessage *message = reinterpret_cast<RocketStatusMessage *>(data);
+    // notify launch computer about rocket status
+    this->_launch_computer->rocket_status(message->error, message->state);
+}
+
+void LaunchPadServer::on_rocket_config(int id, uint8_t *data, size_t len)
+{
+    // check if the rocket config coming from the rocket
+    if (id == this->_rocket_client_id)
+    {
+        // then forward the rocket config to control center
+        this->send_to_control_center(data, len);
+    }
+    else if (id == this->_control_center_client_id)
+    {
+        // if the rocket config from the control center, then forward to the rocket
+        this->send_to_rocket(data, len);
+    }
 }
 
 void LaunchPadServer::send_rocket_abort()
@@ -202,15 +242,6 @@ void LaunchPadServer::send_rocket_unlock()
 
     uint8_t *data = reinterpret_cast<uint8_t *>(&message);
     this->send_to_rocket(data, sizeof(message));
-}
-
-void LaunchPadServer::on_rocket_status(uint8_t *data, size_t len)
-{
-    // forward the message to control center
-    this->send_to_control_center(data, len);
-    RocketStatusMessage *message = reinterpret_cast<RocketStatusMessage *>(data);
-    // notify launch computer about rocket status
-    this->_launch_computer->rocket_status(message->error, message->state);
 }
 
 void LaunchPadServer::rocket_start()

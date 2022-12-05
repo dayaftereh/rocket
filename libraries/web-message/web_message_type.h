@@ -5,7 +5,8 @@
 
 enum WebMessageType : uint8_t
 {
-    HELLO_ROCKET_MESSAGE_TYPE = 1,
+    WEB_MESSAGE_UNKNOWN = 0,
+    HELLO_ROCKET_MESSAGE_TYPE,
     HELLO_CONTROL_CENTER_MESSAGE_TYPE,
 
     // Launch-Pad

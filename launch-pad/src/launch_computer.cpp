@@ -18,6 +18,14 @@ void LaunchComputer::rocket_status(bool error, int state)
 {
 }
 
+void LaunchComputer::start()
+{
+}
+
+void LaunchComputer::abort()
+{
+}
+
 void LaunchComputer::update()
 {
 }

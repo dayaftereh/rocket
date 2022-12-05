@@ -4,9 +4,12 @@
 #include <leds.h>
 #include <Print.h>
 #include <network_server.h>
+#include <web_message_type.h>
+#include <rocket_status_message.h>
+#include <launch_pad_status_message.h>
+#include <launch_pad_config_message.h>
 
 #include "rocket.h"
-#include "web_messages.h"
 #include "config_manager.h"
 #include "launch_computer.h"
 
@@ -23,11 +26,16 @@ public:
 
 private:
     void on_disconnected(AsyncWebSocketClient *client);
-    void on_message(int id, uint8_t messageType, uint8_t *data, size_t len);
+    void on_message(int id, WebMessageType messageType, uint8_t *data, size_t len);
     void on_hello_rocket(int id);
     void on_hello_control_center(int id);
-    void on_set_launch_pad_config(uint8_t *data, size_t len);
+    // LaunchPad
+    void on_launch_pad_start();
+    void on_launch_pad_abort();
+    void on_launch_pad_config(uint8_t *data, size_t len);
+    // Rocket
     void on_rocket_status(uint8_t *data, size_t len);
+    void on_rocket_config(int id, uint8_t *data, size_t len);
 
     void send_launch_pad_status();
     void send_launch_pad_config();

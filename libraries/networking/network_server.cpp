@@ -88,11 +88,11 @@ void NetworkServer::update()
     }
 }
 
-int NetworkServer::message_type(uint8_t *data, size_t len)
+WebMessageType NetworkServer::message_type(uint8_t *data, size_t len)
 {
     if (len < 1)
     {
-        return -1;
+        return WEB_MESSAGE_UNKNOWN;
     }
 
     WebMessage *message = reinterpret_cast<WebMessage *>(data);
@@ -133,7 +133,7 @@ void NetworkServer::on_websocket_event(AsyncWebSocketClient *client, AwsEventTyp
 
 void NetworkServer::on_websocket_message(AsyncWebSocketClient *client, uint8_t *data, size_t len)
 {
-    int message_type = this->message_type(data, len);
+    WebMessageType message_type = this->message_type(data, len);
     if (message_type < 0)
     {
         return;
@@ -175,6 +175,6 @@ void NetworkServer::send(uint8_t *data, size_t size, int num, ...)
         uint32_t id = va_arg(arg_l, uint32_t);
         this->_ws.binary(id, data, size);
     }
-    
+
     va_end(arg_l);
 }

@@ -3,9 +3,11 @@
 
 #include <Arduino.h>
 
+#include "web_message_type.h"
+
 typedef struct __attribute__((packed))
 {
-    uint8_t message_type;
+    WebMessageType message_type;
 } WebMessage;
 
 #endif // _WEB_MESSAGE_H

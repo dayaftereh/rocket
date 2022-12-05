@@ -6,6 +6,7 @@
 
 #include "config.h"
 #include "rocket.h"
+#include "launch_computer_state.h"
 
 class LaunchComputer
 {
@@ -14,6 +15,9 @@ public:
 
     bool setup(Config *config, Rocket *rocket, Leds *leds, Print *print);
     void update();
+
+    void abort();
+    void start();
 
     void rocket_status(bool error, int state);
 
