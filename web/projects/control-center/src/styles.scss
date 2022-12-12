@@ -1,1 +1,18 @@
-/* You can add global styles to this file, and also import other style files */
+// primeflex
+@import '~primeflex/primeflex.css';
+// primeicons
+@import '~primeicons/primeicons.css';
+// Primeng
+@import '~primeng/resources/themes/bootstrap4-dark-blue/theme.css';
+@import '~primeng/resources/primeng.min.css';
+
+body {
+    overflow-x: hidden;
+    overflow-y: auto;
+    background-color: var(--surface-b);
+    font-family: var(--font-family);
+    font-weight: 400;
+    color: var(--text-color);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}

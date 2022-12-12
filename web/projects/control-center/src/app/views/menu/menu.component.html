@@ -1,0 +1,11 @@
+<div class="grid">
+    <div class="col-12 lg:col-1">
+        <button pButton type="button" icon="pi pi-bars" (click)="open()"></button>
+    </div>
+</div>
+
+<p-sidebar [(visible)]="visible" class="app-sidebar">
+    <div style="height: 100%;">
+        <lrocket-menu [items]="items" height="100%" (onItem)="onItemCommand()"></lrocket-menu>
+    </div>
+</p-sidebar>

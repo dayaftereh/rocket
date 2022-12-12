@@ -1,0 +1,32 @@
+<div class="grid">
+    <div class="col">
+
+        <div class="grid">
+            <a class="col app-lrocket-menu-root-item" [routerLink]="item?.routerLink"
+                routerLinkActive="app-lrocket-menu-link-active" (click)="onClick($event)">
+
+                <i *ngIf="item?.icon" [ngClass]="item?.icon"></i>
+                <span *ngIf="!item?.translate"> {{ item?.label }} </span>
+                <span *ngIf="item?.translate && item?.label"> {{ item!.label | translate }} </span>
+
+            </a>
+        </div>
+
+        <ng-template ngFor let-child [ngForOf]="children">
+
+            <div class="grid">
+                <a class="col app-lrocket-menu-sub-item" [routerLink]="child?.routerLink"
+                    routerLinkActive="app-lrocket-menu-link-active" (click)="onClick($event)">
+
+                    <i *ngIf="child?.icon" [ngClass]="child?.icon"></i>
+                    <span *ngIf="!child?.translate"> {{ child?.label }} </span>
+                    <span *ngIf="child?.translate && child?.label"> {{ child!.label | translate }} </span>
+
+                </a>
+
+            </div>
+
+        </ng-template>
+
+    </div>
+</div>

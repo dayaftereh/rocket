@@ -25,8 +25,10 @@
  * will put import in the top of bundle, so user need to create a separate file
  * in this directory (for example: zone-flags.ts), and put the following flags
  * into that file, and then add the following code before importing zone.js.
- * import './zone-flags';
- *
+ */
+import './zone-flags';
+
+/**
  * The flags allowed in zone-flags.ts are listed here.
  *
  * The following flags will work for all browsers.
