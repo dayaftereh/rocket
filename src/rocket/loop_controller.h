@@ -22,8 +22,8 @@ public:
     bool update();
 
     // flight computer
-    void init();
     void locked();
+    bool init();
     void startup();
     void launched();
     void lift_off();

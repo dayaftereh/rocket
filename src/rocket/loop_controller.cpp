@@ -20,14 +20,21 @@ bool LoopController::setup(IMU *imu, FlightComputer *flight_computer, DataLogger
 
 void LoopController::locked()
 {
-    // check if startup timeout exceeded
+    this->_startup_timer = millis();
+}
+
+bool LoopController::init()
+{
+    // check if init timeout exceeded
     uint32_t delta = millis() - this->_startup_timer;
-    if (this->_first_update || delta < LOOP_CONTROLLER_STARTUP_TIMEOUT)
+    if (this->_first_update || delta < LOOP_CONTROLLER_INIT_TIMEOUT)
     {
-        return;
+        return false;
     }
+
+    this->_print->println("rocket initilaize completed");
     // bringe the flight_computer to startup
-    this->_flight_computer->unlock();
+    return true;
 }
 
 void LoopController::startup()

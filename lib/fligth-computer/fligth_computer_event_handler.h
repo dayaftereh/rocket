@@ -4,6 +4,7 @@
 class FlightComputerEventHandler
 {
 public:
+    virtual bool init() = 0;
     virtual void locked() = 0;
     virtual void startup() = 0;
     virtual void launched() = 0;

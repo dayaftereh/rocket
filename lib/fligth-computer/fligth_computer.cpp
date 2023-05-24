@@ -39,6 +39,9 @@ void FlightComputer::update()
     case FLIGHT_COMPUTER_LOCKED:
         this->locked();
         break;
+    case FLIGHT_COMPUTER_INIT:
+        this->init();
+        break;
     case FLIGHT_COMPUTER_STARTUP:
         this->startup();
         break;
@@ -85,6 +88,19 @@ void FlightComputer::locked()
 {
     // call handler locked
     this->_handler->locked();
+}
+
+void FlightComputer::init()
+{
+    // call handler init
+    bool done = this->_handler->init();
+    
+    // check if rocket has initialized
+    if (done)
+    {
+        // change to startup
+        this->set_state(FLIGHT_COMPUTER_STARTUP);
+    }
 }
 
 void FlightComputer::startup()
@@ -318,8 +334,8 @@ void FlightComputer::abort()
 
 void FlightComputer::unlock()
 {
-    // set rocket to startup
-    this->set_state(FLIGHT_COMPUTER_STARTUP);
+    // set rocket to init
+    this->set_state(FLIGHT_COMPUTER_INIT);
 }
 
 void FlightComputer::update_thrust_velocity()

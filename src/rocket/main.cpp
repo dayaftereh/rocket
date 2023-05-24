@@ -11,12 +11,14 @@
 #include "io.h"
 #include "error.h"
 #include "config.h"
+#include "config_manager.h"
 #include "data_log_entry.h"
 #include "loop_controller.h"
 
 // System
 Stats stats;
 StatusLeds leds;
+ConfigManager config_manager;
 StatusLedsConfig leds_config;
 
 // IMU
@@ -32,7 +34,6 @@ DataLoggerConfig data_logger_config;
 
 // FlightController
 FlightComputer flight_computer;
-FlightComputerConfig flight_computer_config;
 
 // Loop
 IO io;
@@ -122,32 +123,6 @@ bool setup_data_logger()
     return true;
 }
 
-bool setup_flight_computer()
-{
-    flight_computer_config.flight_terminate_timeout = (10 * 1000);
-
-    flight_computer_config.launch_acceleration_threshold = 0.75;
-
-    flight_computer_config.lift_off_velocity_threshold = 0.5;
-
-    flight_computer_config.meco_acceleration_threshold = 0.5;
-
-    flight_computer_config.apogee_velocity_threshold = 0.1;
-
-    flight_computer_config.landed_orientation_count = 1000;
-    flight_computer_config.landed_orientation_threshold = 0.5;
-    flight_computer_config.landed_acceleration_threshold = 0.5;
-    flight_computer_config.landed_change_detect_timeout = (2 * 1000);
-
-    bool success = flight_computer.setup(&flight_computer_config, &loop_controller, &imu, &stats, &Serial);
-    if (!success)
-    {
-        return false;
-    }
-
-    return true;
-}
-
 void setup()
 {
     Serial.begin(115200);
@@ -174,6 +149,18 @@ void setup()
 
     // ######################
 
+    success = config_manager.setup(&Serial);
+    if (!success)
+    {
+        Serial.println("fail to setup config-manager");
+        leds.error(ERROR_CONFIG_MANAGER);
+    }
+
+    // get the loaded config
+    Config *config = config_manager.get_config();
+
+    // ######################
+
     success = setup_imu();
     if (!success)
     {
@@ -189,6 +176,7 @@ void setup()
     }
 
     // ######################
+
     success = io.setup(&Serial);
     if (!success)
     {
@@ -198,7 +186,8 @@ void setup()
     }
 
     // ######################
-    success = setup_flight_computer();
+
+    success = flight_computer.setup(config, &loop_controller, &imu, &stats, &Serial);
     if (!success)
     {
         Serial.println("fail to setup flight computer");

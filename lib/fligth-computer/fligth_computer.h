@@ -31,6 +31,7 @@ public:
 private:
     // states
     void locked();
+    void init();
     void startup();
 
     void wait_for_launch();

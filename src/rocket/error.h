@@ -12,6 +12,7 @@ enum Error
     ERROR_FLIGHT_COMPUTER,
     ERROR_LOOP_CONTROLLER,
     ERROR_IO,
+    ERROR_CONFIG_MANAGER
 };
 
 #endif // _ERROR_H

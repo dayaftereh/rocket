@@ -2,7 +2,8 @@
 #define _CONFIG_H
 
 #include <Arduino.h>
-
+#include <network_client_config.h>
+#include <fligth_computer_config.h>
 
 #define RED_LED_PIN 2
 #define GREEN_LED_PIN 4
@@ -23,10 +24,15 @@
 #define DATA_LOGGER_FLUSH_CS 17
 #define DATA_LOGGER_SD_CARD_CS 5
 
-#define LOOP_CONTROLLER_STARTUP_TIMEOUT (10*1000)
+#define LOOP_CONTROLLER_INIT_TIMEOUT (10*1000)
 
 #define IO_L1_PIN 32
 #define IO_L2_PIN 33
 #define IO_VOLTAGE_PIN 34
+
+typedef struct __attribute__((packed)) :  public FlightComputerConfig, public NetworkingClientConfig
+{
+    int parachute_timeout;
+} Config;
 
 #endif // _CONFIG_H
