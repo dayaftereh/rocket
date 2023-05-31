@@ -46,8 +46,6 @@ void ConfigManager::print_config()
   this->_print->print(this->_config.ssid);
   this->_print->print(", passwd: ");
   this->_print->print(this->_config.password);
-  this->_print->print(", captive_portal: ");
-  this->_print->print(this->_config.captive_portal);
 
   this->_print->println(" ]");
 }
@@ -80,9 +78,6 @@ bool ConfigManager::write()
 
 void ConfigManager::default_config()
 {
-  // enable the captive portal
-  this->_config.captive_portal = true;
-
   // set the default ssid
   char *ssid = this->_config.ssid;
   ssid = (char *)"Launch-Pad";

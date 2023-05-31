@@ -10,6 +10,7 @@ typedef struct
     float meco_acceleration_threshold;
 
     float apogee_velocity_threshold;
+    uint32_t apogee_force_timeout;
 
     int landed_orientation_count;
     float landed_orientation_threshold;

@@ -11,10 +11,10 @@
 #include <DNSServer.h>
 #include <ESPAsyncWebServer.h>
 
-#include "web_message.h"
-#include "web_message_type.h"
 #include "networking_server_config.h"
 #include "captive_request_handler.h"
+
+#include "../web-message/web_message.h"
 
 typedef std::function<void(AsyncWebSocketClient *client)> NetworkWebsocketClientHandler;
 typedef std::function<void(AsyncWebSocketClient *client, WebMessageType message_type, uint8_t *data, size_t len)> NetworkWebsocketHandler;

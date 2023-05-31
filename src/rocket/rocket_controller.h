@@ -13,10 +13,10 @@
 #include "config.h"
 #include "data_log_entry.h"
 
-class LoopController : public FlightComputerEventHandler
+class RocketController : public FlightComputerEventHandler
 {
 public:
-    LoopController();
+    RocketController();
 
     bool setup(IMU *imu, FlightComputer *flight_computer, DataLogger *data_logger, IO *io, StatusLeds *leds, Stats *stats, Print *print);
     bool update();

@@ -1,8 +1,8 @@
-#include "loop_controller.h"
+#include "rocket_controller.h"
 
-LoopController::LoopController() {}
+RocketController::RocketController() {}
 
-bool LoopController::setup(IMU *imu, FlightComputer *flight_computer, DataLogger *data_logger, IO *io, StatusLeds *leds, Stats *stats, Print *print)
+bool RocketController::setup(IMU *imu, FlightComputer *flight_computer, DataLogger *data_logger, IO *io, StatusLeds *leds, Stats *stats, Print *print)
 {
     this->_io = io;
     this->_imu = imu;
@@ -18,12 +18,12 @@ bool LoopController::setup(IMU *imu, FlightComputer *flight_computer, DataLogger
     return true;
 }
 
-void LoopController::locked()
+void RocketController::locked()
 {
     this->_startup_timer = millis();
 }
 
-bool LoopController::init()
+bool RocketController::init()
 {
     // check if init timeout exceeded
     uint32_t delta = millis() - this->_startup_timer;
@@ -37,7 +37,7 @@ bool LoopController::init()
     return true;
 }
 
-void LoopController::startup()
+void RocketController::startup()
 {
     this->_print->println("rocket in startup");
 
@@ -48,31 +48,31 @@ void LoopController::startup()
     this->_leds->singal_red(1000);
 }
 
-void LoopController::launched()
+void RocketController::launched()
 {
     this->_leds->off_green();
     this->_leds->singal_red(250);
     this->_print->println("launched");
 }
 
-void LoopController::lift_off()
+void RocketController::lift_off()
 {
     this->_print->println("lift off");
 }
 
-void LoopController::meco()
+void RocketController::meco()
 {
     this->_print->println("meco");
 }
 
-void LoopController::apogee()
+void RocketController::apogee()
 {
     this->_io->on_l1();
 
     this->_print->println("apogee");
 }
 
-void LoopController::landed()
+void RocketController::landed()
 {
     this->_print->println("landed");
 
@@ -90,7 +90,7 @@ void LoopController::landed()
     this->_leds->on_green();
 }
 
-void LoopController::terminated()
+void RocketController::terminated()
 {
     this->_print->println("terminated");
 
@@ -107,11 +107,11 @@ void LoopController::terminated()
     this->_leds->stop_green();
 }
 
-void LoopController::idle()
+void RocketController::idle()
 {
 }
 
-bool LoopController::update()
+bool RocketController::update()
 {
     // check for first update
     if (this->_first_update)
@@ -131,7 +131,7 @@ bool LoopController::update()
     return success;
 }
 
-bool LoopController::write_data_log_entry()
+bool RocketController::write_data_log_entry()
 {
     DataLoggerEntry entry;
 

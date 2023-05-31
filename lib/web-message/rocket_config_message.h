@@ -10,6 +10,6 @@
 typedef struct __attribute__((packed)) : public WebMessage, public FlightComputerConfig, public NetworkingClientConfig
 {
     int parachute_timeout;
-} RocketStatusMessage;
+} RocketConfigMessage;
 
-#endif // _ROCKET_STATUS_MESSAGE_H
+#endif // _ROCKET_CONFIG_MESSAGE_H

@@ -12,6 +12,7 @@ bool FlightComputer::setup(FlightComputerConfig *config, FlightComputerEventHand
     this->_config = config;
     this->_handler = handler;
 
+    this->_apogee = false;
     this->_launched = false;
     this->_launch_time = 0;
     this->_velocity = this->_velocity.set(0.0, 0.0, 0.0);
@@ -32,6 +33,12 @@ void FlightComputer::update()
     {
         // check if the flight is terminated
         this->update_flight_termination();
+
+        if (!this->_apogee)
+        {
+            // update force of apogee
+            this->update_apogee_force();
+        }
     }
 
     switch (this->_state)
@@ -66,6 +73,9 @@ void FlightComputer::update()
     case FLIGHT_COMPUTER_COASTING:
         this->coasting();
         break;
+    case FLIGHT_COMPUTER_FORCE_APOGEE:
+        this->force_apogee();
+        break;
     case FLIGHT_COMPUTER_APOGEE:
         this->apogee();
         break;
@@ -94,7 +104,7 @@ void FlightComputer::init()
 {
     // call handler init
     bool done = this->_handler->init();
-    
+
     // check if rocket has initialized
     if (done)
     {
@@ -107,6 +117,8 @@ void FlightComputer::startup()
 {
     // set the flight computer to startup
     this->_launched = false;
+    // set apogee to false
+    this->_apogee = false;
     // set launch time to zero
     this->_launch_time = 0;
     // reset last orientation
@@ -213,8 +225,20 @@ void FlightComputer::coasting()
     this->set_state(FLIGHT_COMPUTER_APOGEE);
 }
 
+void FlightComputer::force_apogee()
+{
+    // set apogee reached
+    this->_apogee = true;
+    // update the velocity for freefall
+    this->update_freefall_velocity();
+    // if not apogee reached
+    this->set_state(FLIGHT_COMPUTER_APOGEE);
+}
+
 void FlightComputer::apogee()
 {
+    // set apogee reached
+    this->_apogee = true;
     // update the velocity for freefall
     this->update_freefall_velocity();
     // call handler apogee
@@ -326,6 +350,19 @@ void FlightComputer::update_flight_termination()
     this->set_state(FLIGHT_COMPUTER_TERMINATING);
 }
 
+void FlightComputer::update_apogee_force()
+{
+    // check if apogee timeout
+    uint32_t delta = millis() - this->_launch_time;
+    if (delta < this->_config->apogee_force_timeout)
+    {
+        return;
+    }
+
+    // force the apogee
+    this->set_state(FLIGHT_COMPUTER_FORCE_APOGEE);
+}
+
 void FlightComputer::abort()
 {
     // abort and change to terminating
@@ -360,6 +397,8 @@ void FlightComputer::update_freefall_velocity()
     Vec3f v = acceleration->scale_scalar(delta);
     this->_velocity = this->_velocity.add(v);
 }
+
+
 
 bool FlightComputer::is_launched()
 {

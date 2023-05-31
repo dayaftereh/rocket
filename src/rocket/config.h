@@ -5,6 +5,10 @@
 #include <network_client_config.h>
 #include <fligth_computer_config.h>
 
+#define SERIAL_BAUD_RATE 115200
+
+#define EEPROM_CONFIG_SIZE 512
+
 #define RED_LED_PIN 2
 #define GREEN_LED_PIN 4
 
@@ -31,8 +35,7 @@
 #define IO_VOLTAGE_PIN 34
 
 typedef struct __attribute__((packed)) :  public FlightComputerConfig, public NetworkingClientConfig
-{
-    int parachute_timeout;
+{    
 } Config;
 
 #endif // _CONFIG_H

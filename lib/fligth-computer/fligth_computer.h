@@ -44,6 +44,7 @@ private:
     void meco();
 
     void coasting();
+    void force_apogee();
     void apogee();
 
     void wait_for_landed();
@@ -55,9 +56,11 @@ private:
     // utils
     void set_state(FlightComputerState state);
     void update_thrust_velocity();
+    void update_apogee_force();
     void update_freefall_velocity();
     void update_flight_termination();
 
+    bool _apogee;
     bool _launched;
     int _landed_orientation_counter;
 

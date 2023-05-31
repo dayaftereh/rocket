@@ -11,9 +11,10 @@
 #include "io.h"
 #include "error.h"
 #include "config.h"
+#include "rocket_client.h"
 #include "config_manager.h"
 #include "data_log_entry.h"
-#include "loop_controller.h"
+#include "rocket_controller.h"
 
 // System
 Stats stats;
@@ -35,9 +36,10 @@ DataLoggerConfig data_logger_config;
 // FlightController
 FlightComputer flight_computer;
 
-// Loop
+// Rocket
 IO io;
-LoopController loop_controller;
+RocketClient rocket_client;
+RocketController rocket_controller;
 
 void setup_status_leds()
 {
@@ -125,7 +127,7 @@ bool setup_data_logger()
 
 void setup()
 {
-    Serial.begin(115200);
+    Serial.begin(SERIAL_BAUD_RATE);
 
     Wire.begin();
     Wire.setClock(400000);
@@ -187,7 +189,7 @@ void setup()
 
     // ######################
 
-    success = flight_computer.setup(config, &loop_controller, &imu, &stats, &Serial);
+    success = flight_computer.setup(config, &rocket_controller, &imu, &stats, &Serial);
     if (!success)
     {
         Serial.println("fail to setup flight computer");
@@ -196,11 +198,20 @@ void setup()
     }
 
     // ######################
-    success = loop_controller.setup(&imu, &flight_computer, &data_logger, &io, &leds, &stats, &Serial);
+    success = rocket_controller.setup(&imu, &flight_computer, &data_logger, &io, &leds, &stats, &Serial);
     if (!success)
     {
-        Serial.println("fail to setup loop controller");
-        leds.error(ERROR_LOOP_CONTROLLER);
+        Serial.println("fail to setup rocket controller");
+        leds.error(ERROR_ROCKET_CONTROLLER);
+        return;
+    }
+
+    // ######################
+    success = rocket_client.setup(config, &leds, &Serial);
+    if (!success)
+    {
+        Serial.println("fail to setup rocket client");
+        leds.error(ERROR_ROCKET_CLIENT);
         return;
     }
 
@@ -242,10 +253,10 @@ void loop()
     }
     flight_computer.update();
 
-    success = loop_controller.update();
+    success = rocket_controller.update();
     if (!success)
     {
-        Serial.println("fail to update loop controller");
-        leds.error(ERROR_LOOP_CONTROLLER);
+        Serial.println("fail to update rocket controller");
+        leds.error(ERROR_ROCKET_CONTROLLER);
     }
 }
