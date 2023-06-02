@@ -7,6 +7,7 @@
 #include <madgwick.h>
 #include <status_leds.h>
 #include <data_logger.h>
+#include <parachute_manager.h>
 
 #include "io.h"
 #include "error.h"
@@ -32,6 +33,9 @@ MadgwickConfig madgwick_config;
 // DataLogger
 DataLogger data_logger;
 DataLoggerConfig data_logger_config;
+
+// ParachuteManager
+ParachuteManager parachute_manager;
 
 // FlightController
 FlightComputer flight_computer;
@@ -189,6 +193,16 @@ void setup()
 
     // ######################
 
+    success = parachute_manager.setup(config, &Serial);
+    if (!success)
+    {
+        Serial.println("fail to setup parachute manager");
+        leds.error(ERROR_PARACHUTE_MANAGER);
+        return;
+    }
+
+    // ######################
+
     success = flight_computer.setup(config, &rocket_controller, &imu, &stats, &Serial);
     if (!success)
     {
@@ -207,7 +221,7 @@ void setup()
     }
 
     // ######################
-    success = rocket_client.setup(config, &leds, &Serial);
+    success = rocket_client.setup(config, &flight_computer, &parachute_manager, &imu, &io, &stats, &leds, &Serial);
     if (!success)
     {
         Serial.println("fail to setup rocket client");

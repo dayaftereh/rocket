@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <network_client_config.h>
 #include <fligth_computer_config.h>
+#include <parachute_manager_config.h>
 
 #define SERIAL_BAUD_RATE 115200
 
@@ -28,14 +29,16 @@
 #define DATA_LOGGER_FLUSH_CS 17
 #define DATA_LOGGER_SD_CARD_CS 5
 
-#define LOOP_CONTROLLER_INIT_TIMEOUT (10*1000)
+#define LOOP_CONTROLLER_INIT_TIMEOUT (10 * 1000)
 
 #define IO_L1_PIN 32
 #define IO_L2_PIN 33
 #define IO_VOLTAGE_PIN 34
 
-typedef struct __attribute__((packed)) :  public FlightComputerConfig, public NetworkingClientConfig
-{    
+typedef struct __attribute__((packed)) : public FlightComputerConfig, public NetworkingClientConfig, public ParachuteManagerConfig
+{
+    uint32_t status_message_update;
+    uint32_t telemetry_message_update;
 } Config;
 
 #endif // _CONFIG_H

@@ -1,5 +1,0 @@
-export * from './lrocket-menu-item.component'
-export * from './lrocket-menu-item'
-export * from './lrocket-menu.component'
-export * from './lrocket-menu.module'
-export * from './lrocket-sub-menu-item'

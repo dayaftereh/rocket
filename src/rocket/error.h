@@ -14,6 +14,7 @@ enum Error
     ERROR_IO,
     ERROR_CONFIG_MANAGER,
     ERROR_ROCKET_CLIENT,
+    ERROR_PARACHUTE_MANAGER,
 };
 
 #endif // _ERROR_H

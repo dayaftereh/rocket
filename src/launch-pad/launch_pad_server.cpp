@@ -78,7 +78,13 @@ void LaunchPadServer::on_message(int id, WebMessageType messageType, uint8_t *da
     case LAUNCH_PAD_CONFIG_MESSAGE_TYPE:
         this->on_launch_pad_config(data, len);
         return;
-        // Rocket
+    // Rocket
+    case ROCKET_OPEN_PARACHUTE_MESSAGE_TYPE:
+        this->send_to_rocket(data, len);
+        return;
+    case ROCKET_CLOSE_PARACHUTE_MESSAGE_TYPE:
+        this->send_to_rocket(data, len);
+        return;
     case ROCKET_STATUS_MESSAGE_TYPE:
         this->on_rocket_status(data, len);
         return;
