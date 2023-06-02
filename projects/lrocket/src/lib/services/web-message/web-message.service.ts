@@ -3,6 +3,7 @@ import { map, Observable } from "rxjs";
 import { WebSocketService } from "../web-socket/websocket.service";
 import { WebMessage } from "./web-message";
 import { WebMessageDecoder } from "./web-message-decoder";
+import { WebMessageEncoder } from "./web-message-encoder";
 
 @Injectable()
 export class WebMessageService {
@@ -30,7 +31,8 @@ export class WebMessageService {
     }
 
     private encode(message: WebMessage): ArrayBuffer {
-
+        const buf: ArrayBuffer = WebMessageEncoder.encode(message)
+        return buf
     }
 
     send(message: WebMessage): void {

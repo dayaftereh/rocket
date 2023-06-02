@@ -2,7 +2,7 @@ import { LaunchPadStatusWebMessage } from "./launch-pad-status-web-message";
 import { RocketConfigWebMessage } from "./rocket-config-web-message";
 import { RocketStatusWebMessage } from "./rocket-status-web-message";
 import { RocketTelemetryWebMessage } from "./rocket-telemetry-web-message";
-import { WebMessage } from "./web-message";
+import { LittleEndian, WebMessage } from "./web-message";
 import { WebMessageType } from "./web-message-type";
 
 export type WebMessageDecodeFunction = (buf: ArrayBuffer) => WebMessage
@@ -22,7 +22,9 @@ export class WebMessageDecoder {
         // Rocket
         [WebMessageType.RocketStart, WebMessageDecoder.fixWebMessageDecoder(WebMessageType.RocketStart)],
         [WebMessageType.RocketAbort, WebMessageDecoder.fixWebMessageDecoder(WebMessageType.RocketAbort)],
-        [WebMessageType.UnlockAbort, WebMessageDecoder.fixWebMessageDecoder(WebMessageType.UnlockAbort)],
+        [WebMessageType.RocketAbort, WebMessageDecoder.fixWebMessageDecoder(WebMessageType.RocketAbort)],
+        [WebMessageType.RocketOpenParachute, WebMessageDecoder.fixWebMessageDecoder(WebMessageType.RocketOpenParachute)],
+        [WebMessageType.RocketCloseParachute, WebMessageDecoder.fixWebMessageDecoder(WebMessageType.RocketCloseParachute)],
         [WebMessageType.RocketStatus, WebMessageDecoder.decodeRocketStatus],
         [WebMessageType.RocketTelemetry, WebMessageDecoder.decodeRocketTelemetry],
         [WebMessageType.RocketConfig, WebMessageDecoder.decodeRocketConfig],
@@ -40,7 +42,7 @@ export class WebMessageDecoder {
             index = 0
         }
         // read the message type
-        const rawMessageType: number = view.getInt8(index)
+        const rawMessageType: number = view.getUint8(index)
         // get the correct message type
         const messageType: WebMessageType = rawMessageType as WebMessageType
         return messageType
@@ -75,23 +77,124 @@ export class WebMessageDecoder {
     }
 
     private static decodeLaunchPadStatus(data: ArrayBuffer): LaunchPadStatusWebMessage {
+        let index: number = 1 // skip the message type
+        const view: DataView = new DataView(data)
 
+        const state: number = view.getInt16(index, LittleEndian)
+        index += 2
+
+        const error: boolean = view.getInt8(index) != 0
+        index += 1
+
+        const connected: boolean = view.getInt8(index) != 0
+        index += 1
+
+        const voltage: number = view.getFloat32(index, LittleEndian)
+        index += 4
+
+        const pressure: number = view.getFloat32(index, LittleEndian)
+        index += 4
+
+        return {
+            type: WebMessageType.LaunchPadStatus,
+            state,
+            error,
+            connected,
+            voltage,
+            pressure,
+        }
     }
 
     private static decodeLaunchPadConfig(data: ArrayBuffer): LaunchPadStatusWebMessage {
-
+        let index: number = 1 // skip the message type
+        const view: DataView = new DataView(data)
     }
 
     private static decodeRocketStatus(data: ArrayBuffer): RocketStatusWebMessage {
+        let index: number = 1 // skip the message type
+        const view: DataView = new DataView(data)
 
+        const state: number = view.getInt16(index, LittleEndian)
+        index += 2
+
+        const error: boolean = view.getInt8(index) != 0
+        index += 1
+
+        return {
+            type: WebMessageType.RocketStatus,
+            state,
+            error,
+        }
     }
 
     private static decodeRocketTelemetry(data: ArrayBuffer): RocketTelemetryWebMessage {
+        let index: number = 1 // skip the message type
+        const view: DataView = new DataView(data)
 
+        const time: number = view.getUint32(index, LittleEndian)
+        index += 4
+
+        const elapsed: number = view.getFloat32(index, LittleEndian)
+        index += 4
+
+        const voltage: number = view.getFloat32(index, LittleEndian)
+        index += 4
+
+        const altitude: number = view.getFloat32(index, LittleEndian)
+        index += 4
+
+        const rotationX: number = view.getFloat32(index, LittleEndian)
+        index += 4
+        const rotationY: number = view.getFloat32(index, LittleEndian)
+        index += 4
+        const rotationZ: number = view.getFloat32(index, LittleEndian)
+        index += 4
+
+        const gyroscopeX: number = view.getFloat32(index, LittleEndian)
+        index += 4
+        const gyroscopeY: number = view.getFloat32(index, LittleEndian)
+        index += 4
+        const gyroscopeZ: number = view.getFloat32(index, LittleEndian)
+        index += 4
+
+        const accelerationX: number = view.getFloat32(index, LittleEndian)
+        index += 4
+        const accelerationY: number = view.getFloat32(index, LittleEndian)
+        index += 4
+        const accelerationZ: number = view.getFloat32(index, LittleEndian)
+        index += 4
+
+        const magnetometerX: number = view.getFloat32(index, LittleEndian)
+        index += 4
+        const magnetometerY: number = view.getFloat32(index, LittleEndian)
+        index += 4
+        const magnetometerZ: number = view.getFloat32(index, LittleEndian)
+        index += 4
+
+        return {
+            type: WebMessageType.RocketTelemetry,
+            time,
+            elapsed,
+            voltage,
+            altitude,
+            rotationX,
+            rotationY,
+            rotationZ,
+            gyroscopeX,
+            gyroscopeY,
+            gyroscopeZ,
+            accelerationX,
+            accelerationY,
+            accelerationZ,
+            magnetometerX,
+            magnetometerY,
+            magnetometerZ,
+        }
     }
 
     private static decodeRocketConfig(data: ArrayBuffer): RocketConfigWebMessage {
-
+        let index: number = 1 // skip the message type
+        const view: DataView = new DataView(data)
     }
-    
+
 }

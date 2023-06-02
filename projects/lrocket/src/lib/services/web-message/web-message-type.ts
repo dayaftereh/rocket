@@ -7,15 +7,21 @@ export enum WebMessageType {
     LaunchPadStart,
     LaunchPadAbort,
     LaunchPadStatus,
+    
     LaunchPadConfig,
     ReuqestLaunchPadConfig,
 
     // Rocket
     RocketStart,
     RocketAbort,
-    UnlockAbort,
+    RocketUnlock,
+
+    RocketOpenParachute,
+    RocketCloseParachute,
+
     RocketStatus,
     RocketTelemetry,
+
     RocketConfig,
     ReuqestRocketConfig,
 }
