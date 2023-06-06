@@ -189,7 +189,7 @@
               "tsConfig": "projects/lrocket/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/lrocket/tsconfig.lib.json"
+              "tsConfig": "projects/lrocket/tsconfig.lib.json",
             }
           },
           "defaultConfiguration": "production"

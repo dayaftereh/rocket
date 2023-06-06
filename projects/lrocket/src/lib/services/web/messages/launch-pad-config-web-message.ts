@@ -19,7 +19,7 @@ export interface LaunchPadConfigWebMessage extends WebMessage {
     abortClosePressureThreshold: number
 
     startupTimeout: number
-    
+
     rocketConnectedState: number
     rocketConnectingTimeout: number
     rocketSignalElapsedThreshold: number

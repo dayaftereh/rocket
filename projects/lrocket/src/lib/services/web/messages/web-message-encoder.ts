@@ -1,9 +1,9 @@
-import { LaunchPadStatusWebMessage } from "./launch-pad-status-web-message";
-import { RocketConfigWebMessage } from "./rocket-config-web-message";
-import { RocketStatusWebMessage } from "./rocket-status-web-message";
-import { RocketTelemetryWebMessage } from "./rocket-telemetry-web-message";
-import { LittleEndian, WebMessage } from "./web-message";
-import { WebMessageType } from "./web-message-type";
+import { LaunchPadStatusWebMessage } from "./launch-pad-status-web-message"
+import { RocketConfigWebMessage } from "./rocket-config-web-message"
+import { RocketStatusWebMessage } from "./rocket-status-web-message"
+import { RocketTelemetryWebMessage } from "./rocket-telemetry-web-message"
+import { LittleEndian, WebMessage } from "./web-message"
+import { WebMessageType } from "./web-message-type"
 
 export type WebMessageEncodeFunction = (message: any) => ArrayBuffer
 

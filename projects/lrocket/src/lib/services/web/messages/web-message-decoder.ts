@@ -1,9 +1,9 @@
-import { LaunchPadStatusWebMessage } from "./launch-pad-status-web-message";
-import { RocketConfigWebMessage } from "./rocket-config-web-message";
-import { RocketStatusWebMessage } from "./rocket-status-web-message";
-import { RocketTelemetryWebMessage } from "./rocket-telemetry-web-message";
-import { LittleEndian, WebMessage } from "./web-message";
-import { WebMessageType } from "./web-message-type";
+import { LaunchPadStatusWebMessage } from "./launch-pad-status-web-message"
+import { RocketConfigWebMessage } from "./rocket-config-web-message"
+import { RocketStatusWebMessage } from "./rocket-status-web-message"
+import { RocketTelemetryWebMessage } from "./rocket-telemetry-web-message"
+import { LittleEndian, WebMessage } from "./web-message"
+import { WebMessageType } from "./web-message-type"
 
 export type WebMessageDecodeFunction = (buf: ArrayBuffer) => WebMessage
 
@@ -108,6 +108,8 @@ export class WebMessageDecoder {
     private static decodeLaunchPadConfig(data: ArrayBuffer): LaunchPadStatusWebMessage {
         let index: number = 1 // skip the message type
         const view: DataView = new DataView(data)
+
+        return {} as LaunchPadStatusWebMessage
     }
 
     private static decodeRocketStatus(data: ArrayBuffer): RocketStatusWebMessage {
@@ -195,6 +197,8 @@ export class WebMessageDecoder {
     private static decodeRocketConfig(data: ArrayBuffer): RocketConfigWebMessage {
         let index: number = 1 // skip the message type
         const view: DataView = new DataView(data)
+
+        return {} as RocketConfigWebMessage
     }
 
 }

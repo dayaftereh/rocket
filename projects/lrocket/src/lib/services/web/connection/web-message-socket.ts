@@ -1,22 +1,27 @@
-import { Injectable, NgZone } from "@angular/core";
-import { URLService } from "lrocket";
+import { NgZone } from "@angular/core";
 import { BehaviorSubject, Observable, Subject } from "rxjs";
+import { URLService } from "../../url/url.service";
+import { WebMessage } from "../messages/web-message";
+import { WebMessageDecoder } from "../messages/web-message-decoder";
+import { WebMessageEncoder } from "../messages/web-message-encoder";
 
-@Injectable()
-export class WebSocketService {
+export class WebMessageSocket {
 
     private sock: WebSocket | undefined
     private connecting: Promise<void> | undefined
 
+    private errors: Subject<Error>
+    private messages: Subject<WebMessage>
+
     private retry: BehaviorSubject<number>
     private connected: BehaviorSubject<boolean>
-    private messages: Subject<ArrayBuffer>
 
     constructor(
         private readonly ngZone: NgZone,
         private readonly urlService: URLService,
     ) {
-        this.messages = new Subject<ArrayBuffer>()
+        this.errors = new Subject<Error>()
+        this.messages = new Subject<WebMessage>()
         this.retry = new BehaviorSubject<number>(0)
         this.connected = new BehaviorSubject<boolean>(true)
     }
@@ -51,7 +56,7 @@ export class WebSocketService {
                 this.sock.onerror = (err) => {
                     const e: Error = new Error(`WebSocket got an error ${err}`)
                     e.name = 'WebSocket'
-                    this.messages.error(err)
+                    this.errors.next(e)
 
                     if (completed) {
                         return
@@ -69,8 +74,8 @@ export class WebSocketService {
                         reject(e)
                     } else {
                         completed = true
-                        this.messages.error(e)
                     }
+
                     this.onClose()
                 }
             })
@@ -107,23 +112,36 @@ export class WebSocketService {
         await this.connect()
     }
 
-    async write(data: ArrayBuffer): Promise<void> {
+    async send(message: WebMessage): Promise<void> {
         // wait for connected
         await this.connecting
         // check if socket open
         if (!this.sock || this.sock.readyState !== this.sock.OPEN) {
             throw new Error("websocket undefined or not connected")
         }
-        // send the data
+
+        const data: ArrayBuffer = WebMessageEncoder.encode(message)
         this.sock.send(data)
+    }
+
+    async disconnect(): Promise<void> {
+        // wait for connected
+        await this.connecting
+        // check if socket open
+        if (!this.sock || this.sock.readyState !== this.sock.OPEN) {
+            return
+        }
+
+        this.sock.close()
     }
 
     private onMessage(event: MessageEvent<ArrayBuffer>): void {
         const data: ArrayBuffer = event.data
-        this.messages.next(data)
+        const message: WebMessage = WebMessageDecoder.decode(data)
+        this.messages.next(message)
     }
 
-    messageAsObservable(): Observable<ArrayBuffer> {
+    messageAsObservable(): Observable<WebMessage> {
         return this.messages
     }
 
@@ -133,6 +151,10 @@ export class WebSocketService {
 
     retriesAsObservable(): Observable<number> {
         return this.retry
+    }
+
+    errorsAsObservable(): Observable<Error> {
+        return this.errors
     }
 
 }

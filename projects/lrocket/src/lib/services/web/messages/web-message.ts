@@ -1,4 +1,4 @@
-import { WebMessageType } from "./web-message-type";
+import { WebMessageType } from "./web-message-type"
 
 export const LittleEndian: boolean = false
 
