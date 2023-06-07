@@ -1,7 +1,8 @@
 import { NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
-import { DashboardRocketOrientationComponent } from "./dashboard-rocket-orientation.component";
 import { TranslateModule } from "@ngx-translate/core";
+import { WebConnectionModule } from "lrocket";
+import { DashboardRocketOrientationComponent } from "./dashboard-rocket-orientation.component";
 
 @NgModule({
     imports: [
@@ -10,6 +11,8 @@ import { TranslateModule } from "@ngx-translate/core";
         // PrimeNG
         // ngx-translate
         TranslateModule,
+        // lrocket
+        WebConnectionModule,
         // Custom
     ],
     declarations: [

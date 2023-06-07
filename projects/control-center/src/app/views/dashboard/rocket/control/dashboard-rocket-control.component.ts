@@ -14,11 +14,11 @@ export class DashboardRocketControlComponent {
     }
 
     onOpenParachute(): void {
-        this.webControlCenterConnectionService
+        this.webControlCenterConnectionService.openParachute()
     }
 
     onCloseParachute(): void {
-
+        this.webControlCenterConnectionService.closeParachute()
     }
 
 }
