@@ -15,7 +15,7 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-builders/custom-webpack:browser",
+          "builder": "@angular-devkit/build-angular:browser",
           "options": {
             "outputPath": "dist/control-center",
             "index": "projects/control-center/src/index.html",
@@ -63,21 +63,19 @@
               "vendorChunk": true,
               "extractLicenses": false,
               "sourceMap": true,
-              "namedChunks": true,
-              "customWebpackConfig": {
-                "path": "./webpack.dev-server.websocket.ts"
-              }
+              "namedChunks": true
             }
           },
           "defaultConfiguration": "production"
         },
         "serve": {
-          "builder": "@angular-builders/custom-webpack:dev-server",
+          "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
               "browserTarget": "control-center:build:production"
             },
             "development": {
+              "proxyConfig": "./proxy.conf.json",
               "browserTarget": "control-center:build:development"
             }
           },
