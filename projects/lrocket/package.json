@@ -4,5 +4,13 @@
   "peerDependencies": {
     "@angular/common": "~15.2.9",
     "@angular/core": "~15.2.9"
+  },
+  "exports": {
+    "./services/web/messages/public-api": {
+      "types": "./index.d.ts",
+      "esm2020": "./esm2020/services/web/messages/public-api.mjs",
+      "node": "./esm2020/services/web/messages/public-api.mjs",
+      "default": "./esm2020/services/web/messages/public-api.mjs"
+    }
   }
 }

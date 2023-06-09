@@ -1,0 +1,31 @@
+{
+    "compilerOptions": {
+        "module": "esnext",
+        "strict": true,
+        "baseUrl": "./",
+        "noImplicitAny": true,
+        "removeComments": true,
+        "preserveConstEnums": true,
+        "outDir": "./dist/out-tsc",
+        "sourceMap": true,
+        "moduleResolution": "node",
+        "lib": [
+            "ES2020"
+        ],
+        "paths": {
+            "lrocket": [
+                "dist/lrocket"
+            ]
+        }
+    },
+    "include": [
+        "projects/lrocket/src/**/*.ts"
+    ],
+    "ts-node": {
+        "compilerOptions": {
+            "module": "es2020"
+        },
+        "esm": true,
+        "experimentalSpecifierResolution": "node"
+    }
+}
