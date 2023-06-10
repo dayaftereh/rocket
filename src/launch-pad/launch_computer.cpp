@@ -210,7 +210,7 @@ void LaunchComputer::wait_tank_chill()
     }
 
     this->_timer += this->_stats->get_delta();
-    if (this->_timer < this->_config->start_window_timeout)
+    if (this->_timer < this->_config->tank_chill_duration)
     {
         return;
     }

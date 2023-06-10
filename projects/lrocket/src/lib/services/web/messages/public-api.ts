@@ -7,4 +7,5 @@ export * from "./web-message"
 export * from "./web-message-decoder"
 export * from "./web-message-encoder"
 export * from "./web-message-type"
+export * from "./launch-pad-computer-state"
 

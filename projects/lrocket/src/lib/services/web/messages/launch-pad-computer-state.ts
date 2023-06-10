@@ -1,0 +1,20 @@
+export enum LaunchPadComputerState {
+    Locked = 0,
+    Startup,
+    WaitForRocket,
+    Pressurising,
+    WaitForPressure,
+    WaitTankChill,
+    RocketStartup,
+    WaitRocketStartup,
+    Countdown,
+    Launch,
+    WaitForLiftOff,
+    // Abort Stats
+    AbortByUser,
+    AbortAfterLaunch,
+    AbortRocketError,
+    AbortConnectionLost,
+    AbortPressurisingTimeout,
+    AbortRocketStartupTimeout,
+}

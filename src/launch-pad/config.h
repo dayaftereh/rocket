@@ -63,7 +63,7 @@ typedef struct __attribute__((packed)) : public NetworkingServerConfig
     float pressure_drop_limit;
 
     // timeout between pressure reached and start of the rocket
-    float start_window_timeout;
+    float tank_chill_duration;
 
     // the timeout to reach the rocket startup state
     int rocket_startup_timeout;

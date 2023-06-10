@@ -30,7 +30,7 @@ export interface LaunchPadConfigWebMessage extends WebMessage {
 
     pressureDropLimit: number
 
-    startWindowTimeout: number
+    tankChillDuration: number
 
     rocketStartupTimeout: number
 

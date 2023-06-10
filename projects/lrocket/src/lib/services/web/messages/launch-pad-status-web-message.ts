@@ -1,7 +1,8 @@
+import { LaunchPadComputerState } from "./launch-pad-computer-state";
 import { WebMessage } from "./web-message";
 
 export interface LaunchPadStatusWebMessage extends WebMessage {
-    state: number
+    state: LaunchPadComputerState
 
     error: boolean
     connected: boolean

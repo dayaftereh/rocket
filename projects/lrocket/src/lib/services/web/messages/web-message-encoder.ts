@@ -80,7 +80,8 @@ export class WebMessageEncoder {
         // move the write index by 1
         index += 1;
 
-        view.setInt16(index, message.state, LittleEndian);
+        const state: number = Number(message.state)
+        view.setInt16(index, state, LittleEndian);
         index += 2;
 
         view.setUint8(index, message.error ? 1 : 0);
