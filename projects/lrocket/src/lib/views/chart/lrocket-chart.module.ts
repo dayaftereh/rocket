@@ -37,7 +37,7 @@ import Zoom from "chartjs-plugin-zoom";
         LRocketChartComponent
     ]
 })
-export class ChartJsModule {
+export class LRocketChartModule {
 
     constructor() {
         Chart.register(Zoom)

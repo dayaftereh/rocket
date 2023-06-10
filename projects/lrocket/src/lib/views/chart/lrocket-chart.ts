@@ -6,20 +6,25 @@ export class LRocketChart {
     options: any;
     plugins: any;
 
-    onRefresh: Subject<void>;
+    onRefresh: Subject<any>;
 
     constructor() {
         this.data = {};
         this.options = {};
         this.plugins = {};
-        this.onRefresh = new Subject<void>();
+        this.onRefresh = new Subject<any>();
     }
 
-    static get zoomModes(): string[] {
+    get zoomModes(): string[] {
         return ["x", "y", "xy"];
     }
 
-    protected createDataset(label: string, color?: string, xAxisID?: string, yAxisID?: string): any {
+    protected createDataset(
+        label: string,
+        color?: string,
+        xAxisID?: string,
+        yAxisID?: string
+    ): any {
         return {
             label,
             data: [],
@@ -34,7 +39,12 @@ export class LRocketChart {
         };
     }
 
-    protected createBarDataset(label: string, color?: string, xAxisID?: string, yAxisID?: string): any {
+    protected createBarDataset(
+        label: string,
+        color?: string,
+        xAxisID?: string,
+        yAxisID?: string
+    ): any {
         return {
             label,
             data: [],
@@ -49,7 +59,24 @@ export class LRocketChart {
         };
     }
 
-    protected createLineAnnotation(color: string, label?: string, xAxisID?: string, yAxisID?: string): any {
+    protected createPointDataset(
+        label: string,
+        color?: string,
+        xAxisId?: string,
+        yAxisId?: string
+    ): any {
+        const dataset: any = this.createDataset(label, color, xAxisId, yAxisId);
+        dataset.showLine = false;
+        dataset.pointRadius = 1.0;
+        return dataset;
+    }
+
+    protected createLineAnnotation(
+        color: string,
+        label?: string,
+        xAxisID?: string,
+        yAxisID?: string
+    ): any {
         return {
             type: "line",
             borderColor: color,
@@ -70,7 +97,13 @@ export class LRocketChart {
         };
     }
 
-    protected setLineAnnotationPoints(annotation: any, x1: number, y1: number, x2: number, y2: number): void {
+    protected setLineAnnotationPoints(
+        annotation: any,
+        x1: number,
+        y1: number,
+        x2: number,
+        y2: number
+    ): void {
         annotation.xMin = x1;
         annotation.yMin = y1;
         annotation.xMax = x2;
@@ -93,6 +126,10 @@ export class LRocketChart {
         return "#ebedef";
     }
 
+    protected get gridColor(): string {
+        return "rgba(255,255,255,0.2)";
+    }
+
     protected get timePattern(): string {
         return "hh:mm:ss";
     }
@@ -104,13 +141,13 @@ export class LRocketChart {
             stacked: false,
             ticks: {
                 sampleSize: 5,
-                color: "#ebedef",
+                color: this.labelFont,
                 font: {
                     size: this.fontSize,
                 },
             },
             grid: {
-                color: "rgba(255,255,255,0.2)",
+                color: this.gridColor,
             },
             title: {
                 text: title,
@@ -140,7 +177,7 @@ export class LRocketChart {
                             font: {
                                 size: this.fontSize,
                             },
-                            color: "#ebedef",
+                            color: this.labelFont,
                         },
                     },
                     annotation: {
@@ -154,7 +191,11 @@ export class LRocketChart {
         );
     }
 
-    protected injectAnnotations(options: any, annotations: any): any {
+    protected injectAnnotations(
+        options: any,
+        annotations: any,
+        overwrite?: boolean
+    ): any {
         if (!options.plugins) {
             options.plugins = {};
         }
@@ -165,6 +206,11 @@ export class LRocketChart {
 
         if (!options.plugins.annotation.annotations) {
             options.plugins.annotation.annotations = {};
+        }
+
+        if (overwrite) {
+            options.plugins.annotation.annotations = annotations;
+            return options;
         }
 
         options.plugins.annotation.annotations = Object.assign(
@@ -219,7 +265,11 @@ export class LRocketChart {
         return options;
     }
 
-    protected createRealtimeAxis(axis: string, duration: number, refresh?: number): any {
+    protected createRealtimeAxis(
+        axis: string,
+        duration: number,
+        refresh?: number
+    ): any {
         const baseAxis: any = this.createLinearAxis(axis);
         baseAxis.type = "realtime";
 
@@ -245,12 +295,29 @@ export class LRocketChart {
             delay: 0,
             ttl: duration,
             frameRate: this.frameRate,
-            onRefresh: () => {
-                this.onRefresh.next();
+            onRefresh: (chart: any) => {
+                this.onRefresh.next(chart);
             },
         };
 
         return baseAxis;
+    }
+
+    protected hashCode(str: string): number {
+        let i: number = 0;
+        let hash: number = 0;
+
+        while (i < str.length) {
+            hash = ((hash << 5) - hash + str.charCodeAt(i++) * 31) << 0;
+        }
+
+        return hash;
+    }
+
+    protected colorFromHashCode(str: string): string {
+        const hash: number = this.hashCode(str);
+        const h: number = Math.round(hash % 360);
+        return `hsl(${Math.abs(h)}, 100%, 50%)`;
     }
 
 }

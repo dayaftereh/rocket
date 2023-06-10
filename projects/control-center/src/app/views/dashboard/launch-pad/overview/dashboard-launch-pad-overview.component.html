@@ -2,13 +2,34 @@
 
     <div class="grid">
         <div class="col">
+            {{'views.dashboard.launch-pad.overview.state.lbl' | translate}}
+        </div>
+        <div class="col">
+            {{'views.dashboard.launch-pad.overview.state.code.' + status.state | translate}}
+        </div>
+        <div class="col-1">
+            <button type="button" pButton tooltipPosition="left" class="p-button-secondary" icon="pi pi-question"
+                [pTooltip]="'views.dashboard.launch-pad.overview.state.tooltip' | translate "
+                tooltipEvent="focus"></button>
+        </div>
+    </div>
+
+    <div class="grid">
+        <div class="col">
             {{'views.dashboard.launch-pad.overview.error.lbl' | translate}}
         </div>
         <div class="col">
-            {{status.error}}
+            <ng-container *ngIf="status.error">
+                {{'views.dashboard.launch-pad.overview.error.is' | translate}}
+            </ng-container>
+            <ng-container *ngIf="!status.error">
+                {{'views.dashboard.launch-pad.overview.error.no' | translate}}
+            </ng-container>
         </div>
-        <div class="col">
-
+        <div class="col-1">
+            <button type="button" pButton tooltipPosition="left" class="p-button-secondary" icon="pi pi-question"
+                [pTooltip]="'views.dashboard.launch-pad.overview.error.tooltip' | translate "
+                tooltipEvent="focus"></button>
         </div>
     </div>
 
@@ -17,11 +38,31 @@
             {{'views.dashboard.launch-pad.overview.connected.lbl' | translate}}
         </div>
         <div class="col">
-            {{status.connected}}
+            <ng-container *ngIf="status.connected">
+                {{'views.dashboard.launch-pad.overview.connected.connected' | translate}}
+            </ng-container>
+            <ng-container *ngIf="!status.connected">
+                {{'views.dashboard.launch-pad.overview.connected.disconnected' | translate}}
+            </ng-container>
+        </div>
+        <div class="col-1">
+            <button type="button" pButton tooltipPosition="left" class="p-button-secondary" icon="pi pi-question"
+                [pTooltip]="'views.dashboard.launch-pad.overview.connected.tooltip' | translate "
+                tooltipEvent="focus"></button>
+        </div>
+    </div>
+
+    <div class="grid">
+        <div class="col">
+            {{'views.dashboard.launch-pad.overview.voltage.lbl' | translate}}
         </div>
         <div class="col">
-            <p-button styleClass="p-button-lg p-button-secondary"
-                [label]="'views.dashboard.rocket.control.btn.close-parachute' | translate"></p-button>
+            {{status.voltage | number}}
+        </div>
+        <div class="col-1">
+            <button type="button" pButton tooltipPosition="left" class="p-button-secondary" icon="pi pi-question"
+                [pTooltip]="'views.dashboard.launch-pad.overview.voltage.tooltip' | translate "
+                tooltipEvent="focus"></button>
         </div>
     </div>
 

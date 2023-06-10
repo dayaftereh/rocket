@@ -1,7 +1,7 @@
 import { NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
 import { TranslateModule } from "@ngx-translate/core";
-import { WebConnectionModule } from "lrocket";
+import { LRocketChartModule, WebConnectionModule } from "lrocket";
 import { DashboardLaunchPadPressureComponent } from "./dashboard-launch-pad-pressure.component";
 
 @NgModule({
@@ -12,6 +12,7 @@ import { DashboardLaunchPadPressureComponent } from "./dashboard-launch-pad-pres
         // ngx-translate
         TranslateModule,
         // lrocket
+        LRocketChartModule,
         WebConnectionModule,
         // Custom
     ],

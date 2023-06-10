@@ -3,6 +3,7 @@ import { BrowserModule } from "@angular/platform-browser";
 import { TranslateModule } from "@ngx-translate/core";
 import { WebConnectionModule } from "lrocket";
 import { ButtonModule } from "primeng/button";
+import { TooltipModule } from 'primeng/tooltip';
 import { DashboardLaunchPadOverviewComponent } from "./dashboard-launch-pad-overview.component";
 
 @NgModule({
@@ -11,6 +12,7 @@ import { DashboardLaunchPadOverviewComponent } from "./dashboard-launch-pad-over
         BrowserModule,
         // PrimeNG
         ButtonModule,
+        TooltipModule,
         // ngx-translate
         TranslateModule,
         // lrocket

@@ -60,7 +60,7 @@ export class LRocketChartComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.zoomOptions = LRocketChart.zoomModes.map((mode: string) => {
+        this.zoomOptions = ["x", "y", "xy"].map((mode: string) => {
             return {
                 value: mode,
                 label: mode.toUpperCase()
