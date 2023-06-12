@@ -6,5 +6,6 @@
 
 <p-sidebar [(visible)]="visible" class="app-sidebar">
     <div style="height: 100%;">
+        <p-menu [model]="(items$ | async) || []"></p-menu>
     </div>
 </p-sidebar>

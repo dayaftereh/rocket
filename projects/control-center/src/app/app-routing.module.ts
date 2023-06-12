@@ -4,6 +4,7 @@ import { ConfigurationComponent } from './views/configuration/configuration.comp
 import { ConfigurationLaunchPadComponent } from './views/configuration/launch-pad/configuration-launch-pad.component';
 import { ConfigurationRocketComponent } from './views/configuration/rocket/configuration-rocket.component';
 import { DashboardComponent } from './views/dashboard/dashboard.component';
+import { RocketComponent } from './views/rocket/rocket.component';
 import { ViewsComponent } from './views/views.component';
 
 const routes: Routes = [
@@ -11,6 +12,9 @@ const routes: Routes = [
     path: '', component: ViewsComponent, children: [
       {
         path: 'dashboard', component: DashboardComponent,
+      },
+      {
+        path: 'rocket', component: RocketComponent,
       },
       {
         path: 'configuration', component: ConfigurationComponent,

@@ -1,0 +1,251 @@
+<form [formGroup]="formGroup">
+
+    <div class="card">
+
+        <div class="field grid">
+            <label for="voltage" class="col-6">
+                {{ 'views.rocket.telemetry.voltage.lbl' | translate }}
+            </label>
+            <div class="col-6">
+                <div class="p-inputgroup">
+                    <p-inputNumber inputId="voltage" formControlName="voltage" type="number" class="inputfield w-full"
+                        [maxFractionDigits]="4">
+                    </p-inputNumber>
+                    <span class="p-inputgroup-addon">V</span>
+                    <button type="button" pButton icon="pi pi-question" tooltipPosition="left"
+                        class="p-button-secondary" [pTooltip]="'views.rocket.telemetry.voltage.tooltip' | translate"
+                        tooltipEvent="focus"></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="field grid">
+            <label for="altitude" class="col-6">
+                {{ 'views.rocket.telemetry.altitude.lbl' | translate }}
+            </label>
+            <div class="col-6">
+                <div class="p-inputgroup">
+                    <p-inputNumber inputId="altitude" formControlName="altitude" type="number" class="inputfield w-full"
+                        [maxFractionDigits]="4">
+                    </p-inputNumber>
+                    <span class="p-inputgroup-addon">m</span>
+                    <button type="button" pButton icon="pi pi-question" tooltipPosition="left"
+                        class="p-button-secondary" [pTooltip]="'views.rocket.telemetry.altitude.tooltip' | translate"
+                        tooltipEvent="focus"></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="field grid">
+            <label for="rotationX" class="col-6">
+                {{ 'views.rocket.telemetry.rotationX.lbl' | translate }}
+            </label>
+            <div class="col-6">
+                <div class="p-inputgroup">
+                    <p-inputNumber inputId="rotationX" formControlName="rotationX" type="number"
+                        class="inputfield w-full" [maxFractionDigits]="4">
+                    </p-inputNumber>
+                    <span class="p-inputgroup-addon">&deg;</span>
+                    <button type="button" pButton icon="pi pi-question" tooltipPosition="left"
+                        class="p-button-secondary" [pTooltip]="'views.rocket.telemetry.rotationX.tooltip' | translate"
+                        tooltipEvent="focus"></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="field grid">
+            <label for="rotationY" class="col-6">
+                {{ 'views.rocket.telemetry.rotationY.lbl' | translate }}
+            </label>
+            <div class="col-6">
+                <div class="p-inputgroup">
+                    <p-inputNumber inputId="rotationY" formControlName="rotationY" type="number"
+                        class="inputfield w-full" [maxFractionDigits]="4">
+                    </p-inputNumber>
+                    <span class="p-inputgroup-addon">&deg;</span>
+                    <button type="button" pButton icon="pi pi-question" tooltipPosition="left"
+                        class="p-button-secondary" [pTooltip]="'views.rocket.telemetry.rotationY.tooltip' | translate"
+                        tooltipEvent="focus"></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="field grid">
+            <label for="rotationZ" class="col-6">
+                {{ 'views.rocket.telemetry.rotationZ.lbl' | translate }}
+            </label>
+            <div class="col-6">
+                <div class="p-inputgroup">
+                    <p-inputNumber inputId="rotationZ" formControlName="rotationZ" type="number"
+                        class="inputfield w-full" [maxFractionDigits]="4">
+                    </p-inputNumber>
+                    <span class="p-inputgroup-addon">&deg;</span>
+                    <button type="button" pButton icon="pi pi-question" tooltipPosition="left"
+                        class="p-button-secondary" [pTooltip]="'views.rocket.telemetry.rotationZ.tooltip' | translate"
+                        tooltipEvent="focus"></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="field grid">
+            <label for="gyroscopeX" class="col-6">
+                {{ 'views.rocket.telemetry.gyroscopeX.lbl' | translate }}
+            </label>
+            <div class="col-6">
+                <div class="p-inputgroup">
+                    <p-inputNumber inputId="gyroscopeX" formControlName="gyroscopeX" type="number"
+                        class="inputfield w-full" [maxFractionDigits]="4">
+                    </p-inputNumber>
+                    <span class="p-inputgroup-addon">-</span>
+                    <button type="button" pButton icon="pi pi-question" tooltipPosition="left"
+                        class="p-button-secondary" [pTooltip]="'views.rocket.telemetry.gyroscopeX.tooltip' | translate"
+                        tooltipEvent="focus"></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="field grid">
+            <label for="gyroscopeY" class="col-6">
+                {{ 'views.rocket.telemetry.gyroscopeY.lbl' | translate }}
+            </label>
+            <div class="col-6">
+                <div class="p-inputgroup">
+                    <p-inputNumber inputId="gyroscopeY" formControlName="gyroscopeY" type="number"
+                        class="inputfield w-full" [maxFractionDigits]="4">
+                    </p-inputNumber>
+                    <span class="p-inputgroup-addon">-</span>
+                    <button type="button" pButton icon="pi pi-question" tooltipPosition="left"
+                        class="p-button-secondary" [pTooltip]="'views.rocket.telemetry.gyroscopeY.tooltip' | translate"
+                        tooltipEvent="focus"></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="field grid">
+            <label for="gyroscopeZ" class="col-6">
+                {{ 'views.rocket.telemetry.gyroscopeZ.lbl' | translate }}
+            </label>
+            <div class="col-6">
+                <div class="p-inputgroup">
+                    <p-inputNumber inputId="gyroscopeZ" formControlName="gyroscopeZ" type="number"
+                        class="inputfield w-full" [maxFractionDigits]="4">
+                    </p-inputNumber>
+                    <span class="p-inputgroup-addon">-</span>
+                    <button type="button" pButton icon="pi pi-question" tooltipPosition="left"
+                        class="p-button-secondary" [pTooltip]="'views.rocket.telemetry.gyroscopeZ.tooltip' | translate"
+                        tooltipEvent="focus"></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="field grid">
+            <label for="accelerationX" class="col-6">
+                {{ 'views.rocket.telemetry.accelerationX.lbl' | translate }}
+            </label>
+            <div class="col-6">
+                <div class="p-inputgroup">
+                    <p-inputNumber inputId="accelerationX" formControlName="accelerationX" type="number"
+                        class="inputfield w-full" [maxFractionDigits]="4">
+                    </p-inputNumber>
+                    <span class="p-inputgroup-addon">m/s<sup>2</sup></span>
+                    <button type="button" pButton icon="pi pi-question" tooltipPosition="left"
+                        class="p-button-secondary"
+                        [pTooltip]="'views.rocket.telemetry.accelerationX.tooltip' | translate"
+                        tooltipEvent="focus"></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="field grid">
+            <label for="accelerationY" class="col-6">
+                {{ 'views.rocket.telemetry.accelerationY.lbl' | translate }}
+            </label>
+            <div class="col-6">
+                <div class="p-inputgroup">
+                    <p-inputNumber inputId="accelerationY" formControlName="accelerationY" type="number"
+                        class="inputfield w-full" [maxFractionDigits]="4">
+                    </p-inputNumber>
+                    <span class="p-inputgroup-addon">m/s<sup>2</sup></span>
+                    <button type="button" pButton icon="pi pi-question" tooltipPosition="left"
+                        class="p-button-secondary"
+                        [pTooltip]="'views.rocket.telemetry.accelerationY.tooltip' | translate"
+                        tooltipEvent="focus"></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="field grid">
+            <label for="accelerationZ" class="col-6">
+                {{ 'views.rocket.telemetry.accelerationZ.lbl' | translate }}
+            </label>
+            <div class="col-6">
+                <div class="p-inputgroup">
+                    <p-inputNumber inputId="accelerationZ" formControlName="accelerationZ" type="number"
+                        class="inputfield w-full" [maxFractionDigits]="4">
+                    </p-inputNumber>
+                    <span class="p-inputgroup-addon">m/s<sup>2</sup></span>
+                    <button type="button" pButton icon="pi pi-question" tooltipPosition="left"
+                        class="p-button-secondary"
+                        [pTooltip]="'views.rocket.telemetry.accelerationZ.tooltip' | translate"
+                        tooltipEvent="focus"></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="field grid">
+            <label for="magnetometerX" class="col-6">
+                {{ 'views.rocket.telemetry.magnetometerX.lbl' | translate }}
+            </label>
+            <div class="col-6">
+                <div class="p-inputgroup">
+                    <p-inputNumber inputId="magnetometerX" formControlName="magnetometerX" type="number"
+                        class="inputfield w-full" [maxFractionDigits]="4">
+                    </p-inputNumber>
+                    <span class="p-inputgroup-addon">-</span>
+                    <button type="button" pButton icon="pi pi-question" tooltipPosition="left"
+                        class="p-button-secondary"
+                        [pTooltip]="'views.rocket.telemetry.magnetometerX.tooltip' | translate"
+                        tooltipEvent="focus"></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="field grid">
+            <label for="magnetometerY" class="col-6">
+                {{ 'views.rocket.telemetry.magnetometerY.lbl' | translate }}
+            </label>
+            <div class="col-6">
+                <div class="p-inputgroup">
+                    <p-inputNumber inputId="magnetometerY" formControlName="magnetometerY" type="number"
+                        class="inputfield w-full" [maxFractionDigits]="4">
+                    </p-inputNumber>
+                    <span class="p-inputgroup-addon">-</span>
+                    <button type="button" pButton icon="pi pi-question" tooltipPosition="left"
+                        class="p-button-secondary"
+                        [pTooltip]="'views.rocket.telemetry.magnetometerY.tooltip' | translate"
+                        tooltipEvent="focus"></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="field grid">
+            <label for="magnetometerZ" class="col-6">
+                {{ 'views.rocket.telemetry.magnetometerZ.lbl' | translate }}
+            </label>
+            <div class="col-6">
+                <div class="p-inputgroup">
+                    <p-inputNumber inputId="magnetometerZ" formControlName="magnetometerZ" type="number"
+                        class="inputfield w-full" [maxFractionDigits]="4">
+                    </p-inputNumber>
+                    <span class="p-inputgroup-addon">-</span>
+                    <button type="button" pButton icon="pi pi-question" tooltipPosition="left"
+                        class="p-button-secondary"
+                        [pTooltip]="'views.rocket.telemetry.magnetometerZ.tooltip' | translate"
+                        tooltipEvent="focus"></button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</form>

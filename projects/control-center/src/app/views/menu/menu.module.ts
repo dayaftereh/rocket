@@ -3,6 +3,7 @@ import { BrowserModule } from "@angular/platform-browser";
 import { ButtonModule } from "primeng/button";
 import { SidebarModule } from "primeng/sidebar";
 import { MenuComponent } from "./menu.component";
+import { MenuModule as ngMenuModule } from 'primeng/menu';
 
 @NgModule({
     imports: [
@@ -10,6 +11,7 @@ import { MenuComponent } from "./menu.component";
         BrowserModule,
         // PrimeNG
         ButtonModule,
+        ngMenuModule,
         SidebarModule,
         // Custom
     ],

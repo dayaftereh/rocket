@@ -4,6 +4,7 @@ import { RouterModule } from "@angular/router";
 import { ConfigurationModule } from "./configuration/configuration.module";
 import { DashboardModule } from "./dashboard/dashboard.module";
 import { MenuModule } from "./menu/menu.module";
+import { RocketModule } from "./rocket/rocket.module";
 import { ViewsComponent } from "./views.component";
 
 @NgModule({
@@ -13,6 +14,7 @@ import { ViewsComponent } from "./views.component";
         BrowserModule,
         // Custom
         MenuModule,
+        RocketModule,
         DashboardModule,
         ConfigurationModule,
     ],
