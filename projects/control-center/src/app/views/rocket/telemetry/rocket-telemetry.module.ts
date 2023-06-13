@@ -2,10 +2,10 @@ import { NgModule } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
 import { TranslateModule } from "@ngx-translate/core";
-import { WebConnectionModule } from "lrocket";
 import { ButtonModule } from "primeng/button";
 import { InputNumberModule } from "primeng/inputnumber";
 import { TooltipModule } from "primeng/tooltip";
+import { RocketServiceModule } from "../../../services/rocket/rocket-service.module";
 import { RocketTelemetryComponent } from "./rocket-telemetry.component";
 
 @NgModule({
@@ -19,9 +19,8 @@ import { RocketTelemetryComponent } from "./rocket-telemetry.component";
         InputNumberModule,
         // ngx-translate
         TranslateModule,
-        // lrocket
-        WebConnectionModule,
         // Custom
+        RocketServiceModule,
     ],
     declarations: [
         RocketTelemetryComponent

@@ -2,25 +2,28 @@ import { WebMessage } from "./web-message";
 
 export interface RocketConfigWebMessage extends WebMessage {
     // FlightComputerConfig
-    launchAccelerationThreshold: number
+    launchAccelerationThreshold: number;
+    liftOffVelocityThreshold: number;
+    mecoAccelerationThreshold: number;
+    apogeeVelocityThreshold: number;
+    landedOrientationCount: number;
+    landedOrientationThreshold: number;
+    landedAccelerationThreshold: number;
+    landedChangeDetectTimeout: number;
+    flightTerminateTimeout: number;
 
-    liftOffVelocityThreshold: number
+    // NetworkClient
+    ssid: string;
+    password: string;
 
-    mecoAccelerationThreshold: number
-
-    apogeeVelocityThreshold: number
-
-    landedOrientationCount: number
-    landedOrientationThreshold: number
-    landedAccelerationThreshold: number
-    landedChangeDetectTimeout: number
-
-    flightTerminateTimeout: number
-
-    // NetworkConfig
-    ssid: string
-    password: string
+    // ParachuteManagerConfig
+    parachutePin: number;
+    parachuteChannel: number;
+    parachuteFrequency: number;
+    parachuteOpenDuty: number;
+    parachuteCloseDuty: number;
 
     // Rocket
-    parachuteTimeout: number
+    statusMessageUpdate: number;
+    telemetryMessageUpdate: number;
 }

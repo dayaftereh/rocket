@@ -1,6 +1,8 @@
 #ifndef _FLIGHT_COMPUTER_CONFIG_H
 #define _FLIGHT_COMPUTER_CONFIG_H
 
+#include <Arduino.h>
+
 typedef struct
 {
     float launch_acceleration_threshold;

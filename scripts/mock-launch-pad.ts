@@ -5,7 +5,8 @@ import { ServerOptions, WebSocket, WebSocketServer } from 'ws';
 class LaunchComputer {
 
     private timer: number = 0
-    private updateRate: number = 1000
+    private updateRate: number = 1000.0 / 30.
+    private statusTimer: number = 0
 
     private pressure: number = 0
     private enablePressurising: boolean = false
@@ -40,6 +41,7 @@ class LaunchComputer {
             voltageFactor: 1.0,
             voltageOffset: 0.0,
             voltageLimit: 10.0,
+
         } as LaunchPadConfigWebMessage
     }
 
@@ -60,6 +62,12 @@ class LaunchComputer {
     }
 
     sendStatus(): void {
+        const elapsed: number = Date.now() - this.statusTimer
+        if (elapsed < 500) {
+            return
+        }
+        this.statusTimer = Date.now()
+
         const hasSignal: boolean = this.hasRocketSignal()
         const connected: boolean = this.launchPad.isRocketConnected()
         const message: LaunchPadStatusWebMessage = {
@@ -351,7 +359,7 @@ class LaunchComputer {
 
         const error: number = this.config.targetPressure - this.pressure
         const sign: number = Math.sign(error)
-        this.pressure += sign * Math.random()
+        this.pressure += sign * (Math.random() * 0.5)
     }
 
 }

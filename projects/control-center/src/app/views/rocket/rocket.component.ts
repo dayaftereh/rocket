@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import { WebRocketConnectionService } from "lrocket";
+import { RocketService } from "../../services/rocket/rocket.service";
 
 @Component({
     templateUrl: './rocket.component.html'
@@ -7,17 +7,17 @@ import { WebRocketConnectionService } from "lrocket";
 export class RocketComponent implements OnInit, OnDestroy {
 
     constructor(
-        private readonly webRocketConnectionService: WebRocketConnectionService
+        private readonly rocketService: RocketService
     ) {
 
     }
 
     async ngOnInit(): Promise<void> {
-        this.webRocketConnectionService.connect()
+        await this.rocketService.start()
     }
 
-    ngOnDestroy(): void {
-        this.webRocketConnectionService.disconnect()
+    async ngOnDestroy(): Promise<void> {
+        this.rocketService.stop()
     }
 
 }

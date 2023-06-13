@@ -1,9 +1,10 @@
 import { NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
 import { TranslateModule } from "@ngx-translate/core";
-import { WebConnectionModule } from "lrocket";
 import { PanelModule } from "primeng/panel";
+import { RocketServiceModule } from "../../services/rocket/rocket-service.module";
 import { RocketComponent } from "./rocket.component";
+import { RocketStatusModule } from "./status/rocket-status.module";
 import { RocketTelemetryModule } from "./telemetry/rocket-telemetry.module";
 
 @NgModule({
@@ -14,9 +15,10 @@ import { RocketTelemetryModule } from "./telemetry/rocket-telemetry.module";
         PanelModule,
         // ngx-translate
         TranslateModule,
-        // lrocket
-        WebConnectionModule,
+        // lrocket        
         // Custom
+        RocketStatusModule,
+        RocketServiceModule,
         RocketTelemetryModule,
     ],
     declarations: [

@@ -1,5 +1,7 @@
 import { Component } from "@angular/core";
-import { WebRocketConnectionService } from "lrocket";
+import { RocketStatusWebMessage, WebRocketConnectionService } from "lrocket";
+import { RocketService } from "../../../services/rocket/rocket.service";
+import { Observable } from "rxjs";
 
 @Component({
     selector: 'app-rocket-status',
@@ -7,10 +9,12 @@ import { WebRocketConnectionService } from "lrocket";
 })
 export class RocketStatusComponent {
 
-    constructor(
-        private readonly webRocketConnectionService: WebRocketConnectionService
-    ) {
+    status$: Observable<RocketStatusWebMessage>
 
+    constructor(
+        private readonly rocketService: RocketService,
+    ) {
+        this.status$ = this.rocketService.statusAsObservable()
     }
 
 }

@@ -1,0 +1,17 @@
+export enum RocketFlightComputerState {
+    Locked = 0,
+    Init,
+    Startup,
+    WaitForLaunch,
+    Launched,
+    WaitForLiftOff,
+    WaitForMeco,
+    Meco,
+    Coasting,
+    ForceApogee,
+    Apogee,
+    WaitForLanded,
+    Landed,
+    Terminating,
+    Idle,
+}

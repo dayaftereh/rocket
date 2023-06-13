@@ -1,7 +1,8 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
-import { FormUtils } from "lrocket";
-import { RocketTelemetryWebMessage, WebMessageType, WebRocketConnectionService } from "lrocket";
+import { FormUtils, RocketTelemetryWebMessage, WebMessageType } from "lrocket";
+import { Subscription, first } from "rxjs";
+import { RocketService } from "../../../services/rocket/rocket.service";
 
 @Component({
     selector: 'app-rocket-telemetry',
@@ -11,13 +12,12 @@ export class RocketTelemetryComponent implements OnInit, OnDestroy {
 
     formGroup: FormGroup
 
-    private timer: any | undefined
-    private startTime: number
+    private subscriptions: Subscription[]
 
     constructor(
-        private readonly webRocketConnectionService: WebRocketConnectionService
+        private readonly rocketService: RocketService,
     ) {
-        this.startTime = Date.now()
+        this.subscriptions = []
         this.formGroup = this.createFormGroup()
     }
 
@@ -44,15 +44,23 @@ export class RocketTelemetryComponent implements OnInit, OnDestroy {
         })
     }
 
-    ngOnInit(): void {
-        let lastEmit: number = Date.now()
-        this.timer = setInterval(() => {
-            const time: number = Date.now()
-            const elapsed: number = time - lastEmit
-            lastEmit = time
+    async ngOnInit(): Promise<void> {
+        const telemetrySubscription: Subscription = this.rocketService.telemetryAsObservable().pipe(
+            first()
+        ).subscribe((telemetry: RocketTelemetryWebMessage) => {
+            this.formGroup.patchValue(telemetry)
+        })
 
-            this.emitTelemetry(time - this.startTime, elapsed)
-        }, 1000 / 10)
+        const formSubscription: Subscription = this.formGroup.valueChanges.subscribe(() => {
+            this.onFormChanged()
+        })
+
+        this.subscriptions.push(telemetrySubscription, formSubscription)
+    }
+
+    private onFormChanged(): void {
+        const telemetry: RocketTelemetryWebMessage = this.getRocketTelemetryWebMessage()
+        this.rocketService.updateTelemetry(telemetry)
     }
 
     private getRocketTelemetryWebMessage(): RocketTelemetryWebMessage {
@@ -96,17 +104,11 @@ export class RocketTelemetryComponent implements OnInit, OnDestroy {
         } as RocketTelemetryWebMessage
     }
 
-    private emitTelemetry(time: number, elapsed: number): void {
-        const message: RocketTelemetryWebMessage = this.getRocketTelemetryWebMessage()
-        message.time = time
-        message.elapsed = elapsed
 
-        this.webRocketConnectionService.send(message)
-    }
 
     ngOnDestroy(): void {
-        if (this.timer) {
-            clearInterval(this.timer)
-        }
+        this.subscriptions.forEach((subscription: Subscription) => {
+            subscription.unsubscribe()
+        })
     }
 }

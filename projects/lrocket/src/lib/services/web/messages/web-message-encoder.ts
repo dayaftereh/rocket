@@ -22,7 +22,7 @@ export class WebMessageEncoder {
         // Rocket
         [WebMessageType.RocketStart, WebMessageEncoder.fixWebMessageEncoder()],
         [WebMessageType.RocketAbort, WebMessageEncoder.fixWebMessageEncoder()],
-        [WebMessageType.RocketAbort, WebMessageEncoder.fixWebMessageEncoder()],
+        [WebMessageType.RocketUnlock, WebMessageEncoder.fixWebMessageEncoder()],
         [WebMessageType.RocketOpenParachute, WebMessageEncoder.fixWebMessageEncoder()],
         [WebMessageType.RocketCloseParachute, WebMessageEncoder.fixWebMessageEncoder()],
         [WebMessageType.RocketStatus, WebMessageEncoder.encodeRocketStatus],

@@ -1,0 +1,8 @@
+<ng-container *ngIf="(status$ | async) as status">
+    <div class="grid">
+        <div class="col">
+            {{status | json}}
+        </div>
+    </div>
+
+</ng-container>

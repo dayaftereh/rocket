@@ -1,7 +1,7 @@
 import { NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
 import { TranslateModule } from "@ngx-translate/core";
-import { WebConnectionModule } from "lrocket";
+import { RocketServiceModule } from "../../../services/rocket/rocket-service.module";
 import { RocketStatusComponent } from "./rocket-status.component";
 
 @NgModule({
@@ -11,9 +11,8 @@ import { RocketStatusComponent } from "./rocket-status.component";
         // PrimeNG
         // ngx-translate
         TranslateModule,
-        // lrocket
-        WebConnectionModule,
         // Custom
+        RocketServiceModule,
     ],
     declarations: [
         RocketStatusComponent
