@@ -1,0 +1,22 @@
+.lrocket-no-error {
+    border-radius: 4px;
+    background-color: var(--green-500);
+}
+
+.lrocket-error {
+    border-radius: 4px;
+    animation-duration: 750ms;
+    animation-direction: normal;
+    background-color: var(--red-300);
+    color: var(--highlight-text-color);
+    animation-iteration-count: infinite;
+    animation-name: error-flush-animation;
+    animation-timing-function: step-end;
+}
+
+@keyframes error-flush-animation {
+    50% {
+        color: var(--text-color);
+        background-color: var(--red-600);
+    }
+}

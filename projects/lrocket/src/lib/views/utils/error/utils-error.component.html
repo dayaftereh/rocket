@@ -1,0 +1,8 @@
+<div class="grid grid-nogutter">
+    <div class="col lrocket-no-error text-center" *ngIf="!error">
+        {{ 'views.lrocket.utils.error.noError' | translate }}
+    </div>
+    <div class="col lrocket-error text-center" *ngIf="error">
+        {{ 'views.lrocket.utils.error.error' | translate }}
+    </div>
+</div>

@@ -1,8 +1,35 @@
-<ng-container *ngIf="(status$ | async) as status">
-    <div class="grid">
-        <div class="col">
-            {{status | json}}
+<form [formGroup]="formGroup">
+
+    <div class="card">
+
+        <div class="field grid">
+            <label for="state" class="col-4">
+                {{ 'views.rocket.status.state.lbl' | translate }}
+            </label>
+            <div class="col-6">
+                <lrocket-flight-computer-state inputId="state" styleClass="inputfield w-full"
+                    formControlName="state"></lrocket-flight-computer-state>
+            </div>
+            <div class="col-2 text-right">
+                <button type="button" pButton icon="pi pi-question" tooltipPosition="left" class="p-button-secondary"
+                    pTooltip="{{ 'views.rocket.status.state.tooltip' | translate }}" tooltipEvent="focus"></button>
+            </div>
         </div>
+
+        <div class="field grid">
+            <label for="lastPipeId" class="col-4">
+                {{ 'views.rocket.status.error.lbl' | translate }}
+            </label>
+            <div class="col-6">
+                <lrocket-utils-error formControlName="error"></lrocket-utils-error>
+            </div>
+            <div class="col-2 text-right">
+                <button type="button" pButton icon="pi pi-question" tooltipPosition="left" class="p-button-secondary"
+                    pTooltip="{{ 'views.rocket.status.error.tooltip' | translate }}" tooltipEvent="focus"></button>
+            </div>
+        </div>
+
+
     </div>
 
-</ng-container>
+</form>

@@ -1,0 +1,14 @@
+<div class="grid grid-nogutter">
+    <div class="col">
+        <form [formGroup]="formGroup">
+            <p-dropdown [inputId]="inputId" [styleClass]="styleClass" formControlName="state" [options]="states">
+                <ng-template let-item pTemplate="selectedItem">
+                    {{ 'views.lrocket.rocket.flightComputerState.' + item.value | translate }}
+                </ng-template>
+                <ng-template let-item pTemplate="item">
+                    {{ 'views.lrocket.rocket.flightComputerState.' + item.value | translate }}
+                </ng-template>
+            </p-dropdown>
+        </form>
+    </div>
+</div>
