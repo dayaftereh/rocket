@@ -1,69 +1,70 @@
-<ng-container *ngIf="(status$ | async) as status">
+<form [formGroup]="formGroup">
 
-    <div class="grid">
-        <div class="col">
-            {{'views.dashboard.launch-pad.overview.state.lbl' | translate}}
+    <div class="card">
+
+        <div class="field grid">
+            <label for="state" class="col-4">
+                {{ 'views.dashboard.launch-pad.overview.state.lbl' | translate }}
+            </label>
+            <div class="col-8">
+                <div class="p-inputgroup">
+                    <lrocket-launch-computer-state inputId="state" styleClass="inputfield w-full" class="w-full"
+                        formControlName="state"></lrocket-launch-computer-state>
+                    <button type="button" pButton icon="pi pi-question" tooltipPosition="left"
+                        class="p-button-secondary"
+                        pTooltip="{{ 'views.dashboard.launch-pad.overview.state.tooltip' | translate }}"
+                        tooltipEvent="focus"></button>
+                </div>
+            </div>
         </div>
-        <div class="col">
-            {{'views.dashboard.launch-pad.overview.state.code.' + status.state | translate}}
+
+        <div class="field grid">
+            <label for="error" class="col-4">
+                {{ 'views.dashboard.launch-pad.overview.error.lbl' | translate }}
+            </label>
+            <div class="col-6">
+                <lrocket-utils-error formControlName="error"></lrocket-utils-error>
+            </div>
+            <div class="col-2 text-right">
+                <button type="button" pButton icon="pi pi-question" tooltipPosition="left" class="p-button-secondary"
+                    pTooltip="{{ 'views.dashboard.launch-pad.overview.error.tooltip' | translate }}"
+                    tooltipEvent="focus"></button>
+            </div>
         </div>
-        <div class="col-1">
-            <button type="button" pButton tooltipPosition="left" class="p-button-secondary" icon="pi pi-question"
-                [pTooltip]="'views.dashboard.launch-pad.overview.state.tooltip' | translate "
-                tooltipEvent="focus"></button>
+
+        <div class="field grid">
+            <label for="connected" class="col-4">
+                {{ 'views.dashboard.launch-pad.overview.connected.lbl' | translate }}
+            </label>
+            <div class="col-6">
+                <lrocket-utils-connected formControlName="connected"></lrocket-utils-connected>
+            </div>
+            <div class="col-2 text-right">
+                <button type="button" pButton icon="pi pi-question" tooltipPosition="left" class="p-button-secondary"
+                    pTooltip="{{ 'views.dashboard.launch-pad.overview.connected.tooltip' | translate }}"
+                    tooltipEvent="focus"></button>
+            </div>
         </div>
+
+        <div class="field grid">
+            <label for="voltage" class="col-4">
+                {{ 'views.dashboard.launch-pad.overview.voltage.lbl' | translate }}
+            </label>
+            <div class="col-8">
+                <div class="p-inputgroup">
+                    <p-inputNumber inputId="voltage" formControlName="voltage" type="number" class="inputfield w-full"
+                        [maxFractionDigits]="4">
+                    </p-inputNumber>
+                    <span class="p-inputgroup-addon">V</span>
+                    <button type="button" pButton icon="pi pi-question" tooltipPosition="left"
+                        class="p-button-secondary"
+                        [pTooltip]="'views.dashboard.launch-pad.overview.voltage.tooltip' | translate"
+                        tooltipEvent="focus"></button>
+                </div>
+            </div>
+        </div>
+
+
     </div>
 
-    <div class="grid">
-        <div class="col">
-            {{'views.dashboard.launch-pad.overview.error.lbl' | translate}}
-        </div>
-        <div class="col">
-            <ng-container *ngIf="status.error">
-                {{'views.dashboard.launch-pad.overview.error.is' | translate}}
-            </ng-container>
-            <ng-container *ngIf="!status.error">
-                {{'views.dashboard.launch-pad.overview.error.no' | translate}}
-            </ng-container>
-        </div>
-        <div class="col-1">
-            <button type="button" pButton tooltipPosition="left" class="p-button-secondary" icon="pi pi-question"
-                [pTooltip]="'views.dashboard.launch-pad.overview.error.tooltip' | translate "
-                tooltipEvent="focus"></button>
-        </div>
-    </div>
-
-    <div class="grid">
-        <div class="col">
-            {{'views.dashboard.launch-pad.overview.connected.lbl' | translate}}
-        </div>
-        <div class="col">
-            <ng-container *ngIf="status.connected">
-                {{'views.dashboard.launch-pad.overview.connected.connected' | translate}}
-            </ng-container>
-            <ng-container *ngIf="!status.connected">
-                {{'views.dashboard.launch-pad.overview.connected.disconnected' | translate}}
-            </ng-container>
-        </div>
-        <div class="col-1">
-            <button type="button" pButton tooltipPosition="left" class="p-button-secondary" icon="pi pi-question"
-                [pTooltip]="'views.dashboard.launch-pad.overview.connected.tooltip' | translate "
-                tooltipEvent="focus"></button>
-        </div>
-    </div>
-
-    <div class="grid">
-        <div class="col">
-            {{'views.dashboard.launch-pad.overview.voltage.lbl' | translate}}
-        </div>
-        <div class="col">
-            {{status.voltage | number}}
-        </div>
-        <div class="col-1">
-            <button type="button" pButton tooltipPosition="left" class="p-button-secondary" icon="pi pi-question"
-                [pTooltip]="'views.dashboard.launch-pad.overview.voltage.tooltip' | translate "
-                tooltipEvent="focus"></button>
-        </div>
-    </div>
-
-</ng-container>
+</form>

@@ -1,22 +1,22 @@
-.lrocket-no-error {
+.lrocket-connected {
     border-radius: 4px;
     background-color: var(--green-500);
     padding: 0.5rem 0px !important;
 }
 
-.lrocket-error {
+.lrocket-not-connected {
     border-radius: 4px;
     animation-duration: 750ms;
     animation-direction: normal;
     background-color: var(--red-300);
     color: var(--highlight-text-color);
-    padding: 0.5rem 0px !important;
     animation-iteration-count: infinite;
-    animation-name: error-flush-animation;
+    padding: 0.5rem 0px !important;
+    animation-name: not-connected-flush-animation;
     animation-timing-function: step-end;
 }
 
-@keyframes error-flush-animation {
+@keyframes not-connected-flush-animation {
     50% {
         color: var(--text-color);
         background-color: var(--red-600);

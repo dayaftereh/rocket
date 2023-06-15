@@ -2,19 +2,19 @@ import { Component, Input, OnDestroy, OnInit, forwardRef } from "@angular/core";
 import { ControlValueAccessor, FormControl, FormGroup, NG_VALUE_ACCESSOR } from "@angular/forms";
 import { SelectItem } from "primeng/api";
 import { Subscription } from "rxjs";
-import { RocketFlightComputerState } from "../../../services/web/messages/rocket-flight-computer-state";
+import { LaunchPadComputerState } from "../../../services/web/messages/launch-pad-computer-state";
 import { FormUtils } from "../../../utils/form-utils";
 
 @Component({
-    selector: 'lrocket-flight-computer-state',
-    templateUrl: './rocket-flight-computer-state.component.html',
+    selector: 'lrocket-launch-computer-state',
+    templateUrl: './launch-pad-launch-computer-state.component.html',
     providers: [{
         provide: NG_VALUE_ACCESSOR,
-        useExisting: forwardRef(() => RocketFlightComputerStateComponent),
+        useExisting: forwardRef(() => LaunchPadLaunchComputerStateComponent),
         multi: true
     }]
 })
-export class RocketFlightComputerStateComponent implements ControlValueAccessor, OnInit, OnDestroy {
+export class LaunchPadLaunchComputerStateComponent implements ControlValueAccessor, OnInit, OnDestroy {
 
     formGroup: FormGroup
 
@@ -62,17 +62,17 @@ export class RocketFlightComputerStateComponent implements ControlValueAccessor,
     }
 
     private listStates(): SelectItem[] {
-        return Object.values(RocketFlightComputerState)
-            .filter((value: string | RocketFlightComputerState) => {
+        return Object.values(LaunchPadComputerState)
+            .filter((value: string | LaunchPadComputerState) => {
                 return typeof value !== 'number'
             })
-            .map((value: string | RocketFlightComputerState) => {
+            .map((value: string | LaunchPadComputerState) => {
                 const name: string = value as string
                 return name
             })
             .map((name: string) => {
                 const label: string = this.lowercaseFirstLetter(name)
-                const value: RocketFlightComputerState = (RocketFlightComputerState as any)[name]
+                const value: LaunchPadComputerState = (LaunchPadComputerState as any)[name]
                 return {
                     value,
                     label,
@@ -81,7 +81,7 @@ export class RocketFlightComputerStateComponent implements ControlValueAccessor,
     }
 
     private onFormChanged(): void {
-        const state: RocketFlightComputerState = this.getState()
+        const state: LaunchPadComputerState = this.getState()
 
         if (this.onTouched) {
             this.onTouched()
@@ -92,7 +92,7 @@ export class RocketFlightComputerStateComponent implements ControlValueAccessor,
         }
     }
 
-    writeValue(state: RocketFlightComputerState | undefined): void {
+    writeValue(state: LaunchPadComputerState | undefined): void {
         if (state === undefined || state === null) {
             return
         }
@@ -119,8 +119,8 @@ export class RocketFlightComputerStateComponent implements ControlValueAccessor,
         }
     }
 
-    private getState(): RocketFlightComputerState {
-        const state: RocketFlightComputerState = FormUtils.getValueOrDefault(this.formGroup, 'state', RocketFlightComputerState.Locked)
+    private getState(): LaunchPadComputerState {
+        const state: LaunchPadComputerState = FormUtils.getValueOrDefault(this.formGroup, 'state', LaunchPadComputerState.Locked)
         return state
     }
 

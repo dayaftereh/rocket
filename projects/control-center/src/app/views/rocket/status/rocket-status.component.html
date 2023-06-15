@@ -6,18 +6,20 @@
             <label for="state" class="col-4">
                 {{ 'views.rocket.status.state.lbl' | translate }}
             </label>
-            <div class="col-6">
-                <lrocket-flight-computer-state inputId="state" styleClass="inputfield w-full"
-                    formControlName="state"></lrocket-flight-computer-state>
-            </div>
-            <div class="col-2 text-right">
-                <button type="button" pButton icon="pi pi-question" tooltipPosition="left" class="p-button-secondary"
-                    pTooltip="{{ 'views.rocket.status.state.tooltip' | translate }}" tooltipEvent="focus"></button>
+            <div class="col-8">
+                <div class="p-inputgroup">
+                    <lrocket-flight-computer-state inputId="state" styleClass="inputfield w-full" class="w-full"
+                        formControlName="state"></lrocket-flight-computer-state>
+                    <button type="button" pButton icon="pi pi-question" tooltipPosition="left"
+                        class="p-button-secondary" pTooltip="{{ 'views.rocket.status.state.tooltip' | translate }}"
+                        tooltipEvent="focus"></button>
+                </div>
+
             </div>
         </div>
 
         <div class="field grid">
-            <label for="lastPipeId" class="col-4">
+            <label for="error" class="col-4">
                 {{ 'views.rocket.status.error.lbl' | translate }}
             </label>
             <div class="col-6">

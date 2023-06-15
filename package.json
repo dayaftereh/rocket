@@ -6,7 +6,7 @@
     "start:control-center": "ng serve control-center --configuration development",
     "start:launch-pad": "ts-node --project ./launch-pad.tsconfig.json ./scripts/mock-launch-pad.ts",
     "build": "ng build --configuration production",
-    "build-lib": "ng build lrocket"
+    "build:lrocket": "ng build lrocket"
   },
   "type": "module",
   "private": true,

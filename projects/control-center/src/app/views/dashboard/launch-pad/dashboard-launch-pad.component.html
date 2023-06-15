@@ -1,6 +1,19 @@
 <div class="grid">
     <div class="col">
-        <p-panel [header]="'views.dashboard.launch-pad.overview.header' | translate">
+        <p-panel>
+            <ng-template pTemplate="header">
+                <div class="grid grid-nogutter w-full">
+                    <div class="col ">
+                        <span class="p-panel-title">
+                            {{'views.dashboard.launch-pad.overview.header' | translate}}
+                        </span>
+                    </div>
+                    <div class="col text-right">
+                        <button type="button" pButton icon="pi pi-cog" class="p-button-secondary"></button>
+                    </div>
+                </div>
+            </ng-template>
+
             <app-dashboard-launch-pad-overview></app-dashboard-launch-pad-overview>
         </p-panel>
     </div>
@@ -8,7 +21,7 @@
 
 <div class="grid">
     <div class="col">
-        <p-panel [header]="'views.dashboard.launch-pad.pressure.header' | translate">
+        <p-panel [header]="'views.dashboard.launch-pad.overview.header' | translate">
             <app-dashboard-launch-pad-pressure></app-dashboard-launch-pad-pressure>
         </p-panel>
     </div>

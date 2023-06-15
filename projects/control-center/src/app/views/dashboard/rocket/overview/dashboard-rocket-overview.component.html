@@ -1,0 +1,100 @@
+<form [formGroup]="formGroup">
+
+    <div class="card">
+
+        <div class="field grid">
+            <label for="state" class="col-4">
+                {{ 'views.dashboard.rocket.overview.state.lbl' | translate }}
+            </label>
+            <div class="col-8">
+                <div class="p-inputgroup">
+                    <lrocket-flight-computer-state inputId="state" styleClass="inputfield w-full" class="w-full"
+                        formControlName="state"></lrocket-flight-computer-state>
+                    <button type="button" pButton icon="pi pi-question" tooltipPosition="left"
+                        class="p-button-secondary"
+                        pTooltip="{{ 'views.dashboard.rocket.overview.state.tooltip' | translate }}"
+                        tooltipEvent="focus"></button>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="field grid">
+            <label for="error" class="col-4">
+                {{ 'views.dashboard.rocket.overview.error.lbl' | translate }}
+            </label>
+            <div class="col-6">
+                <lrocket-utils-error formControlName="error"></lrocket-utils-error>
+            </div>
+            <div class="col-2 text-right">
+                <button type="button" pButton icon="pi pi-question" tooltipPosition="left" class="p-button-secondary"
+                    pTooltip="{{ 'views.dashboard.rocket.overview.error.tooltip' | translate }}"
+                    tooltipEvent="focus"></button>
+            </div>
+        </div>
+
+        <div class="field grid">
+            <label for="voltage" class="col-4">
+                {{ 'views.dashboard.rocket.overview.voltage.lbl' | translate }}
+            </label>
+            <div class="col-8">
+                <div class="p-inputgroup">
+                    <p-inputNumber inputId="voltage" formControlName="voltage" type="number" class="inputfield w-full"
+                        [maxFractionDigits]="4">
+                    </p-inputNumber>
+                    <span class="p-inputgroup-addon">V</span>
+                    <button type="button" pButton icon="pi pi-question" tooltipPosition="left"
+                        class="p-button-secondary"
+                        [pTooltip]="'views.dashboard.rocket.overview.voltage.tooltip' | translate"
+                        tooltipEvent="focus"></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="field grid">
+            <label for="altitude" class="col-4">
+                {{ 'views.dashboard.rocket.overview.altitude.lbl' | translate }}
+            </label>
+            <div class="col-8">
+                <div class="p-inputgroup">
+                    <p-inputNumber inputId="altitude" formControlName="altitude" type="number" class="inputfield w-full"
+                        [maxFractionDigits]="4">
+                    </p-inputNumber>
+                    <span class="p-inputgroup-addon">V</span>
+                    <button type="button" pButton icon="pi pi-question" tooltipPosition="left"
+                        class="p-button-secondary"
+                        [pTooltip]="'views.dashboard.rocket.overview.altitude.tooltip' | translate"
+                        tooltipEvent="focus"></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="field grid">
+            <label for="time" class="col-4">
+                {{ 'views.dashboard.rocket.overview.time.lbl' | translate }}
+            </label>
+            <div class="col-8">
+                <div class="p-inputgroup">
+
+                    <p-inputNumber inputId="time" formControlName="time" type="number" class="inputfield"
+                        [maxFractionDigits]="4">
+                    </p-inputNumber>
+
+                    <span class="p-inputgroup-addon">ms</span>
+
+                    <p-inputNumber inputId="elapsed" formControlName="elapsed" type="number" class="inputfield"
+                        [maxFractionDigits]="4">
+                    </p-inputNumber>
+                    <span class="p-inputgroup-addon">s</span>     
+
+                    <button type="button" pButton icon="pi pi-question" tooltipPosition="left"
+                        class="p-button-secondary"
+                        [pTooltip]="'views.dashboard.rocket.overview.time.tooltip' | translate"
+                        tooltipEvent="focus"></button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</form>

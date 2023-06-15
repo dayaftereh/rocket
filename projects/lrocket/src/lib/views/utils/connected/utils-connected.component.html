@@ -1,0 +1,8 @@
+<div class="grid grid-nogutter">
+    <div class="col lrocket-not-connected text-center" *ngIf="!connected">
+        {{ 'views.lrocket.utils.connected.noConnection' | translate }}
+    </div>
+    <div class="col lrocket-connected text-center" *ngIf="connected">
+        {{ 'views.lrocket.utils.connected.connected' | translate }}
+    </div>
+</div>

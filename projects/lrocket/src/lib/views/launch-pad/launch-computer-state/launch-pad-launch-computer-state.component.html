@@ -1,10 +1,10 @@
 <form [formGroup]="formGroup">
     <p-dropdown [inputId]="inputId" [styleClass]="styleClass" formControlName="state" [options]="states">
         <ng-template let-item pTemplate="selectedItem">
-            {{ 'views.lrocket.rocket.flightComputerState.' + item.label | translate }}
+            {{ 'views.lrocket.launchPad.launchComputerState.' + item.label | translate }}
         </ng-template>
         <ng-template let-item pTemplate="item">
-            {{ 'views.lrocket.rocket.flightComputerState.' + item.label | translate }}
+            {{ 'views.lrocket.launchPad.launchComputerState.' + item.label | translate }}
         </ng-template>
     </p-dropdown>
 </form>

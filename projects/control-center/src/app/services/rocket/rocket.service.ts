@@ -114,7 +114,7 @@ export class RocketService {
             parachuteCloseDuty: 1024,
 
             // Rocket
-            statusMessageUpdate: 500,
+            statusMessageUpdate: 250,
             telemetryMessageUpdate: 1000 / 10,
         }
     }

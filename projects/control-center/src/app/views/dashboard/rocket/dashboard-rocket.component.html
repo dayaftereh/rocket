@@ -1,6 +1,18 @@
 <div class="grid">
     <div class="col">
-        <p-panel [header]="'views.dashboard.rocket.overview.header' | translate">
+        <p-panel>
+            <ng-template pTemplate="header">
+                <div class="grid grid-nogutter w-full">
+                    <div class="col ">
+                        <span class="p-panel-title">
+                            {{'views.dashboard.rocket.overview.header' | translate}}
+                        </span>
+                    </div>
+                    <div class="col text-right">
+                        <button type="button" pButton icon="pi pi-cog" class="p-button-secondary"></button>
+                    </div>
+                </div>
+            </ng-template>
             <app-dashboard-rocket-overview></app-dashboard-rocket-overview>
         </p-panel>
     </div>
@@ -8,13 +20,29 @@
 
 <div class="grid">
     <div class="col">
-        <p-panel [header]="'views.dashboard.rocket.orientation.header' | translate">
-            <app-dashboard-rocket-orientation></app-dashboard-rocket-orientation>
-        </p-panel>
+        <p-tabView>
+
+            <p-tabPanel [header]="'views.dashboard.rocket.orientation.header' | translate" [cache]="false">
+                <ng-template pTemplate="content">
+                    <app-dashboard-rocket-orientation></app-dashboard-rocket-orientation>
+                </ng-template>
+            </p-tabPanel>
+
+            <p-tabPanel [header]="'views.dashboard.rocket.acceleration.header' | translate" [cache]="false">
+                <ng-template pTemplate="content">
+                </ng-template>
+            </p-tabPanel>
+
+            <p-tabPanel [header]="'views.dashboard.rocket.3d.header' | translate" [cache]="false">
+                <ng-template pTemplate="content">
+                </ng-template>
+            </p-tabPanel>
+
+        </p-tabView>
     </div>
 </div>
 
-<div class="grid">
+<div class=" grid">
     <div class="col">
         <p-panel [header]="'views.dashboard.rocket.control.header' | translate">
             <app-dashboard-rocket-control></app-dashboard-rocket-control>
