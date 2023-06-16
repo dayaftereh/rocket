@@ -17,6 +17,8 @@ bool LaunchComputer::setup(Config *config, IO *io, Rocket *rocket, Leds *leds, S
     this->_last_rocket_state = -1;
     this->_last_rocket_signal = 0;
 
+    this->_countdown = -this->_config->countdown;
+
     this->_state = LAUNCH_COMPUTER_LOCKED;
 
     return true;
@@ -30,6 +32,7 @@ void LaunchComputer::rocket_status(bool error, int state)
         this->_state = LAUNCH_COMPUTER_ABORT_ROCKET_ERROR;
         return;
     }
+
     // update the last rocket state
     this->_last_rocket_state = state;
     // mark the last signal from the rocket
@@ -126,6 +129,8 @@ void LaunchComputer::startup()
     // reset rocket state and signal to check if the rocket is connected
     this->_last_rocket_state = -1;
     this->_last_rocket_signal = 0;
+    // set the correct countdown
+    this->_countdown = -this->_config->countdown;
 
     this->_state = LAUNCH_COMPUTER_WAIT_FOR_ROCKET;
 }
@@ -147,6 +152,7 @@ void LaunchComputer::wait_for_rocket()
     {
         return;
     }
+
     // calculate the elapsed time from the last signal of the rocket
     float elapsed = float(millis() - this->_last_rocket_signal) / 1000.0;
     // check singal in threshold
@@ -169,6 +175,8 @@ void LaunchComputer::pressurising()
         return;
     }
 
+    // TODO start pressurising
+
     this->_timer = 0.0;
     this->_state = LAUNCH_COMPUTER_WAIT_FOR_PRESSURE;
 }
@@ -182,6 +190,7 @@ void LaunchComputer::wait_for_pressure()
         return;
     }
 
+    // calculate the pressurising duration
     this->_timer += this->_stats->get_delta();
     if (this->_timer > this->_config->pressurising_timeout)
     {
@@ -203,12 +212,14 @@ void LaunchComputer::wait_for_pressure()
 
 void LaunchComputer::wait_tank_chill()
 {
+    // check if connected and pressure correct
     bool ok = this->verify_pressure_and_rocket_connected();
     if (!ok)
     {
         return;
     }
 
+    // get the chill duration
     this->_timer += this->_stats->get_delta();
     if (this->_timer < this->_config->tank_chill_duration)
     {
@@ -221,11 +232,13 @@ void LaunchComputer::wait_tank_chill()
 
 void LaunchComputer::rocket_startup()
 {
+    // check if connected and pressure correct
     bool ok = this->verify_pressure_and_rocket_connected();
     if (!ok)
     {
         return;
     }
+
     // unlock the rocket and bring in startup
     this->_rocket->rocket_unlock();
 
@@ -235,12 +248,14 @@ void LaunchComputer::rocket_startup()
 
 void LaunchComputer::wait_for_rocket_startup()
 {
+    // check if connected and pressure correct
     bool ok = this->verify_pressure_and_rocket_connected();
     if (!ok)
     {
         return;
     }
 
+    // update timeout for rocket startup
     this->_timer += this->_stats->get_delta();
     if (this->_timer > this->_config->rocket_startup_timeout)
     {
@@ -255,5 +270,103 @@ void LaunchComputer::wait_for_rocket_startup()
     }
 
     this->_timer = 0.0;
+    this->_countdown = -this->_config->countdown;
     this->_state = LAUNCH_COMPUTER_LAUNCH_COUNTDOWN;
+}
+
+void LaunchComputer::launch_countdown()
+{
+    // check if connected and pressure correct
+    bool ok = this->verify_pressure_and_rocket_connected();
+    if (!ok)
+    {
+        return;
+    }
+
+    // update the timer
+    this->_timer += this->_stats->get_delta();
+    this->_countdown += this->_stats->get_delta();
+
+    // check if launch countdown reached
+    if (this->_timer < this->_config->countdown)
+    {
+        return;
+    }
+
+    this->_timer = 0.0;
+    this->_state = LAUNCH_COMPUTER_LAUNCH;
+}
+
+void LaunchComputer::launch()
+{
+    // check if connected and pressure correct
+    bool ok = this->verify_pressure_and_rocket_connected();
+    if (!ok)
+    {
+        return;
+    }
+
+    // notify rocket about start
+    this->_rocket->rocket_start();
+    // update countdown
+    this->_countdown += this->_stats->get_delta();
+
+    // open launch valve
+    this->_io->launch_valve();
+
+    this->_timer = 0.0;
+    this->_state = LAUNCH_COMPUTER_WAIT_LIFT_OFF;
+}
+
+void LaunchComputer::wait_lift_off()
+{
+    // update countdown and timer
+    this->_timer += this->_stats->get_delta();
+    this->_countdown += this->_stats->get_delta();
+
+    if (this->_timer < this->_config->lift_of_timeout)
+    {
+        return;
+    }
+
+    this->_timer = 0.0;
+    this->_state = LAUNCH_COMPUTER_ABORT_AFTER_LAUNCH;
+}
+
+bool LaunchComputer::verify_rocket_connected()
+{
+    // calculate the elapsed time from the last signal of the rocket
+    float elapsed = float(millis() - this->_last_rocket_signal) / 1000.0;
+    // check singal in threshold
+    if (elapsed > this->_config->rocket_signal_elapsed_threshold)
+    {
+        // set to lost connection with rocket
+        this->_state = LAUNCH_COMPUTER_ABORT_CONNECTION_LOST;
+        return false;
+    }
+
+    return true;
+}
+
+bool LaunchComputer::verify_pressure_and_rocket_connected()
+{
+    // check if rocket is connected
+    bool ok = this->verify_rocket_connected();
+    if (!ok)
+    {
+        return false;
+    }
+
+    // get the current pressure
+    float pressure = this->_io->get_pressure();
+    // calculate the delta between target and current
+    float delta = this->_config->target_pressure - pressure;
+    // check if delta to large
+    if (delta > this->_config->pressure_drop_limit)
+    {
+        this->_state = LAUNCH_COMPUTER_ABORT_PRESSURISING_TIMEOUT;
+        return false;
+    }
+
+    return true;
 }

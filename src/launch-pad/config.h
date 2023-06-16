@@ -26,6 +26,7 @@
 
 typedef struct __attribute__((packed)) : public NetworkingServerConfig
 {
+    // ######### IO #########
     // factor and offset to calculate the voltage
     float voltage_factor;
     float voltage_offset;
@@ -45,31 +46,42 @@ typedef struct __attribute__((packed)) : public NetworkingServerConfig
     // pressure threshold to close the abort valve
     float abort_close_pressure_threshold;
 
-    // the launch computer start timeout
+    // ######### LaunchComputer #########
+
+    // the launch computer start timeout in seconds
     float startup_timeout;
 
     // state to check if the rocket is connected
-    int rocket_connected_state;
-    // timeout to wait for rocket connected
+    uint16_t rocket_connected_state;
+    // timeout to wait for rocket connected in seconds
     float rocket_connecting_timeout;
     // threshold of the last signal duration in seconds
     float rocket_signal_elapsed_threshold;
 
-    // timeout how long the pressurising takes
+    // timeout how long the pressurising takes in seconds
     float pressurising_timeout;
     // pressure to reach for the start
     float target_pressure;
     // minimal pressure drop at startup window
     float pressure_drop_limit;
 
-    // timeout between pressure reached and start of the rocket
+    // timeout between pressure reached and start of the rocket to chill the tank in seconds
     float tank_chill_duration;
 
-    // the timeout to reach the rocket startup state
-    int rocket_startup_timeout;
+    // the timeout to reach the rocket startup state in seconds
+    float rocket_startup_timeout;
     // the state to reach by rocket to be in startup
-    int rocket_startup_state;
+    uint16_t rocket_startup_state;
 
+    // the startup countdown in seconds
+    float countdown;
+
+    // timeout after lift off in seconds
+    float lift_of_timeout;
+
+    // ######### StatusMessage #########
+
+    uint32_t status_message_update;
 } Config;
 
 #endif

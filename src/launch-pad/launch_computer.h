@@ -54,9 +54,10 @@ private:
     bool verify_pressure_and_rocket_connected();
 
     float _timer;
+    float _countdown;
 
     int _last_rocket_state;
-
+    
     uint32_t _last_rocket_signal;
 
     LaunchComputerState _state;

@@ -12,6 +12,8 @@ typedef struct __attribute__((packed)) : public WebMessage
     bool error;
     bool connected;
 
+    uint16_t countdown;
+
     float voltage;
     float pressure;
 } LaunchPadStatusMessage;
